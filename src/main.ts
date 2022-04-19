@@ -1,6 +1,10 @@
 import "./style.css";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
+const a = {
+    b: 1,
+    c: 2,
+};
 
 app.innerHTML = `
   <h1>Hello Vite!</h1>
