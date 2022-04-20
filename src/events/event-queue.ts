@@ -15,10 +15,16 @@ export class EventQueue {
         this.events.push(event);
     }
 
+    /**
+     * Process all events pushed to the queue in the past frame
+     * and empty the queue
+     * @param context Game scene context
+     */
     process(context: GameContext): void {
-        this.events.forEach(event => {
-            event.process(context);
-        })
-        this.events = [];
+        // Note: do not use forEach - we might want to have
+        // events that spawn other events in the future
+        for (let i = 0; i < this.events.length; i++)
+            this.events[i].process(context);
+        this.events = [] as GameEvent[];
     }
 }
