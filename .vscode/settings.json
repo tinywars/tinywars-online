@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "prettier.tabWidth": 4,
+  "editor.tabSize": 4,
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "[json]": {
+    "editor.tabSize": 2
+  }
+}

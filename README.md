@@ -23,3 +23,11 @@ npm run dev
 ```sh
 npm run build
 ```
+
+- Lint
+```sh
+npm run lint
+
+# to also fix all auto fixable errors, run
+npm run lint:fix
+```

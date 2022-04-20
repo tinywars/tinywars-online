@@ -4,10 +4,10 @@ import { EventQueue } from "./events/event-queue";
 import { DebugEvent } from "./events/game-event";
 
 const context: GameContext = {
-  eventQueue: new EventQueue(),
-  log: (msg: string): void => {
-    console.log(msg);
-  }
+    eventQueue: new EventQueue(),
+    log: (msg: string): void => {
+        console.log(msg);
+    }
 };
 
 context.eventQueue.add(DebugEvent("message"));
@@ -15,18 +15,18 @@ context.eventQueue.process(context);
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const a = {
-  b: 1,
-  c: 2,
+    b: 1,
+    c: 2,
 };
 
-var arr = [];
+const arr = [];
 arr.push(1);
 arr.push(2);
 
 for (let i = 0; i < arr.length; i++) {
-  if (arr[i] === 1)
-    arr.push(2);
-  console.log(arr[i]);
+    if (arr[i] === 1)
+        arr.push(2);
+    console.log(arr[i]);
 }
 
 app.innerHTML = `

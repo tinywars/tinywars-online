@@ -1,4 +1,4 @@
-import { EventQueue } from '../events/event-queue'
+import { EventQueue } from "../events/event-queue"
 
 export interface GameContext {
     // players..
