@@ -1,4 +1,4 @@
 export interface AppState {
     updateLogic(dt: number): void;
-    draw(): void;
+    draw(context2d: CanvasRenderingContext2D): void;
 }
