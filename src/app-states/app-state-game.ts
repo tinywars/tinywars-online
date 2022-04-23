@@ -5,17 +5,7 @@ import { EventQueue } from "../events/event-queue";
 import { Vector } from "../utility/vector";
 import { Controller } from "../utility/controller";
 import { KeyCode } from "../game/key-codes";
-
-class Sprite {
-    constructor(private img: CanvasImageSource, private clipX:number, private clipY:number, private clipW:number, private clipH:number) {}
-
-    draw(canvas2d: CanvasRenderingContext2D, x: number, y:number, w: number, h: number, rotation: number) {
-        //canvas2d.save();
-        //canvas2d.rotate(rotation * Math.PI/180);
-        canvas2d.drawImage(this.img, this.clipX, this.clipY, this.clipW, this.clipH, x, y, w, h);
-        //canvas2d.restore();
-    }
-}
+import { Sprite } from "../utility/sprite";
 
 export class AppStateGame implements AppState {
     private context: GameContext;
