@@ -20,7 +20,7 @@ export class Vector {
      * @returns Vector direction
      */
     static diff(to: Vector, from: Vector): Vector {
-        return to.add(from.invert());
+        return to.getSum(from.getInverted());
     }
 
     copy(): Vector {
@@ -30,7 +30,7 @@ export class Vector {
     /**
      * @returns Size of the vector
      */
-    size(): number {
+    getSize(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
@@ -39,7 +39,7 @@ export class Vector {
      * @param factor Factor to scale by
      * @returns Scaled copy of the vector
      */
-    scale(factor: number): Vector {
+    getScaled(factor: number): Vector {
         const r = this.copy();
         r.x *= factor;
         r.y *= factor;
@@ -51,28 +51,54 @@ export class Vector {
      * @param vec Other vector to add
      * @returns Sum of two vectors
      */
-    add(vec: Vector): Vector {
+    getSum(vec: Vector): Vector {
         const r = this.copy();
         r.x += vec.x;
         r.y += vec.y;
         return r;
     }
 
+    add(vec: Vector) {
+        this.x += vec.x;
+        this.y += vec.y;
+    }
+
     /**
      * Invert both components of a vector
      * @param vec 
      */
-    invert(): Vector {
+    getInverted(): Vector {
         const v = this.copy();
         v.x *= -1;
         v.y *= -1;
         return v;
     }
 
-    toUnit(): Vector {
+    /**
+     * Rotate vector by given angle
+     * @param angle Angle in degrees, 0° is at 12 o'clock, incrementing clock-wise
+     */
+    rotate(angle: number) {
+        const rad = angle * Math.PI / 180;
+        this.x = this.x * Math.cos(rad) - this.y * Math.sin(rad);
+        this.y = this.x * Math.sin(rad) + this.y * Math.cos(rad);
+    }
+
+    setRotation(angle: number) {
+        const size = this.getSize();
+        const rad = angle * Math.PI / 180;
+        this.x = Math.cos(rad) * size;
+        this.y = Math.sin(rad) * size;
+    }
+
+    getUnit(): Vector {
         if (this.x === 0 && this.y === 0)
             return this.copy();
-        return this.scale(1 / this.size());
+        return this.getScaled(1 / this.getSize());
+    }
+
+    isZero(): boolean {
+        return this.x === 0 && this.y === 0;
     }
 
     toString(): string {
