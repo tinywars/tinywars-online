@@ -5,9 +5,7 @@ import { KeyCode } from "./game/key-codes";
 import "./style.css";
 import { KeyboardController } from "./utility/keyboard-controller";
 import { Vector } from "./utility/vector";
-
-
-const FPS = 60;
+import * as constants from "./constants";
 
 // TODO: environment setup
 
@@ -32,7 +30,7 @@ function ResizeCanvas() {
     canvas.width = width;
     canvas.height = height;
 
-    canvas.getContext("2d")!.scale(width / 1440, height / 1080);
+    canvas.getContext("2d")!.scale(width / constants.GAME_SCREEN_WIDTH, height / constants.GAME_SCREEN_HEIGHT);
 
     console.log("Screen resolution: " + new Vector(width, height).toString());
 
@@ -68,17 +66,4 @@ console.log("App init");
 
 const app = new App(context2d);
 app.pushState(new AppStateGame(app, controller));
-app.run(FPS);
-
-/*
-const app = document.querySelector<HTMLDivElement>("#app")!;
-const a = {
-    b: 1,
-    c: 2,
-};
-
-app.innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`;
-*/
+app.run();

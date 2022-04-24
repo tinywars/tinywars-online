@@ -1,4 +1,5 @@
 import { AppState } from "./app-state";
+import * as constants from "../constants";
 
 export class App {
     states: AppState[] = [];
@@ -18,19 +19,19 @@ export class App {
     }
 
     draw() {
-        this.context2d.clearRect(0, 0, 1440, 1080);
+        this.context2d.clearRect(0, 0, constants.GAME_SCREEN_WIDTH, constants.GAME_SCREEN_WIDTH);
         this.topState().draw(this.context2d);
-        requestAnimationFrame(() => {this.draw()});
+        requestAnimationFrame(() => {
+            this.draw();
+        });
     }
 
-    run(fps: number): void {
-        const frameTime = 1 / fps;
-
+    run(): void {
         console.log("Initializing game loop");
 
         setInterval(() => {
-            this.topState().updateLogic(frameTime);
-        }, frameTime);
+            this.topState().updateLogic(constants.FRAME_TIME);
+        }, constants.FRAME_TIME);
 
         console.log("Preparing to draw");
 

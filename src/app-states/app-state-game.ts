@@ -23,8 +23,6 @@ export class AppStateGame implements AppState {
         this.img.src = "./src/assets/gameTexture.png";
 
         this.gameContext = {
-            SCREEN_WIDTH: 1440,
-            SCREEN_HEIGHT: 1080,
             player: new Player(this.img, this.controller),
             eventQueue: new EventQueue(),
             log: (msg: string): void => { console.log("Debug: " + msg); }

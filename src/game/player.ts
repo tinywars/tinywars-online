@@ -4,6 +4,7 @@ import { Controller } from "../utility/controller";
 import { CircleCollider } from "../utility/circle-collider";
 import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
+import * as constants from "../constants";
 
 export class Player {
     private MAX_FORWARD_SPEED = 128;
@@ -61,10 +62,10 @@ export class Player {
             this.forward = this.direction.getScaled(this.speed * dt);
 
         this.position.add(this.forward);
-        if (this.position.x < 0) this.position.x += context.SCREEN_WIDTH;
-        else if (this.position.x >= context.SCREEN_WIDTH) this.position.x -= context.SCREEN_WIDTH;
-        if (this.position.y < 0) this.position.y += context.SCREEN_HEIGHT;
-        else if (this.position.y >= context.SCREEN_HEIGHT) this.position.y -= context.SCREEN_HEIGHT;
+        if (this.position.x < 0) this.position.x += constants.GAME_SCREEN_WIDTH;
+        else if (this.position.x >= constants.GAME_SCREEN_WIDTH) this.position.x -= constants.GAME_SCREEN_WIDTH;
+        if (this.position.y < 0) this.position.y += constants.GAME_SCREEN_HEIGHT;
+        else if (this.position.y >= constants.GAME_SCREEN_HEIGHT) this.position.y -= constants.GAME_SCREEN_HEIGHT;
         this.collider.setPosition(this.position.getSum(new Vector(16, 16)));
     }
 
