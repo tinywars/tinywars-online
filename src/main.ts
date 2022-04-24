@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { debounce } from "lodash";
 import { App } from "./app-states/app";
 import { AppStateGame } from "./app-states/app-state-game";
 import { KeyCode } from "./game/key-codes";
 import "./style.css";
 import { KeyboardController } from "./utility/keyboard-controller";
-import { Vector } from "./utility/vector";
 import { AppView } from "./view/app-view";
 
 const FPS = 60;
@@ -36,6 +36,6 @@ app.run(FPS);
 const appView = new AppView(app, document.body.querySelector("#app")!);
 appView.scale();
 
-window.addEventListener("resize", () => {
+window.onresize = debounce(() => {
     appView.scale();
-});
+}, 200);
