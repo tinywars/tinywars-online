@@ -18,7 +18,7 @@ export class App {
     }
 
     draw() {
-        this.context2d.clearRect(0, 0, this.context2d.canvas.width, this.context2d.canvas.height);
+        this.context2d.clearRect(0, 0, 1440, 1080);
         this.topState().draw(this.context2d);
         requestAnimationFrame(() => {this.draw()});
     }

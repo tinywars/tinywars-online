@@ -26,19 +26,34 @@ const context2d = canvas.getContext("2d");
 function ResizeCanvas() {
     if (canvas === null) return;
 
-    const width = isNaN(window.innerWidth) ? window.clientWidth : window.innerWidth;
-    const height = isNaN(window.innerHeight) ? window.clientHeight : window.innerHeight;
+    let width = isNaN(window.innerWidth) ? window.clientWidth : window.innerWidth;
+    let height = isNaN(window.innerHeight) ? window.clientHeight : window.innerHeight;
+
+    // We want to compute maximum possible 4:3 canvas
+    if (width / 4 < height / 3) {
+        height = width * 3 / 4;
+    }
+    else {
+        width = height * 4 / 3;
+    }
 
     canvas.width = width;
     canvas.height = height;
-}
 
-const body = document.getElementsByTagName("body")[0];
-body.addEventListener("resize", () => {
-    console.log("Resized");
-    ResizeCanvas();
-});
+    canvas.getContext("2d").scale(width / 1440, height / 1080);
+
+    console.log("Screen resolution: " + new Vector(width, height).toString());
+
+    // TODO: then also set the global scale factor for the canvas so the game resolution remains the same no matter what the render resolution will be
+}
 ResizeCanvas();
+
+// FIXME: following does not work at all, no matter if I use body or document
+const body = document.getElementsByTagName("body")[0];
+["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange", "resize"].forEach(
+    eventType => body.addEventListener(eventType, ResizeCanvas, false)
+);
+body.focus();
 
 const keyboardState: Record<string, boolean> = {};
 document.onkeydown = e => {
