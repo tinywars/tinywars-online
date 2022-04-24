@@ -30,12 +30,12 @@ export class AppView {
         const height = context.SCREEN_HEIGHT;
         const width = context.SCREEN_WIDTH;
         if (
-            this.domElement.clientHeight < this.viewApp.view.height ||
-            this.domElement.clientWidth < this.viewApp.view.width
+            this.domElement.clientHeight < height ||
+            this.domElement.clientWidth < width
         ) {
             scale = Math.min(
-                this.domElement.clientHeight / this.viewApp.view.height,
-                this.domElement.clientWidth / this.viewApp.view.width,
+                this.domElement.clientHeight / height,
+                this.domElement.clientWidth / width,
             );
         }
         console.log(`scale is ${scale}`);
