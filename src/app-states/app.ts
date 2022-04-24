@@ -3,9 +3,11 @@ import { AppState } from "./app-state";
 export class App {
     states: AppState[] = [];
     
-    constructor(public context2d: CanvasRenderingContext2D) {}
+    constructor() { 
+        console.log("App created")
+    }
 
-    private topState(): AppState {
+    topState(): AppState {
         return this.states[this.states.length - 1];
     }
 
@@ -17,10 +19,8 @@ export class App {
         this.states.pop();
     }
 
-    draw() {
-        this.context2d.clearRect(0, 0, 1440, 1080);
-        this.topState().draw(this.context2d);
-        requestAnimationFrame(() => {this.draw()});
+    draw() { 
+        console.log("drawing...")
     }
 
     run(fps: number): void {

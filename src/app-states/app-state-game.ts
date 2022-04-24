@@ -22,30 +22,32 @@ export class AppStateGame implements AppState {
         };
         this.img.src = "./src/assets/gameTexture.png";
 
+        const player1 = new Player(this.img, this.controller);
+        const player2 = new Player(this.img, this.controller);
+
         this.gameContext = {
             SCREEN_WIDTH: 1440,
             SCREEN_HEIGHT: 1080,
-            player: new Player(this.img, this.controller),
+            players: [player1, player2],
             eventQueue: new EventQueue(),
-            log: (msg: string): void => { console.log("Debug: " + msg); }
+            log: (msg: string): void => {
+                console.log("Debug: " + msg);
+            },
         };
 
-        this.gameContext.player.spawn(new Vector(100, 100));
+        player1.spawn(new Vector(100, 100));
+        player2.spawn(new Vector(300, 300));
     }
 
     updateLogic(dt: number): void {
         //console.log("updateLogic(" + dt + ")");
 
-        this.gameContext.player.update(dt, this.gameContext);
+        this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
 
         this.gameContext.eventQueue.process(this.gameContext);
     }
 
-    draw(canvas2d: CanvasRenderingContext2D): void {
-        //console.log("Drawing");
-
-        if (!this.ready) return;
-
-        this.gameContext.player.draw(canvas2d);        
+    getContext(): GameContext {
+        return this.gameContext;
     }
 }
