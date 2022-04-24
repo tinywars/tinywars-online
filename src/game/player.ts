@@ -1,25 +1,18 @@
-import { Sprite } from "../utility/sprite";
-import { Vector } from "../utility/vector";
-import { Controller } from "../utility/controller";
-import { CircleCollider } from "../utility/circle-collider";
 import { KeyCode } from "../game/key-codes";
+import { Controller } from "../utility/controller";
+import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
+import { GameObject } from "./game-object";
 
-export class Player {
-    private MAX_FORWARD_SPEED = 128;
-    private MAX_ROTATION_SPEED = 96;
+export class Player extends GameObject {
+    // private sprite: Sprite;
 
-    private sprite: Sprite;
-    private collider: CircleCollider = new CircleCollider(new Vector(0, 0), 16);
-
-    private position: Vector = new Vector(0, 0);
-    private direction: Vector = new Vector(0, 0);
-    private forward: Vector = new Vector(0, 0);
-    private rotation = 0;
-    private speed = 0;
-
-    constructor(private img: CanvasImageSource, private controller: Controller) {
-        this.sprite = new Sprite(this.img, 0, 0, 32, 32);
+    constructor(
+        private img: CanvasImageSource,
+        private controller: Controller,
+    ) {
+        super();
+        //this.sprite = new Sprite(this.img, 0, 0, 32, 32);
     }
 
     spawn(position: Vector) {
@@ -35,45 +28,31 @@ export class Player {
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
             this.speed = this.MAX_FORWARD_SPEED;
-        }
-        else if (this.controller.isKeyPressed(KeyCode.Down)) {
+        } else if (this.controller.isKeyPressed(KeyCode.Down)) {
             this.speed = -this.MAX_FORWARD_SPEED;
-        }
-        else
-            updateFwd = false;
+        } else updateFwd = false;
 
         if (this.controller.isKeyPressed(KeyCode.Left)) {
             rotation = -this.MAX_ROTATION_SPEED;
-        }
-        else if (this.controller.isKeyPressed(KeyCode.Right)) {
+        } else if (this.controller.isKeyPressed(KeyCode.Right)) {
             rotation = this.MAX_ROTATION_SPEED;
         }
 
         this.rotation += rotation * dt;
-        if (this.rotation >= 360)
-            this.rotation -= 360;
-        else if (this.rotation < 0)
-            this.rotation += 360;
+        if (this.rotation >= 360) this.rotation -= 360;
+        else if (this.rotation < 0) this.rotation += 360;
 
         this.direction.setRotation(this.rotation);
 
-        if (updateFwd)
-            this.forward = this.direction.getScaled(this.speed * dt);
+        if (updateFwd) this.forward = this.direction.getScaled(this.speed * dt);
 
         this.position.add(this.forward);
         if (this.position.x < 0) this.position.x += context.SCREEN_WIDTH;
-        else if (this.position.x >= context.SCREEN_WIDTH) this.position.x -= context.SCREEN_WIDTH;
+        else if (this.position.x >= context.SCREEN_WIDTH)
+            this.position.x -= context.SCREEN_WIDTH;
         if (this.position.y < 0) this.position.y += context.SCREEN_HEIGHT;
-        else if (this.position.y >= context.SCREEN_HEIGHT) this.position.y -= context.SCREEN_HEIGHT;
+        else if (this.position.y >= context.SCREEN_HEIGHT)
+            this.position.y -= context.SCREEN_HEIGHT;
         this.collider.setPosition(this.position.getSum(new Vector(16, 16)));
-    }
-
-    draw(canvas2d: CanvasRenderingContext2D) {
-        this.sprite.setRotation(this.rotation);
-        this.sprite.draw(canvas2d, this.position.x, this.position.y, 32, 32);
-    }
-
-    getCollider(): CircleCollider {
-        return this.collider;
     }
 }
