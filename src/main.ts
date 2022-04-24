@@ -44,7 +44,6 @@ function ResizeCanvas() {
 
     console.log("Screen resolution: " + new Vector(width, height).toString());
 
-    // TODO: then also set the global scale factor for the canvas so the game resolution remains the same no matter what the render resolution will be
 }
 ResizeCanvas();
 

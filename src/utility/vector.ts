@@ -92,7 +92,7 @@ export class Vector {
     }
 
     getUnit(): Vector {
-        if (this.x === 0 && this.y === 0)
+        if (this.isZero())
             return this.copy();
         return this.getScaled(1 / this.getSize());
     }

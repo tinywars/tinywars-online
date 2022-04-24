@@ -25,7 +25,6 @@ export class Player {
     spawn(position: Vector) {
         this.position = position;
         this.collider.setPosition(position.getSum(new Vector(16, 16)));
-        // TODO: sprite center is currently of by [16, 16] from collider center
         this.direction = new Vector(1, 0);
         this.forward = new Vector(0, 0);
         this.rotation = 0;
