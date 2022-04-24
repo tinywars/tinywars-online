@@ -2,9 +2,9 @@ import { AppState } from "./app-state";
 
 export class App {
     states: AppState[] = [];
-    
-    constructor() { 
-        console.log("App created")
+
+    constructor() {
+        console.log("App created");
     }
 
     topState(): AppState {
@@ -19,10 +19,6 @@ export class App {
         this.states.pop();
     }
 
-    draw() { 
-        console.log("drawing...")
-    }
-
     run(fps: number): void {
         const frameTime = 1 / fps;
 
@@ -31,9 +27,5 @@ export class App {
         setInterval(() => {
             this.topState().updateLogic(frameTime);
         }, frameTime);
-
-        console.log("Preparing to draw");
-
-        this.draw();
     }
 }

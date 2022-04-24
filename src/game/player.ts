@@ -1,8 +1,6 @@
-import { Sprite } from "../utility/sprite";
-import { Vector } from "../utility/vector";
-import { Controller } from "../utility/controller";
-import { CircleCollider } from "../utility/circle-collider";
 import { KeyCode } from "../game/key-codes";
+import { Controller } from "../utility/controller";
+import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 
@@ -56,10 +54,5 @@ export class Player extends GameObject {
         else if (this.position.y >= context.SCREEN_HEIGHT)
             this.position.y -= context.SCREEN_HEIGHT;
         this.collider.setPosition(this.position.getSum(new Vector(16, 16)));
-    }
-
-    draw(/** canvas2d: CanvasRenderingContext2D */) {
-        // this.sprite.setRotation(this.rotation);
-        // this.sprite.draw(canvas2d, this.position.x, this.position.y, 32, 32);
     }
 }
