@@ -1,33 +1,25 @@
-import "./style.css";
-import { GameContext } from "./game/game-context";
-import { EventQueue } from "./events/event-queue";
-import { DebugEvent } from "./events/game-event";
-import { Vector } from "./utility/vector";
-import { KeyCode } from "./game/key-codes";
-
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { App } from "./app-states/app";
 import { AppStateGame } from "./app-states/app-state-game";
+import { KeyCode } from "./game/key-codes";
+import "./style.css";
 import { KeyboardController } from "./utility/keyboard-controller";
+import { Vector } from "./utility/vector";
+
 
 const FPS = 60;
 
 // TODO: environment setup
 
-const html = document.querySelector<HTMLDivElement>("#app");
-html.innerHTML = `
-  <canvas id="RenderCanvas" width=100 height=100></canvas>
-`;
-
-console.log("Canvas constructed");
-
-const canvas = document.querySelector<HTMLCanvasElement>("#RenderCanvas");
-const context2d = canvas.getContext("2d");
+const canvas = document.querySelector<HTMLCanvasElement>("#RenderCanvas")!;
+if (canvas === null) throw Error("#RenderCanvas not found")
+const context2d = canvas.getContext("2d")!
 
 function ResizeCanvas() {
     if (canvas === null) return;
 
-    let width = isNaN(window.innerWidth) ? window.clientWidth : window.innerWidth;
-    let height = isNaN(window.innerHeight) ? window.clientHeight : window.innerHeight;
+    let width =  window.innerWidth;
+    let height = window.innerHeight;
 
     // We want to compute maximum possible 4:3 canvas
     if (width / 4 < height / 3) {
@@ -40,7 +32,7 @@ function ResizeCanvas() {
     canvas.width = width;
     canvas.height = height;
 
-    canvas.getContext("2d").scale(width / 1440, height / 1080);
+    canvas.getContext("2d")!.scale(width / 1440, height / 1080);
 
     console.log("Screen resolution: " + new Vector(width, height).toString());
 

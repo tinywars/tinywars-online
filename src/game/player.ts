@@ -18,7 +18,7 @@ export class Player {
     private rotation = 0;
     private speed = 0;
 
-    constructor(private img: Image, private controller: Controller) {
+    constructor(private img: CanvasImageSource, private controller: Controller) {
         this.sprite = new Sprite(this.img, 0, 0, 32, 32);
     }
 
