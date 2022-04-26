@@ -1,43 +1,48 @@
-export class FastArray<T> {
+export class FastArray<T> implements Iterable<T> {
     private items: T[] = [];
-    private scheduledDeletions: number[] = [];
     private size = 0;
 
-    pushItem(item: T) {
-        if (this.items.length === this.size)
-            this.items.push(item);
-        else
-            this.items[this.size] = item;
+    constructor(capacity: number, factory: (index: number) => T) {
+        // Allocate array to have size equal to 'capacity'
+        // and call constructor on all items through the factory method
+        for (let i = 0; i < capacity; i++)
+            this.items.push(factory(i));
+    }
+
+    /**
+     * Grow size of the array by 1
+     * @returns If size already matches capacity, do not grow and returns false
+     */
+    grow(): boolean {
+        if (this.getSize() === this.getCapacity())
+            return false;
+
         this.size++;
+        return true;
     }
 
     popItem(index: number) {
         if (index >= this.size)
             return;
+
         this.size--;
-        this.items[index] = this.items[this.size];
-    }
 
-    schedulePopItem(index: number) {
-        if (index >= this.size)
+        // No need to swap anything if there was only 1 item
+        if (this.size === 0)
             return;
-        this.scheduledDeletions.push(index);
-    }
 
-    popScheduledItems() {
-        this.scheduledDeletions.sort((a: number, b:number) => {
-            return b - a;
-        });
-
-        this.scheduledDeletions.forEach(index => {
-            this.popItem(index);
-        });
-
-        this.scheduledDeletions = [];
+        // Swap last item with the removed one
+        const tmp = this.items[index];
+        this.items[index] = this.items[this.size];
+        this.items[this.size] = tmp;
     }
 
     getSize(): number {
         return this.size;
+    }
+
+    getCapacity(): number {
+        return this.items.length;
     }
 
     getItem(index: number): T {
@@ -49,7 +54,21 @@ export class FastArray<T> {
         return this.items[this.size - 1];
     }
 
-    // TODO: iterators that support forEach or for..in or for..of?
+    // Implementing Iterable<T>
+    [Symbol.iterator](): Iterator<T,any,undefined> {
+        let index = 0;
+        return {
+            next: () => ({
+                done: index >= this.size,
+                value: this.items[index++]
+            })
+        }
+    }
+     
+    forEach(cb: (item: T, index: number) => void) {
+        for (let i = 0; i < this.size; i++)
+            cb(this.items[i], i)
+    }
 }
 
 // TODO: some testing framework would be nice
@@ -65,41 +84,38 @@ export function TestFastArray() {
 
     function PrintArray(arr: FastArray<A>) {
         console.log("Printing array, size = " + arr.getSize());
-        for (let i = 0; i < arr.getSize(); i++)
-            console.log("Item[" + i + "]: " + arr.getItem(i).value);
+        arr.forEach((item: A, index: number) => {
+            console.log("Item[" + index + "]: " + item.value);
+        });   
     }
 
     try {
-        const arr = new FastArray<A>();
+        const arr = new FastArray<A>(5, () => new A(0));
         Assert(arr.getSize() === 0, "New array is empty");
+        Assert(arr.getCapacity() === 5, "New array has correct capacity");
         
         arr.popItem(0);
         Assert(arr.getSize() === 0, "It is ok to pop empty array");
         
-        arr.pushItem(new A(1));
-        arr.pushItem(new A(20));
-        Assert(arr.getSize() === 2, "Push works");
+        Assert(arr.grow(), "Grow 0 -> 1");
+        arr.getLastItem().value = 1;
+        Assert(arr.grow(), "Grow 1 -> 2");
+        arr.getLastItem().value = 2;
+        Assert(arr.getSize() === 2, "Grow works");
 
         arr.popItem(0);
         Assert(arr.getSize() === 1, "Pop works (size reduced)");
-        Assert(arr.getItem(0).value === 20, "Pop works (correct item removed)");
+        Assert(arr.getItem(0).value === 2, "Pop works (correct item removed)");
 
-        arr.pushItem(new A(4));
-        Assert(arr.getSize() === 2, "Get last item (getSize)");
-        Assert(arr.getItem(1).value === 4, "Get last item works: " + arr.getLastItem().value);
+        Assert(arr.grow(), "Grow 1 -> 2");
+        Assert(arr.getLastItem().value === 1, "Popped and restored value is still there");
 
-        arr.pushItem(new A(6));
-        arr.pushItem(new A(8));
-        arr.pushItem(new A(10));
-        
-        arr.schedulePopItem(0);
-        arr.schedulePopItem(3);
-        arr.schedulePopItem(1);
-        arr.popScheduledItems();
+        Assert(arr.grow(), "Grow 2 -> 3");
+        Assert(arr.grow(), "Grow 3 -> 4");
+        Assert(arr.grow(), "Grow 4 -> 5");
+        Assert(!arr.grow(), "Cannot grow past capacity");
 
-        Assert(arr.getSize() === 2, "Scheduled pop released correct number of items: " + arr.getSize());
-        Assert(arr.getItem(0).value === 6, "Scheduled pop kept correct item [0]");
-        Assert(arr.getItem(1).value === 10, "Scheduled pop kept correct item [1]");
+        PrintArray(arr);
 
         console.log("TestFastArray ok");
     }
