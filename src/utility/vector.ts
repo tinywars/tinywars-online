@@ -114,6 +114,10 @@ export class Vector {
     }
 
     toAngle(): number {
-        return Math.floor(Math.atan2(this.x, -this.y));
+        if (this.x === 0 && this.y < 0) return 270;
+        else if (this.x === 0 && this.y >= 0) return 90;
+        else if (this.y === 0 && this.x < 0) return 180;
+        else if (this.y === 0 && this.x >= 0) return 0;
+        return Math.floor(Math.atan2(this.y, this.x) * 180 / Math.PI);
     }
 }
