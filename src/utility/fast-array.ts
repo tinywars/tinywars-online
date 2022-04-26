@@ -1,3 +1,18 @@
+/**
+ * Fixed-size array abstraction with preallocated items and O(1) additions and deletions.
+ * This array has two concepts of "size".
+ * getSize() shows number of currently used or "alive" items
+ * getCapacity() returns total number of available items in the array (same number that is passed into constructor)
+ * 
+ * Size is incremented by calling grow(). If grow() would cause overflowing capacity,
+ * it fails and return false.
+ * 
+ * After calling grow(), one can call getLastItem() to manipulate this "newly added" item.
+ * 
+ * Calling popItem(index) removes any item from the array which means it swaps it with
+ * the last valid item in the array and then decrementing size. Because of that, order
+ * of items is not stable.
+ */
 export class FastArray<T> implements Iterable<T> {
     private items: T[] = [];
     private size = 0;
