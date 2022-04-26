@@ -1,35 +1,49 @@
 import { Vector } from "../utility/vector";
 import { GameObject } from "./game-object";
 import { GameContext } from "./game-context";
-import { DestroyProjectile } from "../events/game-event";
+import { eventDestroyProjectile } from "../events/game-event";
+import { CircleCollider } from "../utility/circle-collider";
 
 export class Projectile extends GameObject {
+    private forward: Vector = Vector.zero();
+    private damage = 0;
+
     constructor(
-        private id: number, 
-        position: Vector, 
-        direction: Vector, 
-        private damage: number)
+        private id: number)
     {
         super();
-        this.position = position;
-        this.direction = direction;
+        this.collider = new CircleCollider(
+            Vector.outOfView(), 2
+        );
     }
 
     update(dt: number, context: GameContext) {
-        this.position.add(this.direction.getScaled(dt));
+        this.collider.move(this.forward.getScaled(dt));
 
-        if (this.position.x < 0
-            || this.position.x > context.SCREEN_WIDTH
-            || this.position.y < 0
-            || this.position.y > context.SCREEN_HEIGHT)
+        const pos = this.collider.getPosition();
+        if (pos.x < 0
+            || pos.x > context.SCREEN_WIDTH
+            || pos.y < 0
+            || pos.y > context.SCREEN_HEIGHT)
         {
             context.eventQueue.add(
-                DestroyProjectile(this.id)
+                eventDestroyProjectile(this.id)
             );
         }
     }
 
     getId(): number {
         return this.id;
+    }
+
+    spawn(position: Vector, forward: Vector, damage: number) {
+        this.collider.setPosition(position);
+        this.forward = forward;
+        this.damage = damage;
+        this.rotation = forward.toAngle();
+    }
+
+    despawn() {
+        this.collider.setPosition(Vector.outOfView());
     }
 }

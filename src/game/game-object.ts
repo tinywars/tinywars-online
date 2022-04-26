@@ -1,20 +1,12 @@
+import { Circle } from "pixi.js";
 import { CircleCollider } from "../utility/circle-collider";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 
 export abstract class GameObject {
-    protected hash = Math.random().toString(36).slice(-10);
-
-    protected collider: CircleCollider = new CircleCollider(
-        new Vector(0, 0),
-        16,
-    );
-
-    protected position: Vector = new Vector(0, 0);
-    protected direction: Vector = new Vector(0, 0);
-    protected forward: Vector = new Vector(0, 0);
+    protected hash = Math.random().toString(36).slice(-20);
+    protected collider: CircleCollider = new CircleCollider(new Vector(0, 0), 0); // dummy va
     protected rotation = 0;
-    protected speed = 0;
 
     abstract update(dt: number, context: GameContext): void;
 
@@ -22,14 +14,14 @@ export abstract class GameObject {
         return Object.getPrototypeOf(this).name + this.hash;
     }
 
-    getCollider() {
+    getCollider(): CircleCollider {
         return this.collider;
     }
 
     getCoords() {
         return {
-            x: this.position.x,
-            y: this.position.y,
+            x: this.collider.getPosition().x,
+            y: this.collider.getPosition().y,
             angle: this.rotation,
         };
     }

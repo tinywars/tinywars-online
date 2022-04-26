@@ -26,6 +26,7 @@ controller.bindKey("KeyW", KeyCode.Up);
 controller.bindKey("KeyA", KeyCode.Left);
 controller.bindKey("KeyS", KeyCode.Down);
 controller.bindKey("KeyD", KeyCode.Right);
+controller.bindKey("Space", KeyCode.Shoot);
 
 // TODO: resizing
 

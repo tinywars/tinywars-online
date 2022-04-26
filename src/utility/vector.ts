@@ -23,6 +23,14 @@ export class Vector {
         return to.getSum(from.getInverted());
     }
 
+    static zero(): Vector {
+        return new Vector(0, 0);
+    }
+
+    static outOfView(): Vector {
+        return new Vector(-100, -100);
+    }
+
     copy(): Vector {
         return new Vector(this.x, this.y);
     }
@@ -103,5 +111,9 @@ export class Vector {
 
     toString(): string {
         return "[" + this.x + ", " + this.y + "]";
+    }
+
+    toAngle(): number {
+        return Math.floor(Math.atan2(this.x, -this.y));
     }
 }

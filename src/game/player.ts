@@ -1,25 +1,35 @@
+import { eventSpawnProjectile } from "../events/game-event";
 import { KeyCode } from "../game/key-codes";
+import { CircleCollider } from "../utility/circle-collider";
 import { Controller } from "../utility/controller";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 
 export class Player extends GameObject {
-    // private sprite: Sprite;
+    protected direction: Vector = Vector.zero();
+    protected forward: Vector = Vector.zero();
+    protected speed = 0;
 
     constructor(
-        //        private img: CanvasImageSource,
         private controller: Controller,
     ) {
         super();
+        this.collider = new CircleCollider(
+            Vector.outOfView(),
+            16
+        );
     }
 
     spawn(position: Vector) {
-        this.position = position;
-        this.collider.setPosition(position.getSum(new Vector(16, 16)));
+        this.collider.setPosition(position);
         this.direction = new Vector(1, 0);
         this.forward = new Vector(0, 0);
         this.rotation = 0;
+    }
+
+    despawn() {
+        this.collider.setPosition(Vector.outOfView());
     }
 
     update(dt: number, context: GameContext) {
@@ -37,21 +47,38 @@ export class Player extends GameObject {
             rotation = context.PLAYER_ROTATION_SPEED;
         }
 
+        if (this.controller.isKeyPressed(KeyCode.Shoot)) {
+            this.controller.releaseKey(KeyCode.Shoot);
+            context.log("adding eventSpawnProjectile");
+            context.eventQueue.add(
+                eventSpawnProjectile(
+                    this.collider.getPosition(), 
+                    this.direction, 
+                    context.PROJECTILE_DAMAGE));
+        }
+
         this.rotation += rotation * dt;
         if (this.rotation >= 360) this.rotation -= 360;
         else if (this.rotation < 0) this.rotation += 360;
 
         this.direction.setRotation(this.rotation);
 
-        if (updateFwd) this.forward = this.direction.getScaled(this.speed * dt);
+        if (updateFwd)
+            this.forward = this.direction.getScaled(this.speed);
 
-        this.position.add(this.forward);
-        if (this.position.x < 0) this.position.x += context.SCREEN_WIDTH;
-        else if (this.position.x >= context.SCREEN_WIDTH)
-            this.position.x -= context.SCREEN_WIDTH;
-        if (this.position.y < 0) this.position.y += context.SCREEN_HEIGHT;
-        else if (this.position.y >= context.SCREEN_HEIGHT)
-            this.position.y -= context.SCREEN_HEIGHT;
-        this.collider.setPosition(this.position.getSum(new Vector(16, 16)));
+        this.collider.move(this.forward.getScaled(dt));
+
+        this.handleLeavingScreen(context);        
+    }
+
+    handleLeavingScreen(context: GameContext) {
+        const pos = this.collider.getPosition();
+        if (pos.x < 0) pos.x += context.SCREEN_WIDTH;
+        else if (pos.x >= context.SCREEN_WIDTH)
+            pos.x -= context.SCREEN_WIDTH;
+        if (pos.y < 0) pos.y += context.SCREEN_HEIGHT;
+        else if (pos.y >= context.SCREEN_HEIGHT)
+            pos.y -= context.SCREEN_HEIGHT;
+        this.collider.setPosition(pos);
     }
 }

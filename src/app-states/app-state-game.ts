@@ -5,6 +5,8 @@ import { EventQueue } from "../events/event-queue";
 import { Vector } from "../utility/vector";
 import { Controller } from "../utility/controller";
 import { Player } from "../game/player";
+import { FastArray } from "../utility/fast-array";
+import { Projectile } from "../game/projectile";
 
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
@@ -29,11 +31,17 @@ export class AppStateGame implements AppState {
         this.gameContext = {
             SCREEN_WIDTH: 1440,
             SCREEN_HEIGHT: 1080,
+            
             PLAYER_FORWARD_SPEED: 128,
             PLAYER_ROTATION_SPEED: 96,
+            
             PROJECTILE_SPEED: 192,
+            PROJECTILE_DAMAGE: 1,
+
             players: [player1, player2],
+            projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
             eventQueue: new EventQueue(),
+            
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
             },
@@ -50,6 +58,7 @@ export class AppStateGame implements AppState {
         //console.log("updateLogic(" + dt + ")");
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
+        this.gameContext.projectiles.forEach((p) => p.update(dt, this.gameContext));
 
         this.gameContext.eventQueue.process(this.gameContext);
     }

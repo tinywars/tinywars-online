@@ -1,4 +1,5 @@
 import { GameContext } from "../game/game-context";
+import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 
 export interface GameEvent {
@@ -16,7 +17,7 @@ export interface GameEvent {
  * @param message Message to be logged
  * @returns Instance of GameEvent
  */
-export function DebugEvent(message: string) {
+export function eventDebug(message: string) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             context.log("DebugEvent: " + message);
@@ -25,31 +26,31 @@ export function DebugEvent(message: string) {
     return e;
 }
 
-export function SpawnProjectile(position: Vector, direction: Vector, damage: number) {
+export function eventSpawnProjectile(position: Vector, direction: Vector, damage: number) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
-            /*
-            context.projectiles.pushItem(new Projectile(
-                context.generateId(),
-                position,
+            if (!context.projectiles.grow())
+                return;
+            
+            context.projectiles.getLastItem().spawn(
+                position.copy(),
                 direction.getScaled(context.PROJECTILE_SPEED),
                 damage
-            ));
-            */
+            );
         }
     };
     return e;
 }
 
-export function DestroyProjectile(index: number) {
+export function eventDestroyProjectile(index: number) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
-            /*
-            for (let i = 0; i < context.projectiles.size(); i++) {
-                if (context.projectiles.getItem(i).getId() === id)
+            for (let i = 0; i < context.projectiles.getSize(); i++) {
+                if (context.projectiles.getItem(i).getId() === index) {
+                    context.projectiles.getItem(i).despawn();
                     context.projectiles.popItem(i);
+                }
             }
-            */
         }
     };
     return e;
