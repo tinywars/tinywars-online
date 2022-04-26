@@ -1,4 +1,5 @@
 import { GameContext } from "../game/game-context";
+import { Vector } from "../utility/vector";
 
 export interface GameEvent {
     /**
@@ -19,6 +20,36 @@ export function DebugEvent(message: string) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             context.log("DebugEvent: " + message);
+        }
+    };
+    return e;
+}
+
+export function SpawnProjectile(position: Vector, direction: Vector, damage: number) {
+    const e: GameEvent = {
+        process: (context: GameContext): void => {
+            /*
+            context.projectiles.pushItem(new Projectile(
+                context.generateId(),
+                position,
+                direction.getScaled(context.PROJECTILE_SPEED),
+                damage
+            ));
+            */
+        }
+    };
+    return e;
+}
+
+export function DestroyProjectile(index: number) {
+    const e: GameEvent = {
+        process: (context: GameContext): void => {
+            /*
+            for (let i = 0; i < context.projectiles.size(); i++) {
+                if (context.projectiles.getItem(i).getId() === id)
+                    context.projectiles.popItem(i);
+            }
+            */
         }
     };
     return e;

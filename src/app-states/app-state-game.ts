@@ -8,30 +8,37 @@ import { Player } from "../game/player";
 
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
-    private img: CanvasImageSource;
-    private ready: boolean;
+    private uniqueId = 0;
+    // private img: CanvasImageSource;
+    // private ready: boolean;
 
     constructor(private app: App, private controller: Controller) {
         console.log("AppStateGame construction");
 
-        this.ready = false;
+        /*this.ready = false;
         this.img = new Image();
         this.img.onload = () => {
             console.log("Image loaded!");
             this.ready = true;
         };
-        this.img.src = "./src/assets/gameTexture.png";
+        this.img.src = "./src/assets/gameTexture.png";*/
 
-        const player1 = new Player(this.img, this.controller);
-        const player2 = new Player(this.img, this.controller);
+        const player1 = new Player(/*this.img,*/ this.controller);
+        const player2 = new Player(/*this.img,*/ this.controller);
 
         this.gameContext = {
             SCREEN_WIDTH: 1440,
             SCREEN_HEIGHT: 1080,
+            PLAYER_FORWARD_SPEED: 128,
+            PLAYER_ROTATION_SPEED: 96,
+            PROJECTILE_SPEED: 192,
             players: [player1, player2],
             eventQueue: new EventQueue(),
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
+            },
+            generateId: (): number => {
+                return this.uniqueId++;
             },
         };
 

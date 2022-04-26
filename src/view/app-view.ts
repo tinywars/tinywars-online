@@ -3,6 +3,7 @@ import { App } from "../app-states/app";
 import { GameObject } from "../game/game-object";
 import { ViewObject } from "./view-object";
 import { ViewPlayer } from "./view-player";
+import { ViewProjectile } from "./view-projectile";
 
 export class AppView {
     private viewApp: PIXI.Application;
@@ -17,7 +18,7 @@ export class AppView {
         });
         domElement.appendChild(this.viewApp.view);
 
-        context.players.forEach((p) => this.addObject(p));
+        context.players.forEach((p) => this.addObject("player", p));
         this.viewApp.ticker.add(this.draw.bind(this));
     }
 
@@ -45,9 +46,15 @@ export class AppView {
         this.viewApp.stage.scale.set(scale, scale);
     }
 
-    addObject(gameObject: GameObject) {
+    addObject(kind: string, gameObject: GameObject) {
         if (this.objectMap.has(gameObject.getHash())) return;
-        const viewObject = new ViewPlayer(this.viewApp);
+
+        const viewObject = ((kind: string): ViewObject | undefined => {
+            if (kind == "player")
+                return new ViewPlayer(this.viewApp);
+            else if (kind == "projectile")
+                return new ViewProjectile(this.viewApp);
+        })(kind);
         viewObject.updateCoords(gameObject.getCoords());
         this.objectMap.set(gameObject.getHash(), viewObject);
     }

@@ -4,10 +4,7 @@ import { GameContext } from "./game-context";
 
 export abstract class GameObject {
     protected hash = Math.random().toString(36).slice(-10);
-    protected MAX_FORWARD_SPEED = 64;
-    protected MAX_ROTATION_SPEED = 64;
 
-    // protected sprite: Sprite;
     protected collider: CircleCollider = new CircleCollider(
         new Vector(0, 0),
         16,

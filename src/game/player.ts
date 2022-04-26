@@ -8,11 +8,10 @@ export class Player extends GameObject {
     // private sprite: Sprite;
 
     constructor(
-        private img: CanvasImageSource,
+        //        private img: CanvasImageSource,
         private controller: Controller,
     ) {
         super();
-        //this.sprite = new Sprite(this.img, 0, 0, 32, 32);
     }
 
     spawn(position: Vector) {
@@ -27,15 +26,15 @@ export class Player extends GameObject {
         let updateFwd = true;
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
-            this.speed = this.MAX_FORWARD_SPEED;
+            this.speed = context.PLAYER_FORWARD_SPEED;
         } else if (this.controller.isKeyPressed(KeyCode.Down)) {
-            this.speed = -this.MAX_FORWARD_SPEED;
+            this.speed = -context.PLAYER_FORWARD_SPEED;
         } else updateFwd = false;
 
         if (this.controller.isKeyPressed(KeyCode.Left)) {
-            rotation = -this.MAX_ROTATION_SPEED;
+            rotation = -context.PLAYER_ROTATION_SPEED;
         } else if (this.controller.isKeyPressed(KeyCode.Right)) {
-            rotation = this.MAX_ROTATION_SPEED;
+            rotation = context.PLAYER_ROTATION_SPEED;
         }
 
         this.rotation += rotation * dt;
