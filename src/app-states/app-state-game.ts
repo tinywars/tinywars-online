@@ -11,8 +11,6 @@ import { Projectile } from "../game/projectile";
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
     private uniqueId = 0;
-    // private img: CanvasImageSource;
-    // private ready: boolean;
 
     constructor(private app: App, private controller: Controller) {
         console.log("AppStateGame construction");
@@ -25,8 +23,8 @@ export class AppStateGame implements AppState {
         };
         this.img.src = "./src/assets/gameTexture.png";*/
 
-        const player1 = new Player(/*this.img,*/ this.controller);
-        const player2 = new Player(/*this.img,*/ this.controller);
+        const player1 = new Player(this.controller);
+        const player2 = new Player(this.controller);
 
         this.gameContext = {
             SCREEN_WIDTH: 1440,
@@ -55,7 +53,6 @@ export class AppStateGame implements AppState {
     }
 
     updateLogic(dt: number): void {
-        //console.log("updateLogic(" + dt + ")");
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
         this.gameContext.projectiles.forEach((p) => p.update(dt, this.gameContext));
