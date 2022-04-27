@@ -11,7 +11,7 @@ export class ViewProjectile extends ViewObject {
          * the image in the update event
          */
         texture.on("update", () => {
-            texture.frame = new PIXI.Rectangle(12, 32, 10, 4);
+            texture.frame = new PIXI.Rectangle(128, 0, 4, 10);
             texture.updateUvs();
         });
         super(viewApp, texture);
