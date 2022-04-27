@@ -49,7 +49,7 @@ export class Player extends GameObject {
 
         if (this.controller.isKeyPressed(KeyCode.Shoot)) {
             this.controller.releaseKey(KeyCode.Shoot);
-            context.log("adding eventSpawnProjectile");
+
             context.eventQueue.add(
                 eventSpawnProjectile(
                     this.collider.getPosition(), 
@@ -57,21 +57,26 @@ export class Player extends GameObject {
                     context.PROJECTILE_DAMAGE));
         }
 
-        this.rotation += rotation * dt;
+        this.updateRotation(rotation, dt);
+        this.moveForward(updateFwd, dt, context);   
+    }
+
+    private updateRotation(frameRotation: number, dt: number) {
+        this.rotation += frameRotation * dt;
         if (this.rotation >= 360) this.rotation -= 360;
         else if (this.rotation < 0) this.rotation += 360;
-
         this.direction.setRotation(this.rotation);
+    }
 
-        if (updateFwd)
+    private moveForward(updateForward: boolean, dt: number, context: GameContext) {
+        if (updateForward)
             this.forward = this.direction.getScaled(this.speed);
 
         this.collider.move(this.forward.getScaled(dt));
-
-        this.handleLeavingScreen(context);        
+        this.handleLeavingScreen(context);     
     }
 
-    handleLeavingScreen(context: GameContext) {
+    private handleLeavingScreen(context: GameContext) {
         const pos = this.collider.getPosition();
         if (pos.x < 0) pos.x += context.SCREEN_WIDTH;
         else if (pos.x >= context.SCREEN_WIDTH)

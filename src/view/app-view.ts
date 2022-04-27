@@ -23,7 +23,7 @@ export class AppView {
             const item = context.projectiles.getItem(i);
             this.addObject("projectile", item);
         }
-        //context.projectiles.forEach((p) => this.addObject("projectile", p));
+
         this.viewApp.ticker.add(this.draw.bind(this));
     }
 
@@ -55,14 +55,12 @@ export class AppView {
         if (this.objectMap.has(gameObject.getHash())) return;
 
         console.log(gameObject.getHash() + " " + kind + "cond: " + (kind === "player"));
-        const viewObject = ((kind: string): ViewObject | undefined => {
-            //console.log(kind + "cond: " + (kind === "player"));
+        const viewObject = ((kind: string): ViewObject => {
             if (kind === "player") {
-                console.log("Returning player");
                 return new ViewPlayer(this.viewApp);
             }
-                
-            //else if (kind === "projectile")
+
+            // Instead of else if branch so I don't have to reurn undefined
             return new ViewProjectile(this.viewApp);
         })(kind);
         viewObject?.updateCoords(gameObject.getCoords());
@@ -79,8 +77,5 @@ export class AppView {
             const item = state.getContext().projectiles.getItem(i);
             this.objectMap.get(item.getHash())?.updateCoords(item.getCoords());
         }
-        /*state.getContext().projectiles.forEach((p) => {
-            this.objectMap.get(p.getHash())?.updateCoords(p.getCoords());
-        });*/
     }
 }

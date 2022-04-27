@@ -25,7 +25,7 @@ export class AppStateGame implements AppState {
             PLAYER_FORWARD_SPEED: 128,
             PLAYER_ROTATION_SPEED: 96,
             
-            PROJECTILE_SPEED: 192,
+            PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
 
             players: [player1, player2],
