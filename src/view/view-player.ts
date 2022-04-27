@@ -5,7 +5,7 @@ export class ViewPlayer extends ViewObject {
     constructor(viewApp: PIXI.Application) {
         const texture = PIXI.Texture.from("./src/assets/gameTexture.png", {
             anisotropicLevel: 0,
-        });
+        }).clone();
         /**
          * Textures are loaded asynchronously, so we need crop
          * the image in the update event
