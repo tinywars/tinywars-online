@@ -1,8 +1,8 @@
-import { eventSpawnProjectile } from "../events/game-event";
-import { KeyCode } from "../game/key-codes";
 import { CircleCollider } from "../utility/circle-collider";
 import { Controller } from "../utility/controller";
 import { Vector } from "../utility/vector";
+import { eventSpawnProjectile } from "../events/game-event";
+import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 

@@ -1,11 +1,11 @@
 import { App } from "./app";
 import { AppState } from "./app-state";
-import { GameContext } from "../game/game-context";
-import { EventQueue } from "../events/event-queue";
 import { Vector } from "../utility/vector";
 import { Controller } from "../utility/controller";
-import { Player } from "../game/player";
 import { FastArray } from "../utility/fast-array";
+import { EventQueue } from "../events/event-queue";
+import { GameContext } from "../game/game-context";
+import { Player } from "../game/player";
 import { Projectile } from "../game/projectile";
 
 export class AppStateGame implements AppState {
@@ -14,14 +14,6 @@ export class AppStateGame implements AppState {
 
     constructor(private app: App, private controller: Controller) {
         console.log("AppStateGame construction");
-
-        /*this.ready = false;
-        this.img = new Image();
-        this.img.onload = () => {
-            console.log("Image loaded!");
-            this.ready = true;
-        };
-        this.img.src = "./src/assets/gameTexture.png";*/
 
         const player1 = new Player(this.controller);
         const player2 = new Player(this.controller);

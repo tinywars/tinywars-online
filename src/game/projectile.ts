@@ -1,8 +1,8 @@
+import { CircleCollider } from "../utility/circle-collider";
 import { Vector } from "../utility/vector";
 import { GameObject } from "./game-object";
 import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
-import { CircleCollider } from "../utility/circle-collider";
 
 export class Projectile extends GameObject {
     private forward: Vector = Vector.zero();
