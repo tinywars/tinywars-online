@@ -1,5 +1,4 @@
 import { GameContext } from "../game/game-context";
-import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 
 export interface GameEvent {
@@ -26,17 +25,17 @@ export function eventDebug(message: string) {
     return e;
 }
 
-export function eventSpawnProjectile(position: Vector, direction: Vector, damage: number) {
+export function eventSpawnProjectile(options: { position: Vector, direction: Vector, damageMultiplier: number }) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             if (!context.projectiles.grow())
                 return;
             
-            context.projectiles.getLastItem().spawn(
-                position,
-                direction.getScaled(context.PROJECTILE_SPEED),
-                damage
-            );
+            context.projectiles.getLastItem().spawn({
+                position: options.position,
+                forward: options.direction.getScaled(context.PROJECTILE_SPEED),
+                damage: options.damageMultiplier * context.PROJECTILE_DAMAGE
+            });
         }
     };
     return e;
@@ -46,7 +45,7 @@ export function eventDestroyProjectile(index: number) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             for (let i = 0; i < context.projectiles.getSize(); i++) {
-                if (context.projectiles.getItem(i).getId() === index) {
+                if (context.projectiles.getItem(i).id === index) {
                     context.projectiles.getItem(i).despawn();
                     context.projectiles.popItem(i);
                 }

@@ -25,6 +25,7 @@ export class AppStateGame implements AppState {
             
             PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
+            PROJECTILE_ENABLE_TELEPORT: true,
 
             players: new FastArray<Player>(4, (i) => new Player(this.controllers[i])),
             projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
@@ -47,14 +48,14 @@ export class AppStateGame implements AppState {
             this.gameContext.players.grow();
 
         this.gameContext.players.forEach((p) => {
-            p.spawn(
-                new Vector(
+            p.spawn({
+                position: new Vector(
                     Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
                     Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
                 ),
-                PLAYER_INITIAL_HEALTH, 
-                PLAYER_INITIAL_ENERGY, 
-                PLAYER_MAX_ENERGY);
+                initialHealth: PLAYER_INITIAL_HEALTH, 
+                initialEnergy: PLAYER_INITIAL_ENERGY, 
+                maxEnergy: PLAYER_MAX_ENERGY});
         });
     }
 

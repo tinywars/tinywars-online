@@ -27,15 +27,15 @@ export class Player extends GameObject {
         );
     }
 
-    spawn(position: Vector, initialHealth: number, initialEnergy: number, maxEnergy: number) {
-        this.collider.setPosition(position);
+    spawn(options: {position: Vector, initialHealth: number, initialEnergy: number, maxEnergy: number}) {
+        this.collider.setPosition(options.position);
         this.direction = new Vector(1, 0);
         this.forward = new Vector(0, 0);
         this.rotation = 0;
 
-        this.health = initialHealth;
-        this.energy = initialEnergy;
-        this.maxEnergy = maxEnergy;
+        this.health = options.initialHealth;
+        this.energy = options.initialEnergy;
+        this.maxEnergy = options.maxEnergy;
     }
 
     despawn() {
@@ -91,18 +91,7 @@ export class Player extends GameObject {
             this.forward = this.direction.getScaled(this.speed);
 
         this.collider.move(this.forward.getScaled(dt));
-        this.handleLeavingScreen(context);     
-    }
-
-    private handleLeavingScreen(context: GameContext) {
-        const pos = this.collider.getPosition();
-        if (pos.x < 0) pos.x += context.SCREEN_WIDTH;
-        else if (pos.x >= context.SCREEN_WIDTH)
-            pos.x -= context.SCREEN_WIDTH;
-        if (pos.y < 0) pos.y += context.SCREEN_HEIGHT;
-        else if (pos.y >= context.SCREEN_HEIGHT)
-            pos.y -= context.SCREEN_HEIGHT;
-        this.collider.setPosition(pos);
+        this.handleLeavingScreenByWrappingAround(context);     
     }
 
     private rechargeEnergy(dt: number, context: GameContext) {        
@@ -127,12 +116,12 @@ export class Player extends GameObject {
             return;
 
         context.eventQueue.add(
-            eventSpawnProjectile(
-                this.collider.getPosition().getSum(
+            eventSpawnProjectile({
+                position: this.collider.getPosition().getSum(
                     // Spawn projectile right in front of the player so it doesn't collide with them
                     this.direction.getScaled(Player.RADIUS + this.forward.getScaled(dt).getSize())), 
-                this.direction, 
-                context.PROJECTILE_DAMAGE));
+                direction: this.direction, 
+                damageMultiplier: 1}));
         this.energy--;
     }
 }

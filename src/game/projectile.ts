@@ -9,7 +9,7 @@ export class Projectile extends GameObject {
     private damage = 0;
 
     constructor(
-        private id: number)
+        readonly id: number)
     {
         super();
         this.collider = new CircleCollider(
@@ -30,6 +30,26 @@ export class Projectile extends GameObject {
             }
         });
 
+        if (context.PROJECTILE_ENABLE_TELEPORT) {
+            this.handleLeavingScreenByWrappingAround(context);
+        }
+        else {
+            this.handleLeavingScreen(context);
+        }
+    }
+
+    spawn(options: { position: Vector, forward: Vector, damage: number}) {
+        this.collider.setPosition(options.position);
+        this.forward = options.forward;
+        this.damage = options.damage;
+        this.rotation = this.forward.toAngle();
+    }
+
+    despawn() {
+        this.collider.setPosition(Vector.outOfView());
+    }
+
+    private handleLeavingScreen(context: GameContext) {
         const pos = this.collider.getPosition();
         if (pos.x < 0
             || pos.x > context.SCREEN_WIDTH
@@ -40,20 +60,5 @@ export class Projectile extends GameObject {
                 eventDestroyProjectile(this.id)
             );
         }
-    }
-
-    getId(): number {
-        return this.id;
-    }
-
-    spawn(position: Vector, forward: Vector, damage: number) {
-        this.collider.setPosition(position);
-        this.forward = forward;
-        this.damage = damage;
-        this.rotation = forward.toAngle();
-    }
-
-    despawn() {
-        this.collider.setPosition(Vector.outOfView());
     }
 }

@@ -25,4 +25,15 @@ export abstract class GameObject {
             angle: this.rotation,
         };
     }
+
+    protected handleLeavingScreenByWrappingAround(context: GameContext) {
+        const pos = this.collider.getPosition();
+        if (pos.x < 0) pos.x += context.SCREEN_WIDTH;
+        else if (pos.x >= context.SCREEN_WIDTH)
+            pos.x -= context.SCREEN_WIDTH;
+        if (pos.y < 0) pos.y += context.SCREEN_HEIGHT;
+        else if (pos.y >= context.SCREEN_HEIGHT)
+            pos.y -= context.SCREEN_HEIGHT;
+        this.collider.setPosition(pos);
+    }
 }
