@@ -18,6 +18,7 @@ export class Player extends GameObject {
     protected maxEnergy = 0;
 
     constructor(
+        readonly id: number,
         private controller: Controller,
     ) {
         super();

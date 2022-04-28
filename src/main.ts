@@ -2,11 +2,8 @@
 import { debounce } from "lodash";
 import { App } from "./app-states/app";
 import { AppStateGame } from "./app-states/app-state-game";
-import { KeyCode } from "./game/key-codes";
 import "./style.css";
-import { KeyboardController } from "./utility/keyboard-controller";
 import { AppView } from "./view/app-view";
-import { Controller } from "./utility/controller";
 
 const FPS = 60;
 
@@ -25,33 +22,10 @@ window.addEventListener("gamepadconnected", function(e) {
         e.gamepad.buttons.length, e.gamepad.axes.length);
 });
 
-const controllers: Controller[] = [];
-controllers.push(((keyboardState: Record<string, boolean>) => {
-    const input = new KeyboardController(keyboardState);
-    input.bindKey("KeyW", KeyCode.Up);
-    input.bindKey("KeyA", KeyCode.Left);
-    input.bindKey("KeyS", KeyCode.Down);
-    input.bindKey("KeyD", KeyCode.Right);
-    input.bindKey("KeyE", KeyCode.Shoot);
-    input.bindKey("KeyR", KeyCode.Boost);
-    return input;
-})(keyboardState));
-
-controllers.push(((keyboardState: Record<string, boolean>) => {
-    const input = new KeyboardController(keyboardState);
-    input.bindKey("KeyI", KeyCode.Up);
-    input.bindKey("KeyJ", KeyCode.Left);
-    input.bindKey("KeyK", KeyCode.Down);
-    input.bindKey("KeyL", KeyCode.Right);
-    input.bindKey("KeyO", KeyCode.Shoot);
-    input.bindKey("KeyP", KeyCode.Boost);
-    return input;
-})(keyboardState));
-
 console.log("App init");
 
 const app = new App();
-app.pushState(new AppStateGame(app, controllers));
+app.pushState(new AppStateGame(app, keyboardState));
 app.run(FPS);
 
 const appView = new AppView(app, document.body.querySelector("#app")!);
