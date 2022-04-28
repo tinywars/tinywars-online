@@ -6,8 +6,10 @@ import { KeyCode } from "./game/key-codes";
 import "./style.css";
 import { KeyboardController } from "./utility/keyboard-controller";
 import { AppView } from "./view/app-view";
+import { TestFastArray } from "./utility/fast-array";
 
 const FPS = 60;
+TestFastArray();
 
 const keyboardState: Record<string, boolean> = {};
 document.onkeydown = (e) => {
