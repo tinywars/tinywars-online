@@ -14,18 +14,23 @@ import { AiPoweredController } from "../ai/ai-controller";
 
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
-    private uniqueId = 0;
+    private uniqueId = 10; /// offseting this number so values below are reserved for players
     private controllers: Controller[] = [];
     private aiBrains: AiBrain[] = [];
 
     constructor(private app: App, keyboardState: Record<string, boolean>) {
         console.log("AppStateGame construction");
 
+        const ACTIVE_PLAYERS = 4;
+
         this.controllers.push(this.createPhysicalController(0, keyboardState));
         //this.controllers.push(this.createPhysicalController(1, keyboardState));
-        const aiController = new AiPoweredController()
-        this.controllers.push(aiController);
-        this.aiBrains.push(new AiBrain(aiController, 1));
+
+        for (let i = 1; i < ACTIVE_PLAYERS; i++) {
+            const aiController = new AiPoweredController()
+            this.controllers.push(aiController);
+            this.aiBrains.push(new AiBrain(aiController, i));
+        }
 
         this.gameContext = {
             SCREEN_WIDTH: 1280,
@@ -39,7 +44,7 @@ export class AppStateGame implements AppState {
             PROJECTILE_DAMAGE: 1,
             PROJECTILE_ENABLE_TELEPORT: false,
 
-            players: new FastArray<Player>(4, (i) => new Player(this.uniqueId++, this.controllers[i])),
+            players: new FastArray<Player>(4, (i) => new Player(i, this.controllers[i])),
             projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
             eventQueue: new EventQueue(),
             
@@ -55,7 +60,6 @@ export class AppStateGame implements AppState {
         const PLAYER_INITIAL_ENERGY = 2;
         const PLAYER_MAX_ENERGY = 4;
 
-        const ACTIVE_PLAYERS = 2;
         for (let i = 0; i < ACTIVE_PLAYERS; i++)
             this.gameContext.players.grow();
 
