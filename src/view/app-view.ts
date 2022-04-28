@@ -21,7 +21,7 @@ export class AppView {
         context.players.forEach((p, i) => this.addObject("player", p, i));
         for (let i = 0; i < context.projectiles.getCapacity(); i++) {
             const item = context.projectiles.getItem(i);
-            this.addObject("projectile", item);
+            this.addObject("projectile", item, 0);
         }
 
         this.viewApp.ticker.add(this.draw.bind(this));
