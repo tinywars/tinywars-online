@@ -4,4 +4,5 @@ export enum KeyCode {
     Left = 3,
     Right = 4,
     Shoot = 5,
+    Boost = 6,
 }

@@ -33,7 +33,7 @@ export function eventSpawnProjectile(position: Vector, direction: Vector, damage
                 return;
             
             context.projectiles.getLastItem().spawn(
-                position.copy(),
+                position,
                 direction.getScaled(context.PROJECTILE_SPEED),
                 damage
             );
@@ -53,5 +53,6 @@ export function eventDestroyProjectile(index: number) {
             }
         }
     };
+    
     return e;
 }

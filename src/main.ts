@@ -7,6 +7,7 @@ import "./style.css";
 import { KeyboardController } from "./utility/keyboard-controller";
 import { AppView } from "./view/app-view";
 import { TestFastArray } from "./utility/fast-array";
+import { Controller } from "./utility/controller";
 
 const FPS = 60;
 TestFastArray();
@@ -21,19 +22,33 @@ document.onkeyup = (e) => {
     keyboardState[e.code] = false;
 };
 
-const controller = new KeyboardController(keyboardState);
-controller.bindKey("KeyW", KeyCode.Up);
-controller.bindKey("KeyA", KeyCode.Left);
-controller.bindKey("KeyS", KeyCode.Down);
-controller.bindKey("KeyD", KeyCode.Right);
-controller.bindKey("Space", KeyCode.Shoot);
+const controllers: Controller[] = [];
+controllers.push(((keyboardState: Record<string, boolean>) => {
+    const input = new KeyboardController(keyboardState);
+    input.bindKey("KeyW", KeyCode.Up);
+    input.bindKey("KeyA", KeyCode.Left);
+    input.bindKey("KeyS", KeyCode.Down);
+    input.bindKey("KeyD", KeyCode.Right);
+    input.bindKey("KeyE", KeyCode.Shoot);
+    input.bindKey("KeyR", KeyCode.Boost);
+    return input;
+})(keyboardState));
 
-// TODO: resizing
+controllers.push(((keyboardState: Record<string, boolean>) => {
+    const input = new KeyboardController(keyboardState);
+    input.bindKey("KeyI", KeyCode.Up);
+    input.bindKey("KeyJ", KeyCode.Left);
+    input.bindKey("KeyK", KeyCode.Down);
+    input.bindKey("KeyL", KeyCode.Right);
+    input.bindKey("KeyO", KeyCode.Shoot);
+    input.bindKey("KeyP", KeyCode.Boost);
+    return input;
+})(keyboardState));
 
 console.log("App init");
 
 const app = new App();
-app.pushState(new AppStateGame(app, controller));
+app.pushState(new AppStateGame(app, controllers));
 app.run(FPS);
 
 const appView = new AppView(app, document.body.querySelector("#app")!);

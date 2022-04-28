@@ -1,11 +1,11 @@
-import { Circle } from "pixi.js";
 import { CircleCollider } from "../utility/circle-collider";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 
 export abstract class GameObject {
     protected hash = Math.random().toString(36).slice(-20);
-    protected collider: CircleCollider = new CircleCollider(Vector.zero(), 0); // dummy values, must be overriden in derived ctor
+    // dummy values, must be overriden in derived ctor
+    protected collider: CircleCollider = new CircleCollider(Vector.zero(), 0);
     protected rotation = 0;
 
     abstract update(dt: number, context: GameContext): void;

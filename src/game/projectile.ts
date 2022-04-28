@@ -20,6 +20,16 @@ export class Projectile extends GameObject {
     update(dt: number, context: GameContext) {
         this.collider.move(this.forward.getScaled(dt));
 
+        context.players.forEach((player) => {
+            if (this.collider.collidesWith(player.getCollider())) {
+                // TODO: play destruction animation and/or sound
+                player.hit(this.damage);
+                context.eventQueue.add(
+                    eventDestroyProjectile(this.id)
+                );
+            }
+        });
+
         const pos = this.collider.getPosition();
         if (pos.x < 0
             || pos.x > context.SCREEN_WIDTH

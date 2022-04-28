@@ -12,23 +12,21 @@ export class AppStateGame implements AppState {
     private gameContext: GameContext;
     private uniqueId = 0;
 
-    constructor(private app: App, private controller: Controller) {
+    constructor(private app: App, private controllers: Controller[]) {
         console.log("AppStateGame construction");
 
-        const player1 = new Player(this.controller);
-        const player2 = new Player(this.controller);
-
         this.gameContext = {
-            SCREEN_WIDTH: 1440,
-            SCREEN_HEIGHT: 1080,
+            SCREEN_WIDTH: 1280,
+            SCREEN_HEIGHT: 1280 / 4 * 3,
             
             PLAYER_FORWARD_SPEED: 128,
             PLAYER_ROTATION_SPEED: 96,
+            PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
             
             PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
 
-            players: [player1, player2],
+            players: new FastArray<Player>(4, (i) => new Player(this.controllers[i])),
             projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
             eventQueue: new EventQueue(),
             
@@ -40,8 +38,24 @@ export class AppStateGame implements AppState {
             },
         };
 
-        player1.spawn(new Vector(100, 100));
-        player2.spawn(new Vector(300, 300));
+        const PLAYER_INITIAL_HEALTH = 3;
+        const PLAYER_INITIAL_ENERGY = 2;
+        const PLAYER_MAX_ENERGY = 4;
+
+        const ACTIVE_PLAYERS = 2;
+        for (let i = 0; i < ACTIVE_PLAYERS; i++)
+            this.gameContext.players.grow();
+
+        this.gameContext.players.forEach((p) => {
+            p.spawn(
+                new Vector(
+                    Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
+                    Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
+                ),
+                PLAYER_INITIAL_HEALTH, 
+                PLAYER_INITIAL_ENERGY, 
+                PLAYER_MAX_ENERGY);
+        });
     }
 
     updateLogic(dt: number): void {

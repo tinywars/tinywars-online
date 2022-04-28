@@ -18,7 +18,7 @@ export class AppView {
         });
         domElement.appendChild(this.viewApp.view);
 
-        context.players.forEach((p) => this.addObject("player", p));
+        context.players.forEach((p, i) => this.addObject("player", p, i));
         for (let i = 0; i < context.projectiles.getCapacity(); i++) {
             const item = context.projectiles.getItem(i);
             this.addObject("projectile", item);
@@ -51,13 +51,13 @@ export class AppView {
         this.viewApp.stage.scale.set(scale, scale);
     }
 
-    addObject(kind: string, gameObject: GameObject) {
+    addObject(kind: string, gameObject: GameObject, index: number) {
         if (this.objectMap.has(gameObject.getHash())) return;
 
         console.log(gameObject.getHash() + " " + kind + "cond: " + (kind === "player"));
         const viewObject = ((kind: string): ViewObject => {
             if (kind === "player") {
-                return new ViewPlayer(this.viewApp);
+                return new ViewPlayer(this.viewApp, index);
             }
 
             // Instead of else if branch so I don't have to reurn undefined
