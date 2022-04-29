@@ -61,8 +61,7 @@ export class Vector {
      */
     getSum(vec: Vector): Vector {
         const r = this.copy();
-        r.x += vec.x;
-        r.y += vec.y;
+        r.add(vec);
         return r;
     }
 
