@@ -23,6 +23,14 @@ export class Vector {
         return to.getSum(from.getInverted());
     }
 
+    static zero(): Vector {
+        return new Vector(0, 0);
+    }
+
+    static outOfView(): Vector {
+        return new Vector(-100, -100);
+    }
+
     copy(): Vector {
         return new Vector(this.x, this.y);
     }
@@ -103,5 +111,13 @@ export class Vector {
 
     toString(): string {
         return "[" + this.x + ", " + this.y + "]";
+    }
+
+    toAngle(): number {
+        if (this.x === 0 && this.y < 0) return 270;
+        else if (this.x === 0 && this.y >= 0) return 90;
+        else if (this.y === 0 && this.x < 0) return 180;
+        else if (this.y === 0 && this.x >= 0) return 0;
+        return Math.floor(Math.atan2(this.y, this.x) * 180 / Math.PI);
     }
 }

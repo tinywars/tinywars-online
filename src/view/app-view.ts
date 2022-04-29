@@ -3,6 +3,7 @@ import { App } from "../app-states/app";
 import { GameObject } from "../game/game-object";
 import { ViewObject } from "./view-object";
 import { ViewPlayer } from "./view-player";
+import { ViewProjectile } from "./view-projectile";
 
 export class AppView {
     private viewApp: PIXI.Application;
@@ -17,7 +18,12 @@ export class AppView {
         });
         domElement.appendChild(this.viewApp.view);
 
-        context.players.forEach((p) => this.addObject(p));
+        context.players.forEach((p, i) => this.addObject("player", p, i));
+        for (let i = 0; i < context.projectiles.getCapacity(); i++) {
+            const item = context.projectiles.getItem(i);
+            this.addObject("projectile", item, 0);
+        }
+
         this.viewApp.ticker.add(this.draw.bind(this));
     }
 
@@ -45,10 +51,19 @@ export class AppView {
         this.viewApp.stage.scale.set(scale, scale);
     }
 
-    addObject(gameObject: GameObject) {
+    addObject(kind: string, gameObject: GameObject, index: number) {
         if (this.objectMap.has(gameObject.getHash())) return;
-        const viewObject = new ViewPlayer(this.viewApp);
-        viewObject.updateCoords(gameObject.getCoords());
+
+        console.log(gameObject.getHash() + " " + kind + "cond: " + (kind === "player"));
+        const viewObject = ((kind: string): ViewObject => {
+            if (kind === "player") {
+                return new ViewPlayer(this.viewApp, index);
+            }
+
+            // Instead of else if branch so I don't have to reurn undefined
+            return new ViewProjectile(this.viewApp);
+        })(kind);
+        viewObject?.updateCoords(gameObject.getCoords());
         this.objectMap.set(gameObject.getHash(), viewObject);
     }
 
@@ -57,5 +72,10 @@ export class AppView {
         state.getContext().players.forEach((p) => {
             this.objectMap.get(p.getHash())?.updateCoords(p.getCoords());
         });
+
+        for (let i = 0; i < state.getContext().projectiles.getCapacity(); i++) {
+            const item = state.getContext().projectiles.getItem(i);
+            this.objectMap.get(item.getHash())?.updateCoords(item.getCoords());
+        }
     }
 }

@@ -1,8 +1,8 @@
 import * as PIXI from "pixi.js";
 import { ViewObject } from "./view-object";
 
-export class ViewPlayer extends ViewObject {
-    constructor(viewApp: PIXI.Application, index: number) {
+export class ViewProjectile extends ViewObject {
+    constructor(viewApp: PIXI.Application) {
         const texture = PIXI.Texture.from("./src/assets/gameTexture.png", {
             anisotropicLevel: 0,
         }).clone();
@@ -11,7 +11,7 @@ export class ViewPlayer extends ViewObject {
          * the image in the update event
          */
         texture.on("update", () => {
-            texture.frame = new PIXI.Rectangle(32 * index, 0, 32, 32);
+            texture.frame = new PIXI.Rectangle(128, 0, 4, 10);
             texture.updateUvs();
         });
         super(viewApp, texture);
