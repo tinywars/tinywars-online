@@ -11,6 +11,10 @@ export class CircleCollider {
         this.position = position;
     }
 
+    getPosition(): Vector {
+        return this.position;
+    }
+
     setRadius(r: number) {
         this.radius = r;
     }
