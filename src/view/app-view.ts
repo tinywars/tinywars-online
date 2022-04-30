@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { App } from "../app-states/app";
 import { GameObject } from "../game/game-object";
 import { ViewObject } from "./view-object";
+import { ViewObstacle } from "./view-obstacle";
 import { ViewPlayer } from "./view-player";
 import { ViewProjectile } from "./view-projectile";
 
@@ -22,6 +23,11 @@ export class AppView {
         for (let i = 0; i < context.projectiles.getCapacity(); i++) {
             const item = context.projectiles.getItem(i);
             this.addObject("projectile", item, 0);
+        }
+
+        for (let i = 0; i < context.obstacles.getCapacity(); i++) {
+            const item = context.obstacles.getItem(i);
+            this.addObject("rock", item, i % 2);
         }
 
         this.viewApp.ticker.add(this.draw.bind(this));
@@ -59,6 +65,9 @@ export class AppView {
             if (kind === "player") {
                 return new ViewPlayer(this.viewApp, index);
             }
+            else if (kind === "rock") {
+                return new ViewObstacle(this.viewApp, index);
+            }
 
             // Instead of else if branch so I don't have to reurn undefined
             return new ViewProjectile(this.viewApp);
@@ -69,12 +78,19 @@ export class AppView {
 
     draw() {
         const state = this.app.topState();
-        state.getContext().players.forEach((p) => {
-            this.objectMap.get(p.getHash())?.updateCoords(p.getCoords());
-        });
+
+        for (let i = 0; i < state.getContext().players.getCapacity(); i++) {
+            const item = state.getContext().players.getItem(i);
+            this.objectMap.get(item.getHash())?.updateCoords(item.getCoords());
+        }
 
         for (let i = 0; i < state.getContext().projectiles.getCapacity(); i++) {
             const item = state.getContext().projectiles.getItem(i);
+            this.objectMap.get(item.getHash())?.updateCoords(item.getCoords());
+        }
+
+        for (let i = 0; i < state.getContext().obstacles.getCapacity(); i++) {
+            const item = state.getContext().obstacles.getItem(i);
             this.objectMap.get(item.getHash())?.updateCoords(item.getCoords());
         }
     }
