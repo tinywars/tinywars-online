@@ -86,9 +86,7 @@ export class Vector {
      * @param angle Angle in degrees, 0° is at 12 o'clock, incrementing clock-wise
      */
     rotate(angle: number) {
-        const rad = angle * Math.PI / 180;
-        this.x = this.x * Math.cos(rad) - this.y * Math.sin(rad);
-        this.y = this.x * Math.sin(rad) + this.y * Math.cos(rad);
+        this.setRotation(this.toAngle() + angle);
     }
 
     setRotation(angle: number) {
@@ -117,6 +115,6 @@ export class Vector {
         else if (this.x === 0 && this.y >= 0) return 90;
         else if (this.y === 0 && this.x < 0) return 180;
         else if (this.y === 0 && this.x >= 0) return 0;
-        return Math.floor(Math.atan2(this.y, this.x) * 180 / Math.PI);
+        return Math.atan2(this.y, this.x) * 180 / Math.PI;
     }
 }
