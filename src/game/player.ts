@@ -6,6 +6,8 @@ import { eventSpawnProjectile } from "../events/game-event";
 import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
+import { AnimationEngine, AnimationFrame } from "../utility/animation";
+import { Coords } from "../utility/coords";
 
 export class Player extends GameObject {
     protected static RADIUS = 16;
@@ -16,16 +18,31 @@ export class Player extends GameObject {
     protected health = 0;
     protected energy = 0;
     protected maxEnergy = 0;
+    protected animationEngine: AnimationEngine;
 
     constructor(
         readonly id: number,
         private controller: Controller,
     ) {
         super();
+
         this.collider = new CircleCollider(
             Vector.outOfView(),
             Player.RADIUS
         );
+
+        this.animationEngine = new AnimationEngine(
+            {
+                "idle": [
+                    new AnimationFrame(this.id * 32, 0, 32, 32)
+                ],
+                "hit": [
+                    new AnimationFrame((this.id + 1) * 32, 0, 32, 32)
+                ]
+            },
+            2
+        );
+        this.animationEngine.setState("idle", true);
     }
 
     spawn(options: {position: Vector, initialHealth: number, initialEnergy: number, maxEnergy: number}) {
@@ -44,6 +61,10 @@ export class Player extends GameObject {
     }
 
     update(dt: number, context: GameContext) {
+        if (!this.animationEngine.update(dt)) {
+            this.animationEngine.setState("idle", true);
+        }
+
         let updateFwd = true;
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
@@ -63,10 +84,19 @@ export class Player extends GameObject {
         this.moveForward(updateFwd, dt, context);
         this.rechargeEnergy(dt, context);
     }
+    
+    getCoords(): Coords {
+        return {
+            position: this.collider.getPosition().copy(),
+            angle: this.rotation,
+            frame: this.animationEngine.getCurrentFrame()
+        };
+    }
 
     hit(damage: number) {
-        // TODO: play hitflash animation
+        this.animationEngine.setState("hit");
         this.health -= damage;
+        
         if (this.health < 0) {
             // TODO: destroy player
         }

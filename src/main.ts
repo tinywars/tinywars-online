@@ -4,9 +4,10 @@ import { App } from "./app-states/app";
 import { AppStateGame } from "./app-states/app-state-game";
 import "./style.css";
 import { AppView } from "./view/app-view";
-import { Controller } from "./utility/controller";
+import { AppViewCanvas } from "./view-canvas/app-view";
 
 const FPS = 60;
+const USE_NATIVE_RENDERER = true;
 
 const keyboardState: Record<string, boolean> = {};
 document.onkeydown = (e) => {
@@ -29,7 +30,9 @@ const app = new App();
 app.pushState(new AppStateGame(app, keyboardState));
 app.run(FPS);
 
-const appView = new AppView(app, document.body.querySelector("#app")!);
+const appView = USE_NATIVE_RENDERER
+    ? new AppViewCanvas(app, "RenderCanvas")
+    : new AppView(app, document.body.querySelector("#app")!);
 appView.scale();
 
 window.onresize = debounce(() => {
