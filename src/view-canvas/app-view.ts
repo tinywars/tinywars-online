@@ -39,14 +39,12 @@ export class Sprite {
 }
 
 export class AppViewCanvas {
-    private canvas2d;
     private context2d: CanvasRenderingContext2D;
     private texture: CanvasImageSource;
     private ready = false;
     private sprite: Sprite;
 
-    constructor(private app: App, canvasId: string) {
-        this.canvas2d = document.querySelector<HTMLCanvasElement>("#" + canvasId)!;
+    constructor(private app: App, private canvas2d: HTMLCanvasElement) {
         this.context2d = this.canvas2d.getContext("2d")!;
 
         this.texture = new Image();

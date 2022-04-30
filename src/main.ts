@@ -31,7 +31,7 @@ app.pushState(new AppStateGame(app, keyboardState));
 app.run(FPS);
 
 const appView = USE_NATIVE_RENDERER
-    ? new AppViewCanvas(app, "RenderCanvas")
+    ? new AppViewCanvas(app, document.querySelector<HTMLCanvasElement>("#RenderCanvas")!)
     : new AppView(app, document.body.querySelector("#app")!);
 appView.scale();
 
