@@ -15,7 +15,7 @@ export class AnimationEngine {
     private frameIndex = 0;
     private frameTimer = 0;
     private frameTimeout = 0;
-    private currentState: string;
+    private currentState = "";
 
     constructor(
         private states: Record<string, AnimationFrame[]>,
