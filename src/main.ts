@@ -50,10 +50,10 @@ const animations = {
     "rock": {
         "idle0": [ new AnimationFrame(0, 36, 40, 40) ],
         "idle1": [ new AnimationFrame(40, 36, 40, 40) ],
-        "wreck1": [ new AnimationFrame(0, 76, 40, 40) ],
-        "wreck2": [ new AnimationFrame(40, 76, 40, 40) ],
-        "wreck3": [ new AnimationFrame(80, 76, 40, 40) ],
-        "wreck4": [ new AnimationFrame(120, 76, 40, 40) ],
+        "wreck0": [ new AnimationFrame(0, 76, 40, 40) ],
+        "wreck1": [ new AnimationFrame(40, 76, 40, 40) ],
+        "wreck2": [ new AnimationFrame(80, 76, 40, 40) ],
+        "wreck3": [ new AnimationFrame(120, 76, 40, 40) ],
     },
 };
 

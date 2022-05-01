@@ -55,8 +55,7 @@ export class Obstacle extends GameObject {
         this.forward = options.forward;
 
         if (options.playerIndex > -1) {
-            // TODO: this is a wreck and not a rock
-            // use different animation
+            this.animationEngine.setState("wreck" + options.playerIndex);
         }
     }
 
