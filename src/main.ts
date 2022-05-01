@@ -48,8 +48,8 @@ const animations = {
         "idle": [ new AnimationFrame(128, 0, 4, 10) ]
     },
     "rock": {
-        "idle1": [ new AnimationFrame(0, 36, 40, 40) ],
-        "idle2": [ new AnimationFrame(40, 36, 40, 40) ],
+        "idle0": [ new AnimationFrame(0, 36, 40, 40) ],
+        "idle1": [ new AnimationFrame(40, 36, 40, 40) ],
         "wreck1": [ new AnimationFrame(0, 76, 40, 40) ],
         "wreck2": [ new AnimationFrame(40, 76, 40, 40) ],
         "wreck3": [ new AnimationFrame(80, 76, 40, 40) ],

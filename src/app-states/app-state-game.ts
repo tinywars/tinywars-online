@@ -67,7 +67,11 @@ export class AppStateGame implements AppState {
                 new AnimationEngine(
                     animations["projectile"], 
                     ANIMATION_FPS))),
-            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(this.uniqueId++)),
+            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(
+                this.uniqueId++,
+                new AnimationEngine(
+                    animations["rock"],
+                    ANIMATION_FPS))),
             eventQueue: eventQueue,
             
             log: (msg: string): void => {

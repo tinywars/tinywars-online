@@ -88,6 +88,7 @@ export class AppViewCanvas {
         const context = this.app.topState().getContext();
         context.players.forEach((p) => { this.drawEntity(p.getCoords()); });
         context.projectiles.forEach((p) => { this.drawEntity(p.getCoords()); });
+        context.obstacles.forEach((o) => { this.drawEntity(o.getCoords()); });
 
         requestAnimationFrame(() => {this.draw()});
     }
