@@ -96,6 +96,10 @@ export class Player extends GameObject {
         return this.health;
     }
 
+    getForward(): Vector {
+        return this.forward;
+    }
+
     private updateRotation(frameRotation: number, dt: number) {
         this.rotation += frameRotation * dt;
         if (this.rotation >= 360) this.rotation -= 360;

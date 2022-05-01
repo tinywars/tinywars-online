@@ -58,4 +58,8 @@ export class Obstacle extends GameObject {
         this.forward.add(force);
         // TODO: play sound
     }
+
+    getForward(): Vector {
+        return this.forward;
+    }
 }
