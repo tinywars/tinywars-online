@@ -11,6 +11,7 @@ import { Player } from "../game/player";
 import { Projectile } from "../game/projectile";
 import { AiBrain } from "../ai/ai-brain";
 import { AiPoweredController } from "../ai/ai-controller";
+import { AnimationEngine, AnimationFrame } from "../utility/animation";
 
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
@@ -18,10 +19,11 @@ export class AppStateGame implements AppState {
     private controllers: Controller[] = [];
     private aiBrains: AiBrain[] = [];
 
-    constructor(private app: App, keyboardState: Record<string, boolean>) {
+    constructor(private app: App, keyboardState: Record<string, boolean>, animations: Record<string, Record<string, AnimationFrame[]>>) {
         console.log("AppStateGame construction");
 
         const ACTIVE_PLAYERS = 4;
+        const ANIMATION_FPS = 2;
 
         this.controllers.push(this.createPhysicalController(0, keyboardState));
         //this.controllers.push(this.createPhysicalController(1, keyboardState));
@@ -44,8 +46,17 @@ export class AppStateGame implements AppState {
             PROJECTILE_DAMAGE: 1,
             PROJECTILE_ENABLE_TELEPORT: false,
 
-            players: new FastArray<Player>(4, (i) => new Player(i, this.controllers[i])),
-            projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
+            players: new FastArray<Player>(4, (i) => new Player(
+                i, 
+                this.controllers[i], 
+                new AnimationEngine(
+                    animations["player" + i], 
+                    ANIMATION_FPS))),
+            projectiles: new FastArray<Projectile>(64, () => new Projectile(
+                this.uniqueId++, 
+                new AnimationEngine(
+                    animations["projectile"], 
+                    ANIMATION_FPS))),
             eventQueue: new EventQueue(),
             
             log: (msg: string): void => {

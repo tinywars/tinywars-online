@@ -18,29 +18,17 @@ export class Player extends GameObject {
     protected health = 0;
     protected energy = 0;
     protected maxEnergy = 0;
-    protected animationEngine: AnimationEngine;
 
     constructor(
         readonly id: number,
         private controller: Controller,
+        private animationEngine: AnimationEngine
     ) {
         super();
 
         this.collider = new CircleCollider(
             Vector.outOfView(),
             Player.RADIUS
-        );
-
-        this.animationEngine = new AnimationEngine(
-            {
-                "idle": [
-                    new AnimationFrame(this.id * 32, 0, 32, 32)
-                ],
-                "hit": [
-                    new AnimationFrame((this.id + 1) * 32, 0, 32, 32)
-                ]
-            },
-            2
         );
         this.animationEngine.setState("idle", true);
     }

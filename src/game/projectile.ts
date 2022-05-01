@@ -3,21 +3,22 @@ import { Vector } from "../utility/vector";
 import { GameObject } from "./game-object";
 import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
-import { AnimationEngine, AnimationFrame } from "../utility/animation";
+import { AnimationEngine } from "../utility/animation";
 import { Coords } from "../utility/coords";
 
 export class Projectile extends GameObject {
     private forward: Vector = Vector.zero();
     private damage = 0;
-    private frame = new AnimationFrame(128, 0, 4, 10);
 
     constructor(
-        readonly id: number)
+        readonly id: number,
+        private animationEngine: AnimationEngine)
     {
         super();
         this.collider = new CircleCollider(
             Vector.outOfView(), 2
         );
+        this.animationEngine.setState("idle", true);
     }
 
     update(dt: number, context: GameContext) {
@@ -56,7 +57,7 @@ export class Projectile extends GameObject {
         return {
             position: this.collider.getPosition().copy(),
             angle: this.rotation,
-            frame: this.frame
+            frame: this.animationEngine.getCurrentFrame()
         };
     }
 

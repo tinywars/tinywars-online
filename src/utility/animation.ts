@@ -6,10 +6,6 @@ export class AnimationFrame {
         public h: number) {}
 }
 
-/*export interface AnimationState {
-    frames: AnimationFrame[];
-}*/
-
 export class AnimationEngine {
     private loop = false;
     private frameIndex = 0;

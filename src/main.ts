@@ -5,6 +5,7 @@ import { AppStateGame } from "./app-states/app-state-game";
 import "./style.css";
 import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
+import { AnimationFrame } from "./utility/animation";
 
 const FPS = 60;
 const USE_NATIVE_RENDERER = true;
@@ -26,8 +27,38 @@ window.addEventListener("gamepadconnected", function(e) {
 
 console.log("App init");
 
+const animations = {
+    "player0": {
+        "idle": [ new AnimationFrame(0, 0, 32, 32) ],
+        "hit": [ new AnimationFrame(32, 0, 32, 32)]
+    },
+    "player1": {
+        "idle": [ new AnimationFrame(32, 0, 32, 32) ],
+        "hit": [ new AnimationFrame(64, 0, 32, 32)]
+    },
+    "player2": {
+        "idle": [ new AnimationFrame(64, 0, 32, 32) ],
+        "hit": [ new AnimationFrame(96, 0, 32, 32)]
+    },
+    "player3": {
+        "idle": [ new AnimationFrame(96, 0, 32, 32) ],
+        "hit": [ new AnimationFrame(0, 0, 32, 32)]
+    },
+    "projectile": {
+        "idle": [ new AnimationFrame(128, 0, 4, 10) ]
+    },
+    "rock": {
+        "idle1": [ new AnimationFrame(0, 36, 40, 40) ],
+        "idle2": [ new AnimationFrame(40, 36, 40, 40) ],
+        "wreck1": [ new AnimationFrame(0, 76, 40, 40) ],
+        "wreck2": [ new AnimationFrame(40, 76, 40, 40) ],
+        "wreck3": [ new AnimationFrame(80, 76, 40, 40) ],
+        "wreck4": [ new AnimationFrame(120, 76, 40, 40) ],
+    },
+};
+
 const app = new App();
-app.pushState(new AppStateGame(app, keyboardState));
+app.pushState(new AppStateGame(app, keyboardState, animations));
 app.run(FPS);
 
 const appView = USE_NATIVE_RENDERER
