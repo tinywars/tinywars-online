@@ -96,6 +96,14 @@ export class Vector {
         this.y = Math.sin(rad) * size;
     }
 
+    limit(maxSize: number) {
+        const size = this.getSize();
+        if (size > maxSize) {
+            this.x *= maxSize / size;
+            this.y *= maxSize / size;
+        }
+    }
+
     getUnit(): Vector {
         if (this.isZero())
             return this.copy();

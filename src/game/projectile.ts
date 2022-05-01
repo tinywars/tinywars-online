@@ -20,15 +20,28 @@ export class Projectile extends GameObject {
     update(dt: number, context: GameContext) {
         this.collider.move(this.forward.getScaled(dt));
 
+        let destroyThis = false;
         context.players.forEach((player) => {
             if (this.collider.collidesWith(player.getCollider())) {
-                // TODO: play destruction animation and/or sound
                 player.hit(this.damage);
-                context.eventQueue.add(
-                    eventDestroyProjectile(this.id)
-                );
+                destroyThis = true;
             }
         });
+
+        context.obstacles.forEach((obstacle) => {
+            if (this.collider.collidesWith(obstacle.getCollider())) {
+                // transferred forward momentum is small because projectiles have
+                // almost no mass
+                obstacle.hit(this.forward.getScaled(
+                    context.PROJECTILE_MASS / context.OBSTACLE_MASS));
+                destroyThis = true;
+            }
+        });
+
+        if (destroyThis) {
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id));
+        }
 
         if (context.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);

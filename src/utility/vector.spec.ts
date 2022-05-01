@@ -75,5 +75,10 @@ describe("Vector", () => {
             expect(v1.getScaled(0.5).getSize()).to.be.approximately(origSize * 0.5, 0.01);
             expect(v1.getScaled(1.3).getSize()).to.be.approximately(origSize * 1.3, 0.01);
         });
+
+        it("can be limited to maximum size", () => {
+            v1.limit(10);
+            expect(v1.getSize()).to.be.approximately(10, 0.001);
+        });
     });
 });

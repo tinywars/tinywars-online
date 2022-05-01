@@ -44,6 +44,7 @@ export function eventSpawnProjectile(options: { position: Vector, direction: Vec
 export function eventDestroyProjectile(index: number) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
+            // TODO: play destruction animation and/or sound
             for (let i = 0; i < context.projectiles.getSize(); i++) {
                 if (context.projectiles.getItem(i).id === index) {
                     context.projectiles.getItem(i).despawn();
@@ -53,5 +54,39 @@ export function eventDestroyProjectile(index: number) {
         }
     };
     
+    return e;
+}
+
+export function eventDestroyPlayer(index: number) {
+    const e: GameEvent = {
+        process: (context: GameContext): void => {
+            context.players.forEach((p, i) => {
+                if (p.id !== index)
+                    return;
+
+                context.players.getItem(i).despawn();
+                context.players.popItem(i);
+            });
+        }
+    };
+    return e;
+}
+
+export function eventSpawnWreck(options: {
+    index: number,
+    position: Vector,
+    forward: Vector})
+{
+    const e: GameEvent = {
+        process: (context: GameContext): void => {
+            if (!context.obstacles.grow())
+                return;
+            
+            context.obstacles.getLastItem().spawn({
+                position: options.position, 
+                forward: options.forward,
+                playerIndex: options.index});
+        }
+    };
     return e;
 }
