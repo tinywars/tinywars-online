@@ -37,6 +37,29 @@ export function isCrashImminent(
     forwardB: Vector, 
     imminencyThreshold = 1
 ) {
+    /**
+     * Following equatations works on following basis:
+     * There is a parameter t (time) such:
+     * A = positionA + t * forwardA
+     * B = positionB + t * forwardB
+     * |A - B| < radiusA + radiusB
+     * 
+     * Meaning that we are testing whether there is a time offset
+     * under which to points driven by their forward forces
+     * will become close enough that they collide.
+     * 
+     * This boils down to quadratic equatation.
+     * Now if both forward vectors are 0 then no collision can occur.
+     * Second, if discriminant is < 0 then no crash course exists.
+     * Discriminant of 0 means both objects will touch.
+     * Discriminant > 0 will yield two values: t1 and t2.
+     * They denote the interval under which two objects are actively colliding.
+     * If t1 < 0 then we would have to invert both forward to get into collision
+     * so nothing is threathening us.
+     * If t1 > 0 then collision will happen in t1 seconds.
+     * t2 does not interest us at all because we need to know starting point of 
+     * collision, not ending point.
+     */
     const X = colliderA.getPosition().x - colliderB.getPosition().x;
     const Y = colliderA.getPosition().y - colliderB.getPosition().y;
     const R = colliderA.radius + colliderB.radius;
