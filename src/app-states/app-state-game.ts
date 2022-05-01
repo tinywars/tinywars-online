@@ -12,6 +12,7 @@ import { Projectile } from "../game/projectile";
 import { AiBrain } from "../ai/ai-brain";
 import { AiPoweredController } from "../ai/ai-controller";
 import { AnimationEngine, AnimationFrame } from "../utility/animation";
+import { Obstacle } from "../game/obstacle";
 
 export class AppStateGame implements AppState {
     private gameContext: GameContext;
@@ -24,6 +25,7 @@ export class AppStateGame implements AppState {
 
         const ACTIVE_PLAYERS = 4;
         const ANIMATION_FPS = 2;
+        const INITIAL_ROCK_COUNT = 4;
 
         this.controllers.push(this.createPhysicalController(0, keyboardState));
         //this.controllers.push(this.createPhysicalController(1, keyboardState));
@@ -34,6 +36,7 @@ export class AppStateGame implements AppState {
             this.aiBrains.push(new AiBrain(aiController, i));
         }
 
+        const eventQueue = new EventQueue();
         this.gameContext = {
             SCREEN_WIDTH: 1280,
             SCREEN_HEIGHT: 1280 / 4 * 3,
@@ -41,23 +44,31 @@ export class AppStateGame implements AppState {
             PLAYER_FORWARD_SPEED: 128,
             PLAYER_ROTATION_SPEED: 96,
             PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
+            PLAYER_MASS: 10,
             
             PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
             PROJECTILE_ENABLE_TELEPORT: false,
+            PROJECTILE_MASS: 1.5,
+
+            OBSTACLE_MAX_SPEED: 312,
+            OBSTACLE_HIT_DAMAGE: 10,
+            OBSTACLE_MASS: 15,
 
             players: new FastArray<Player>(4, (i) => new Player(
                 i, 
                 this.controllers[i], 
                 new AnimationEngine(
                     animations["player" + i], 
-                    ANIMATION_FPS))),
+                    ANIMATION_FPS),
+                eventQueue)),
             projectiles: new FastArray<Projectile>(64, () => new Projectile(
                 this.uniqueId++, 
                 new AnimationEngine(
                     animations["projectile"], 
                     ANIMATION_FPS))),
-            eventQueue: new EventQueue(),
+            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(this.uniqueId++)),
+            eventQueue: eventQueue,
             
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -66,6 +77,11 @@ export class AppStateGame implements AppState {
                 return this.uniqueId++;
             },
         };
+
+        const getRandomPosition = () => new Vector(
+            Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
+            Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
+        );
 
         const PLAYER_INITIAL_HEALTH = 3;
         const PLAYER_INITIAL_ENERGY = 2;
@@ -76,13 +92,20 @@ export class AppStateGame implements AppState {
 
         this.gameContext.players.forEach((p) => {
             p.spawn({
-                position: new Vector(
-                    Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
-                    Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
-                ),
+                position: getRandomPosition(),
                 initialHealth: PLAYER_INITIAL_HEALTH, 
                 initialEnergy: PLAYER_INITIAL_ENERGY, 
                 maxEnergy: PLAYER_MAX_ENERGY});
+        });
+
+        for (let i = 0; i < INITIAL_ROCK_COUNT; i++)
+            this.gameContext.obstacles.grow();
+
+        this.gameContext.obstacles.forEach((p) => {
+            p.spawn({
+                position: getRandomPosition(),
+                forward: Vector.zero(),
+                playerIndex: -1});
         });
     }
 
@@ -91,6 +114,7 @@ export class AppStateGame implements AppState {
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
         this.gameContext.projectiles.forEach((p) => p.update(dt, this.gameContext));
+        this.gameContext.obstacles.forEach((p) => p.update(dt, this.gameContext));
 
         this.gameContext.eventQueue.process(this.gameContext);
     }
