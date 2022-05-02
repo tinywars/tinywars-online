@@ -30,22 +30,22 @@ export function lerp(a: number, b: number, t: number): number {
  * null if no collision can occur.
  */
 export function getTimeBeforeCollision(
-    colliderA: CircleCollider, 
-    colliderB: CircleCollider, 
-    forwardA: Vector, 
-    forwardB: Vector, 
-) : number | null {
+    colliderA: CircleCollider,
+    colliderB: CircleCollider,
+    forwardA: Vector,
+    forwardB: Vector,
+): number | null {
     /**
      * Following equatations works on following basis:
      * There is a parameter t (time) such:
      * A = positionA + t * forwardA
      * B = positionB + t * forwardB
      * |A - B| < radiusA + radius
-     * 
+     *
      * Meaning that we are testing whether there is a time offset
      * under which to points driven by their forward forces
      * will become close enough that they collide.
-     * 
+     *
      * This boils down to quadratic equatation.
      * Now if both forward vectors are 0 then no collision can occur.
      * Second, if discriminant is < 0 then no crash course exists.
@@ -55,7 +55,7 @@ export function getTimeBeforeCollision(
      * If t1 < 0 then we would have to invert both forward to get into collision
      * so nothing is threathening us.
      * If t1 > 0 then collision will happen in t1 seconds.
-     * t2 does not interest us at all because we need to know starting point of 
+     * t2 does not interest us at all because we need to know starting point of
      * collision, not ending point.
      */
     const X = colliderA.getPosition().x - colliderB.getPosition().x;
@@ -79,5 +79,5 @@ export function getTimeBeforeCollision(
 
 export function sanitizeAngle(angle: number): number {
     const rem = angle % 360;
-    return rem < 0 ? (rem + 360): rem;
+    return rem < 0 ? rem + 360 : rem;
 }

@@ -3,12 +3,8 @@ import { CircleCollider } from "./circle-collider";
 import { Vector } from "./vector";
 
 describe("CircleCollider", () => {
-    const collider1 = new CircleCollider(
-        new Vector(10, 10), 16
-    );
-    const collider2 = new CircleCollider(
-        new Vector(20, 20), 10
-    );
+    const collider1 = new CircleCollider(new Vector(10, 10), 16);
+    const collider2 = new CircleCollider(new Vector(20, 20), 10);
 
     describe("collidesWith", () => {
         it("Collides with other collider is close enough", () => {

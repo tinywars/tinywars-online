@@ -5,7 +5,10 @@ import { AnimationFrame } from "../utility/animation";
 export abstract class ViewObject {
     protected sprite: PIXI.Sprite;
 
-    constructor(viewApp: PIXI.Application, private texture: PIXI.Texture<PIXI.Resource>) {
+    constructor(
+        viewApp: PIXI.Application,
+        private texture: PIXI.Texture<PIXI.Resource>,
+    ) {
         this.sprite = PIXI.Sprite.from(texture);
         this.sprite.anchor.x = 0.5;
         this.sprite.anchor.y = 0.5;
@@ -27,10 +30,11 @@ export abstract class ViewObject {
 
     setFrame(frame: AnimationFrame): void {
         this.texture.frame = new PIXI.Rectangle(
-            frame.x, 
-            frame.y, 
+            frame.x,
+            frame.y,
             frame.w,
-            frame.h);
+            frame.h,
+        );
         this.texture.updateUvs();
     }
 }

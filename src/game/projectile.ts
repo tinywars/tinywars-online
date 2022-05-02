@@ -9,14 +9,9 @@ import { Coords } from "../utility/coords";
 export class Projectile extends GameObject {
     private damage = 0;
 
-    constructor(
-        readonly id: number,
-        private animationEngine: AnimationEngine)
-    {
+    constructor(readonly id: number, private animationEngine: AnimationEngine) {
         super();
-        this.collider = new CircleCollider(
-            Vector.outOfView(), 2
-        );
+        this.collider = new CircleCollider(Vector.outOfView(), 2);
         this.animationEngine.setState("idle", true);
     }
 
@@ -35,26 +30,27 @@ export class Projectile extends GameObject {
             if (this.collider.collidesWith(obstacle.getCollider())) {
                 // transferred forward momentum is small because projectiles have
                 // almost no mass
-                obstacle.hit(this.forward.getScaled(
-                    context.PROJECTILE_MASS / context.OBSTACLE_MASS));
+                obstacle.hit(
+                    this.forward.getScaled(
+                        context.PROJECTILE_MASS / context.OBSTACLE_MASS,
+                    ),
+                );
                 destroyThis = true;
             }
         });
 
         if (destroyThis) {
-            context.eventQueue.add(
-                eventDestroyProjectile(this.id));
+            context.eventQueue.add(eventDestroyProjectile(this.id));
         }
 
         if (context.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
-        }
-        else {
+        } else {
             this.handleLeavingScreen(context);
         }
     }
 
-    spawn(options: { position: Vector, forward: Vector, damage: number}) {
+    spawn(options: { position: Vector; forward: Vector; damage: number }) {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
         this.damage = options.damage;
@@ -64,25 +60,24 @@ export class Projectile extends GameObject {
     despawn() {
         this.collider.setPosition(Vector.outOfView());
     }
-    
+
     getCoords(): Coords {
         return {
             position: this.collider.getPosition().copy(),
             angle: this.rotation,
-            frame: this.animationEngine.getCurrentFrame()
+            frame: this.animationEngine.getCurrentFrame(),
         };
     }
 
     private handleLeavingScreen(context: GameContext) {
         const pos = this.collider.getPosition();
-        if (pos.x < 0
-            || pos.x > context.SCREEN_WIDTH
-            || pos.y < 0
-            || pos.y > context.SCREEN_HEIGHT)
-        {
-            context.eventQueue.add(
-                eventDestroyProjectile(this.id)
-            );
+        if (
+            pos.x < 0 ||
+            pos.x > context.SCREEN_WIDTH ||
+            pos.y < 0 ||
+            pos.y > context.SCREEN_HEIGHT
+        ) {
+            context.eventQueue.add(eventDestroyProjectile(this.id));
         }
     }
 }

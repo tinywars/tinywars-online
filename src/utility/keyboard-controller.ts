@@ -5,7 +5,7 @@ export class KeyboardController implements Controller {
 
     constructor(private kbState: Record<string, boolean>) {}
 
-    isKeyPressed(code: number):boolean {
+    isKeyPressed(code: number): boolean {
         return this.kbState[this.mapping[code]];
     }
 

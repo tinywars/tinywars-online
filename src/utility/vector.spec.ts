@@ -61,7 +61,7 @@ describe("Vector", () => {
 
             r.rotate(45);
             expect(r.toAngle()).to.be.approximately(45, 0.01);
-            
+
             expect(r.x).to.be.approximately(1, 0.01);
             expect(r.y).to.be.approximately(1, 0.01);
         });
@@ -72,8 +72,14 @@ describe("Vector", () => {
         const origSize = v1.getSize();
 
         it("scales properly", () => {
-            expect(v1.getScaled(0.5).getSize()).to.be.approximately(origSize * 0.5, 0.01);
-            expect(v1.getScaled(1.3).getSize()).to.be.approximately(origSize * 1.3, 0.01);
+            expect(v1.getScaled(0.5).getSize()).to.be.approximately(
+                origSize * 0.5,
+                0.01,
+            );
+            expect(v1.getScaled(1.3).getSize()).to.be.approximately(
+                origSize * 1.3,
+                0.01,
+            );
         });
 
         it("can be limited to maximum size", () => {

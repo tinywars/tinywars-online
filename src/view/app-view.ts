@@ -60,12 +60,13 @@ export class AppView {
     addObject(kind: string, gameObject: GameObject, index: number) {
         if (this.objectMap.has(gameObject.getHash())) return;
 
-        console.log(gameObject.getHash() + " " + kind + "cond: " + (kind === "player"));
+        console.log(
+            gameObject.getHash() + " " + kind + "cond: " + (kind === "player"),
+        );
         const viewObject = ((kind: string): ViewObject => {
             if (kind === "player") {
                 return new ViewPlayer(this.viewApp, index);
-            }
-            else if (kind === "rock") {
+            } else if (kind === "rock") {
                 return new ViewObstacle(this.viewApp, index);
             }
 

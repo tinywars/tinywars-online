@@ -10,8 +10,7 @@ Example usage 2: I want to get direction from point A to point B:
 */
 
 export class Vector {
-    constructor(public x: number, public y: number) {
-    }
+    constructor(public x: number, public y: number) {}
 
     /**
      * Get directional vector between two points
@@ -72,7 +71,7 @@ export class Vector {
 
     /**
      * Invert both components of a vector
-     * @param vec 
+     * @param vec
      */
     getInverted(): Vector {
         const v = this.copy();
@@ -91,7 +90,7 @@ export class Vector {
 
     setRotation(angle: number) {
         const size = this.getSize();
-        const rad = angle * Math.PI / 180;
+        const rad = (angle * Math.PI) / 180;
         this.x = Math.cos(rad) * size;
         this.y = Math.sin(rad) * size;
     }
@@ -105,8 +104,7 @@ export class Vector {
     }
 
     getUnit(): Vector {
-        if (this.isZero())
-            return this.copy();
+        if (this.isZero()) return this.copy();
         return this.getScaled(1 / this.getSize());
     }
 
@@ -123,6 +121,6 @@ export class Vector {
         else if (this.x === 0 && this.y >= 0) return 90;
         else if (this.y === 0 && this.x < 0) return 180;
         else if (this.y === 0 && this.x >= 0) return 0;
-        return Math.atan2(this.y, this.x) * 180 / Math.PI;
+        return (Math.atan2(this.y, this.x) * 180) / Math.PI;
     }
 }

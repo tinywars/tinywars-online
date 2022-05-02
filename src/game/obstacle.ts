@@ -8,16 +8,11 @@ import { Coords } from "../utility/coords";
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    constructor(
-        readonly id: number,
-        private animationEngine: AnimationEngine,
-    ) {
+    constructor(readonly id: number, private animationEngine: AnimationEngine) {
         super();
-        this.collider = new CircleCollider(
-            Vector.outOfView(),
-            Obstacle.RADIUS);
+        this.collider = new CircleCollider(Vector.outOfView(), Obstacle.RADIUS);
         this.forward = Vector.zero();
-        this.animationEngine.setState("idle" + id % 2, true);
+        this.animationEngine.setState("idle" + (id % 2), true);
     }
 
     update(dt: number, context: GameContext) {
@@ -25,8 +20,7 @@ export class Obstacle extends GameObject {
         this.collider.move(this.forward.getScaled(dt));
 
         context.obstacles.forEach((obstacle) => {
-            if (this.id === obstacle.id)
-                return;
+            if (this.id === obstacle.id) return;
 
             if (this.collider.collidesWith(obstacle.getCollider())) {
                 // Exchange their movement vector
@@ -35,7 +29,10 @@ export class Obstacle extends GameObject {
                 obstacle.forward = tmp;
 
                 // nudge them apart from each other so they won't become stuck
-                const diff = Vector.diff(this.collider.getPosition(), obstacle.collider.getPosition()).getUnit();
+                const diff = Vector.diff(
+                    this.collider.getPosition(),
+                    obstacle.collider.getPosition(),
+                ).getUnit();
                 this.collider.move(diff);
                 obstacle.collider.move(diff.getInverted());
             }
@@ -44,11 +41,7 @@ export class Obstacle extends GameObject {
         this.handleLeavingScreenByWrappingAround(context);
     }
 
-    spawn(options: {
-        position: Vector,
-        forward: Vector
-        playerIndex: number}) 
-    {
+    spawn(options: { position: Vector; forward: Vector; playerIndex: number }) {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
 
@@ -61,12 +54,12 @@ export class Obstacle extends GameObject {
         this.forward.add(force);
         // TODO: play sound
     }
-    
+
     getCoords(): Coords {
         return {
             position: this.collider.getPosition().copy(),
             angle: this.rotation,
-            frame: this.animationEngine.getCurrentFrame()
+            frame: this.animationEngine.getCurrentFrame(),
         };
     }
 }
