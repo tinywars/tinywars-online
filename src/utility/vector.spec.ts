@@ -86,10 +86,5 @@ describe("Vector", () => {
             v1.limit(10);
             expect(v1.getSize()).to.be.approximately(10, 0.001);
         });
-
-        it("can be limited to maximum size", () => {
-            v1.limit(10);
-            expect(v1.getSize()).to.be.approximately(10, 0.001);
-        });
     });
 });
