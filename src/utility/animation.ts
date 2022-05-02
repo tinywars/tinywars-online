@@ -3,7 +3,8 @@ export class AnimationFrame {
         public x: number,
         public y: number,
         public w: number,
-        public h: number) {}
+        public h: number,
+    ) {}
 }
 
 export class AnimationEngine {
@@ -13,10 +14,7 @@ export class AnimationEngine {
     private frameTimeout = 0;
     private currentState = "";
 
-    constructor(
-        private states: Record<string, AnimationFrame[]>,
-        fps: number
-    ) {
+    constructor(private states: Record<string, AnimationFrame[]>, fps: number) {
         this.frameTimeout = 1 / fps;
     }
 
@@ -27,17 +25,12 @@ export class AnimationEngine {
      */
     update(dt: number): boolean {
         this.frameTimer -= dt;
-        if (this.frameTimer > 0)
-            return true; // animation is still playing
+        if (this.frameTimer > 0) return true; // animation is still playing
 
         if (this.states[this.currentState].length === this.frameIndex + 1) {
-            if (this.loop)
-                this.frameIndex = 0;
-            else
-                return false; // animation state just ended and is not looping
-        }
-        else
-            this.frameIndex++;
+            if (this.loop) this.frameIndex = 0;
+            else return false; // animation state just ended and is not looping
+        } else this.frameIndex++;
 
         // reset timer
         this.frameTimer = this.frameTimeout;
@@ -47,13 +40,15 @@ export class AnimationEngine {
 
     setState(name: string, looping = false) {
         if (this.states[name] === undefined)
-            throw "Programatic error: Trying to use non-existent animation state " + name;
+            throw (
+                "Programatic error: Trying to use non-existent animation state " +
+                name
+            );
 
         this.loop = looping;
 
         // Repeated setting of the animation to the same values does nothing
-        if (this.currentState === name)
-            return;
+        if (this.currentState === name) return;
 
         this.currentState = name;
         this.frameIndex = 0;

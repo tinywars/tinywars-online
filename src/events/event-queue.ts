@@ -7,7 +7,7 @@ export class EventQueue {
     /**
      * Add new event to a queue
      * @param event Event created from a factory method
-     * 
+     *
      * Example usage:
      * queue.add(DebugEvent("Message"));
      */

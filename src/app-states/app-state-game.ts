@@ -20,7 +20,11 @@ export class AppStateGame implements AppState {
     private controllers: Controller[] = [];
     private aiBrains: AiBrain[] = [];
 
-    constructor(private app: App, keyboardState: Record<string, boolean>, animations: Record<string, Record<string, AnimationFrame[]>>) {
+    constructor(
+        private app: App,
+        keyboardState: Record<string, boolean>,
+        animations: Record<string, Record<string, AnimationFrame[]>>,
+    ) {
         console.log("AppStateGame construction");
 
         const ACTIVE_PLAYERS = 4;
@@ -31,7 +35,7 @@ export class AppStateGame implements AppState {
         //this.controllers.push(this.createPhysicalController(1, keyboardState));
 
         for (let i = 1; i < ACTIVE_PLAYERS; i++) {
-            const aiController = new AiPoweredController()
+            const aiController = new AiPoweredController();
             this.controllers.push(aiController);
             this.aiBrains.push(new AiBrain(aiController, i));
         }
@@ -39,13 +43,12 @@ export class AppStateGame implements AppState {
         const eventQueue = new EventQueue();
         this.gameContext = {
             SCREEN_WIDTH: 1280,
-            SCREEN_HEIGHT: 1280 / 4 * 3,
-            
+            SCREEN_HEIGHT: (1280 / 4) * 3,
+
             PLAYER_FORWARD_SPEED: 128,
             PLAYER_ROTATION_SPEED: 96,
             PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
             PLAYER_MASS: 10,
-            
             PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
             PROJECTILE_ENABLE_TELEPORT: false,
@@ -55,25 +58,40 @@ export class AppStateGame implements AppState {
             OBSTACLE_HIT_DAMAGE: 10,
             OBSTACLE_MASS: 15,
 
-            players: new FastArray<Player>(4, (i) => new Player(
-                i, 
-                this.controllers[i], 
-                new AnimationEngine(
-                    animations["player" + i], 
-                    ANIMATION_FPS),
-                eventQueue)),
-            projectiles: new FastArray<Projectile>(64, () => new Projectile(
-                this.uniqueId++, 
-                new AnimationEngine(
-                    animations["projectile"], 
-                    ANIMATION_FPS))),
-            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(
-                this.uniqueId++,
-                new AnimationEngine(
-                    animations["rock"],
-                    ANIMATION_FPS))),
+            players: new FastArray<Player>(
+                4,
+                (i) =>
+                    new Player(
+                        i,
+                        this.controllers[i],
+                        new AnimationEngine(
+                            animations["player" + i],
+                            ANIMATION_FPS,
+                        ),
+                        eventQueue,
+                    ),
+            ),
+            projectiles: new FastArray<Projectile>(
+                64,
+                () =>
+                    new Projectile(
+                        this.uniqueId++,
+                        new AnimationEngine(
+                            animations["projectile"],
+                            ANIMATION_FPS,
+                        ),
+                    ),
+            ),
+            obstacles: new FastArray<Obstacle>(
+                16,
+                () =>
+                    new Obstacle(
+                        this.uniqueId++,
+                        new AnimationEngine(animations["rock"], ANIMATION_FPS),
+                    ),
+            ),
             eventQueue: eventQueue,
-            
+
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
             },
@@ -82,10 +100,11 @@ export class AppStateGame implements AppState {
             },
         };
 
-        const getRandomPosition = () => new Vector(
-            Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
-            Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
-        );
+        const getRandomPosition = () =>
+            new Vector(
+                Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
+                Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
+            );
 
         const PLAYER_INITIAL_HEALTH = 3;
         const PLAYER_INITIAL_ENERGY = 2;
@@ -97,9 +116,10 @@ export class AppStateGame implements AppState {
         this.gameContext.players.forEach((p) => {
             p.spawn({
                 position: getRandomPosition(),
-                initialHealth: PLAYER_INITIAL_HEALTH, 
-                initialEnergy: PLAYER_INITIAL_ENERGY, 
-                maxEnergy: PLAYER_MAX_ENERGY});
+                initialHealth: PLAYER_INITIAL_HEALTH,
+                initialEnergy: PLAYER_INITIAL_ENERGY,
+                maxEnergy: PLAYER_MAX_ENERGY,
+            });
         });
 
         for (let i = 0; i < INITIAL_ROCK_COUNT; i++)
@@ -109,7 +129,8 @@ export class AppStateGame implements AppState {
             p.spawn({
                 position: getRandomPosition(),
                 forward: Vector.zero(),
-                playerIndex: -1});
+                playerIndex: -1,
+            });
         });
     }
 
@@ -117,8 +138,12 @@ export class AppStateGame implements AppState {
         this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
-        this.gameContext.projectiles.forEach((p) => p.update(dt, this.gameContext));
-        this.gameContext.obstacles.forEach((p) => p.update(dt, this.gameContext));
+        this.gameContext.projectiles.forEach((p) =>
+            p.update(dt, this.gameContext),
+        );
+        this.gameContext.obstacles.forEach((p) =>
+            p.update(dt, this.gameContext),
+        );
 
         this.gameContext.eventQueue.process(this.gameContext);
     }
@@ -127,7 +152,10 @@ export class AppStateGame implements AppState {
         return this.gameContext;
     }
 
-    private createPhysicalController(index: number, keyboardState: Record<string, boolean>): KeyboardController {
+    private createPhysicalController(
+        index: number,
+        keyboardState: Record<string, boolean>,
+    ): KeyboardController {
         const bindings = [
             [
                 { key: "KeyW", code: KeyCode.Up },

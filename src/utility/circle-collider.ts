@@ -1,9 +1,7 @@
 import { Vector } from "./vector";
 
 export class CircleCollider {
-    constructor(
-        private position: Vector, 
-        readonly radius: number) {}
+    constructor(private position: Vector, readonly radius: number) {}
 
     move(direction: Vector) {
         this.position.add(direction);
@@ -18,6 +16,9 @@ export class CircleCollider {
     }
 
     collidesWith(collider: CircleCollider): boolean {
-        return Vector.diff(this.position, collider.position).getSize() <= (this.radius + collider.radius);
+        return (
+            Vector.diff(this.position, collider.position).getSize() <=
+            this.radius + collider.radius
+        );
     }
 }

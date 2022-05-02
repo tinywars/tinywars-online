@@ -20,23 +20,26 @@ export function eventDebug(message: string) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             context.log("DebugEvent: " + message);
-        }
+        },
     };
     return e;
 }
 
-export function eventSpawnProjectile(options: { position: Vector, direction: Vector, damageMultiplier: number }) {
+export function eventSpawnProjectile(options: {
+    position: Vector;
+    direction: Vector;
+    damageMultiplier: number;
+}) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
-            if (!context.projectiles.grow())
-                return;
-            
+            if (!context.projectiles.grow()) return;
+
             context.projectiles.getLastItem().spawn({
                 position: options.position,
                 forward: options.direction.getScaled(context.PROJECTILE_SPEED),
-                damage: options.damageMultiplier * context.PROJECTILE_DAMAGE
+                damage: options.damageMultiplier * context.PROJECTILE_DAMAGE,
             });
-        }
+        },
     };
     return e;
 }
@@ -51,9 +54,9 @@ export function eventDestroyProjectile(index: number) {
                     context.projectiles.popItem(i);
                 }
             }
-        }
+        },
     };
-    
+
     return e;
 }
 
@@ -61,32 +64,31 @@ export function eventDestroyPlayer(index: number) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
             context.players.forEach((p, i) => {
-                if (p.id !== index)
-                    return;
+                if (p.id !== index) return;
 
                 context.players.getItem(i).despawn();
                 context.players.popItem(i);
             });
-        }
+        },
     };
     return e;
 }
 
 export function eventSpawnWreck(options: {
-    index: number,
-    position: Vector,
-    forward: Vector})
-{
+    index: number;
+    position: Vector;
+    forward: Vector;
+}) {
     const e: GameEvent = {
         process: (context: GameContext): void => {
-            if (!context.obstacles.grow())
-                return;
-            
+            if (!context.obstacles.grow()) return;
+
             context.obstacles.getLastItem().spawn({
-                position: options.position, 
+                position: options.position,
                 forward: options.forward,
-                playerIndex: options.index});
-        }
+                playerIndex: options.index,
+            });
+        },
     };
     return e;
 }
