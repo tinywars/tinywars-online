@@ -1,7 +1,7 @@
 import { CircleCollider } from "../utility/circle-collider";
 import { Controller } from "../utility/controller";
 import { Vector } from "../utility/vector";
-import { clamp } from "../utility/math";
+import { clamp, sanitizeAngle } from "../utility/math";
 import {
     eventSpawnProjectile,
     eventDestroyPlayer,
@@ -125,9 +125,7 @@ export class Player extends GameObject {
     }
 
     private updateRotation(frameRotation: number, dt: number) {
-        this.rotation += frameRotation * dt;
-        if (this.rotation >= 360) this.rotation -= 360;
-        else if (this.rotation < 0) this.rotation += 360;
+        this.rotation = sanitizeAngle(this.rotation + frameRotation * dt);
         this.direction.setRotation(this.rotation);
     }
 

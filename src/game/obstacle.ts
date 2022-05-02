@@ -4,6 +4,7 @@ import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 import { Coords } from "../utility/coords";
+import { sanitizeAngle } from "../utility/math";
 
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
@@ -18,6 +19,10 @@ export class Obstacle extends GameObject {
     update(dt: number, context: GameContext) {
         this.forward.limit(context.OBSTACLE_MAX_SPEED);
         this.collider.move(this.forward.getScaled(dt));
+        this.rotation = sanitizeAngle(
+            this.rotation +
+                this.forward.getSize() * dt * (this.id % 2 ? -1 : 1),
+        );
 
         context.obstacles.forEach((obstacle) => {
             if (this.id === obstacle.id) return;
