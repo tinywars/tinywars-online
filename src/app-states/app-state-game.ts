@@ -49,7 +49,6 @@ export class AppStateGame implements AppState {
             PLAYER_ROTATION_SPEED: 96,
             PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
             PLAYER_MASS: 10,
-
             PROJECTILE_SPEED: 256,
             PROJECTILE_DAMAGE: 1,
             PROJECTILE_ENABLE_TELEPORT: false,

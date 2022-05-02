@@ -8,11 +8,16 @@ import { Coords } from "../utility/coords";
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    constructor(readonly id: number, private animationEngine: AnimationEngine) {
+    constructor(
+        readonly id: number,
+        private animationEngine: AnimationEngine,
+    ) {
         super();
-        this.collider = new CircleCollider(Vector.outOfView(), Obstacle.RADIUS);
+        this.collider = new CircleCollider(
+            Vector.outOfView(),
+            Obstacle.RADIUS);
         this.forward = Vector.zero();
-        this.animationEngine.setState("idle" + (id % 2), true);
+        this.animationEngine.setState("idle" + id % 2, true);
     }
 
     update(dt: number, context: GameContext) {
@@ -54,7 +59,6 @@ export class Obstacle extends GameObject {
         this.forward.add(force);
         // TODO: play sound
     }
-
     getCoords(): Coords {
         return {
             position: this.collider.getPosition().copy(),
