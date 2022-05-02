@@ -88,9 +88,6 @@ export function isCrashImminent(
 }
 
 export function sanitizeAngle(angle: number): number {
-    if (angle < 0)
-        angle += 360;
-    else if (angle >= 360)
-        angle -= 360;
-    return angle;
+    const rem = angle % 360;
+    return rem < 0 ? (rem + 360): rem;
 }

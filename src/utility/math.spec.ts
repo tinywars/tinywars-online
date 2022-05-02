@@ -123,7 +123,9 @@ describe("GameMath", () => {
 
         it ("Restore angle out of bounds", () => {
             expect(GameMath.sanitizeAngle(-300)).to.equal(60);
+            expect(GameMath.sanitizeAngle(-400)).to.equal(320);
             expect(GameMath.sanitizeAngle(360)).to.equal(0);
+            expect(GameMath.sanitizeAngle(721)).to.equal(1);
         });
     });
 });
