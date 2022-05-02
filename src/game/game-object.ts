@@ -10,6 +10,8 @@ export abstract class GameObject {
 
     abstract update(dt: number, context: GameContext): void;
 
+    abstract getForward(): Vector;
+
     getHash() {
         return Object.getPrototypeOf(this).name + this.hash;
     }

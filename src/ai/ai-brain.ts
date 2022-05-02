@@ -4,6 +4,14 @@ import { Player } from "../game/player";
 import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
 import { isCrashImminent, sanitizeAngle } from "../utility/math";
+import { GameObject } from "../game/game-object";
+
+enum AiState {
+    Start,
+    TrackingAndShooting,
+    Evading,
+    Drifting
+}
 
 export class AiBrain {
     private goForwardTimeout = 0;
@@ -11,7 +19,7 @@ export class AiBrain {
     private MAX_GO_FORWARD_TIMEOUT = 2;
     private MAX_SHOOT_DELAY = 5;
     private MIN_SHOOT_DELAY = 2;
-    private state = "start"; // | tracking | evading | drifting
+    private aiState = AiState.Start;
     private targetAngle = 0;
 
     constructor(private controller: AiPoweredController, private playerId: number) {
@@ -41,25 +49,26 @@ export class AiBrain {
          * If no transition should occur, default state
          * logic is executed instead.
          */
-
-        if (this.state === "start") {
+        switch (this.aiState) {
+        case AiState.Start:
             this.controller.pressKey(KeyCode.Up);
-            this.state = "tracking";
-        }
-        else if (this.state === "tracking") {
+            this.aiState = AiState.TrackingAndShooting;
+            break;
+        
+        case AiState.TrackingAndShooting: {
             if (this.isCollisionImminent(myPlayer, context)) {
                 this.targetAngle = this.pickEvasionAngle(myPlayer);
-                this.state = "evading";
+                this.aiState = AiState.Evading;
                 return;
             }
 
             const closestPlayer = this.pickClosestPlayer(myPlayer, context);
             if (closestPlayer === null) {
-                this.state = "drifting";
+                this.aiState = AiState.Drifting;
                 return;
             }
 
-            this.targetClosestPlayer(myPlayer, closestPlayer);
+            this.targetObject(myPlayer, closestPlayer);
             this.rotateTowardsTarget(myPlayer);
 
             this.shootTimeout -= dt;
@@ -67,23 +76,27 @@ export class AiBrain {
                 this.controller.pressKey(KeyCode.Shoot);
                 this.shootTimeout = Math.random() * this.MAX_SHOOT_DELAY + this.MIN_SHOOT_DELAY;
             }
-        }
-        else if (this.state === "evading") {
+            break; }
+        
+        case AiState.Evading: {
             if (this.isTargetAngleAchieved(myPlayer)) {
                 this.controller.pressKey(
                     Math.random() * 10 % 2 == 0
                         ? KeyCode.Up
                         : KeyCode.Down
                 );
-                this.state = "tracking";
+                this.aiState = AiState.TrackingAndShooting;
                 return;
             }
 
             this.rotateTowardsTarget(myPlayer);   
-        }
-        else {
+            break; }
+        
+        default:
+        case AiState.Drifting:
             // drifting, do nothing, you're last
             // player alive
+            break;
         }
     }
 
@@ -116,11 +129,11 @@ export class AiBrain {
         return closestPlayer;
     }
 
-    private targetClosestPlayer(myPlayer: Player, closestPlayer: Player) {
+    private targetObject(myPlayer: Player, object: GameObject) {
         const direction = Vector.diff(
             myPlayer.getCollider().getPosition(),
             // aim a bit in front of the target
-            closestPlayer.getCollider().getPosition().getSum(closestPlayer.getForward().getScaled(0.5)),
+            object.getCollider().getPosition().getSum(object.getForward().getScaled(0.5)),
         );
         this.targetAngle = direction.toAngle();
     }

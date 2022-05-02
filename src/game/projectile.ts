@@ -51,6 +51,10 @@ export class Projectile extends GameObject {
         }
     }
 
+    getForward(): Vector {
+        return this.forward;
+    }
+
     spawn(options: { position: Vector, forward: Vector, damage: number}) {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
