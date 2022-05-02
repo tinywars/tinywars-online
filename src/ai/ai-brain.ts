@@ -147,7 +147,9 @@ export class AiBrain {
                 o.getCollider(),
                 myPlayer.getForward(),
                 o.getForward());
-            result = result || t !== undefined ? t < COLLISION_CRITICAL_TIME : false;
+
+            if (t !== undefined)
+                result = result || t < COLLISION_CRITICAL_TIME; 
         });
 
         // TODO: want to test players once we enable collisions between them
