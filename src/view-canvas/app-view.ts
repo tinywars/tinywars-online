@@ -52,7 +52,7 @@ export class AppViewCanvas {
             console.log("texture loaded!");
             this.draw();
         };
-        this.texture.src = "./src/assets/gameTexture.png";
+        this.texture.src = "./src/assets/spritesheet_v2.png";
 
         this.sprite = new Sprite(this.texture);
     }
