@@ -11,6 +11,7 @@ import { Player } from "../game/player";
 import { Projectile } from "../game/projectile";
 import { AiBrain } from "../ai/ai-brain";
 import { AiPoweredController } from "../ai/ai-controller";
+import { AnimationEngine, AnimationFrame } from "../utility/animation";
 import { Obstacle } from "../game/obstacle";
 
 export class AppStateGame implements AppState {
@@ -19,10 +20,11 @@ export class AppStateGame implements AppState {
     private controllers: Controller[] = [];
     private aiBrains: AiBrain[] = [];
 
-    constructor(private app: App, keyboardState: Record<string, boolean>) {
+    constructor(private app: App, keyboardState: Record<string, boolean>, animations: Record<string, Record<string, AnimationFrame[]>>) {
         console.log("AppStateGame construction");
 
         const ACTIVE_PLAYERS = 4;
+        const ANIMATION_FPS = 2;
         const INITIAL_ROCK_COUNT = 4;
 
         this.controllers.push(this.createPhysicalController(0, keyboardState));
@@ -53,9 +55,23 @@ export class AppStateGame implements AppState {
             OBSTACLE_HIT_DAMAGE: 10,
             OBSTACLE_MASS: 15,
 
-            players: new FastArray<Player>(4, (i) => new Player(i, this.controllers[i], eventQueue)),
-            projectiles: new FastArray<Projectile>(64, () => new Projectile(this.uniqueId++) ),
-            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(this.uniqueId++)),
+            players: new FastArray<Player>(4, (i) => new Player(
+                i, 
+                this.controllers[i], 
+                new AnimationEngine(
+                    animations["player" + i], 
+                    ANIMATION_FPS),
+                eventQueue)),
+            projectiles: new FastArray<Projectile>(64, () => new Projectile(
+                this.uniqueId++, 
+                new AnimationEngine(
+                    animations["projectile"], 
+                    ANIMATION_FPS))),
+            obstacles: new FastArray<Obstacle>(16, () => new Obstacle(
+                this.uniqueId++,
+                new AnimationEngine(
+                    animations["rock"],
+                    ANIMATION_FPS))),
             eventQueue: eventQueue,
             
             log: (msg: string): void => {

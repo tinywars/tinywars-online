@@ -1,5 +1,8 @@
+import { AnimationFrame } from "./animation";
+import { Vector } from "./vector";
+
 export interface Coords {
-    x: number;
-    y: number;
+    position: Vector;
     angle: number;
+    frame: AnimationFrame;
 }
