@@ -34,83 +34,68 @@ describe("GameMath", () => {
         });
     });
 
-    describe("isCrashImminent", () => {
-        it ("Returns false if objects on parallel course, far away from each other", () => {
+    describe("getTimeBeforeCollision", () => {
+        it ("Returns undefined if objects on parallel course, far away from each other", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 1);
             const colliderB = new CircleCollider(new Vector(3, 0), 1);
             const forwardA = new Vector(0, 1);
             const forwardB = new Vector(0, 2);
 
-            expect(GameMath.isCrashImminent(
+            expect(GameMath.getTimeBeforeCollision(
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.false;
+                forwardB)).to.be.undefined;
         });
 
-        it ("Returns false if objects are not moving", () => {
+        it ("Returns undefined if objects are not moving", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 1);
             const colliderB = new CircleCollider(new Vector(3, 0), 1);
 
-            expect(GameMath.isCrashImminent(
+            expect(GameMath.getTimeBeforeCollision(
                 colliderA, 
                 colliderB, 
                 Vector.zero(), 
-                Vector.zero())).to.be.false;
+                Vector.zero())).to.be.undefined;
         });
 
-        it ("Returns true if objects on parallel course, but close enough", () => {
+        it ("Returns positive number if objects on parallel course, but close enough", () => {
             const colliderA = new CircleCollider(new Vector(0, 10), 2);
             const colliderB = new CircleCollider(new Vector(1, 0), 2);
             const forwardA = new Vector(0, 1);
             const forwardB = new Vector(0, 8);
 
-            expect(GameMath.isCrashImminent(
+            expect(GameMath.getTimeBeforeCollision(
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.true;
+                forwardB)).to.be.approximately(0.875, 0.01);
         });
 
-        it ("Returns true if objects are on imminent crash course", () => {
+        it ("Returns positive number if objects are on imminent crash course", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 2);
             const colliderB = new CircleCollider(new Vector(4, 1), 2);
             const forwardA = new Vector(3, 2);
             const forwardB = new Vector(-1, 1);
 
-            expect(GameMath.isCrashImminent(
+            expect(GameMath.getTimeBeforeCollision(
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.true;
+                forwardB)).to.be.approximately(0.0298, 0.0001);
         });
 
-        it ("Returns false, if objects collided in the past (moving from each other)", () => {
+        it ("Returns undefined, if objects collided in the past (moving from each other)", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 2);
             const colliderB = new CircleCollider(new Vector(4, 1), 2);
             const forwardA = new Vector(-3, -2);
             const forwardB = new Vector(1, -1);
 
-            expect(GameMath.isCrashImminent(
+            expect(GameMath.getTimeBeforeCollision(
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.false;
-        });
-
-        it ("Returns false if the crash is not imminent", () => {
-            // Objects are running parallel, close enough to collide, but that would
-            // happen in more than 2 seconds
-            const colliderA = new CircleCollider(new Vector(0, 10), 2);
-            const colliderB = new CircleCollider(new Vector(1, 0), 2);
-            const forwardA = new Vector(0, 1);
-            const forwardB = new Vector(0, 4);
-
-            expect(GameMath.isCrashImminent(
-                colliderA, 
-                colliderB, 
-                forwardA, 
-                forwardB, 2)).to.be.false;
+                forwardB)).to.be.undefined;
         });
     });
 

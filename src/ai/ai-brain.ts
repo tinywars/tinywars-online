@@ -3,7 +3,7 @@ import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
 import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
-import { isCrashImminent, sanitizeAngle } from "../utility/math";
+import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
 import { GameObject } from "../game/game-object";
 
 enum AiState {
@@ -140,13 +140,14 @@ export class AiBrain {
 
     private isCollisionImminent(myPlayer: Player, context: GameContext) {
         let result = false;
+        const COLLISION_CRITICAL_TIME = 2; // seconds
         context.obstacles.forEach((o) => {
-            result = result || isCrashImminent(
+            const t = getTimeBeforeCollision(
                 myPlayer.getCollider(),
                 o.getCollider(),
                 myPlayer.getForward(),
-                o.getForward(),
-                2);
+                o.getForward());
+            result = result || t !== undefined ? t < COLLISION_CRITICAL_TIME : false;
         });
 
         // TODO: want to test players once we enable collisions between them

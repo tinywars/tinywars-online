@@ -4,7 +4,6 @@ import { App } from "./app-states/app";
 import { AppStateGame } from "./app-states/app-state-game";
 import "./style.css";
 import { AppView } from "./view/app-view";
-import { Controller } from "./utility/controller";
 
 const FPS = 60;
 

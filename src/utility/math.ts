@@ -21,28 +21,26 @@ export function lerp(a: number, b: number, t: number): number {
 
 /**
  * Computes whether two objects are on a crash course and
- * will collide in the near future
+ * in how many seconds will they collide.
  * @param colliderA Collider for first object
  * @param colliderB Collider for second object
  * @param forwardA Forward vector of first object
  * @param forwardB Forward vector of second object
- * @param imminencyThreshold Threshold, in seconds, determining how soon should crash happen to be considered imminent (when function returns true)
- * @returns By default, function returns true if two objects
- * are on a crash course and will collide within the next second.
+ * @returns Returns time in seconds when collision will occur or
+ * undefined if no collision can occur.
  */
-export function isCrashImminent(
+export function getTimeBeforeCollision(
     colliderA: CircleCollider, 
     colliderB: CircleCollider, 
     forwardA: Vector, 
     forwardB: Vector, 
-    imminencyThreshold = 1
-) {
+) : number | undefined {
     /**
      * Following equatations works on following basis:
      * There is a parameter t (time) such:
      * A = positionA + t * forwardA
      * B = positionB + t * forwardB
-     * |A - B| < radiusA + radiusB
+     * |A - B| < radiusA + radius
      * 
      * Meaning that we are testing whether there is a time offset
      * under which to points driven by their forward forces
@@ -69,22 +67,14 @@ export function isCrashImminent(
     const TwoFxy = 2 * Fx * X + 2 * Fy * Y;
     const C = X * X + Y * Y - R * R;
 
-    if (F === 0) return false; // nobody is actually moving
+    if (F === 0) return undefined; // nobody is actually moving
 
     const discriminant = TwoFxy * TwoFxy - 4 * F * C;
-    if (discriminant < 0) return false; // quadratic has no solution, no crash course
+    if (discriminant < 0) return undefined; // quadratic has no solution, no crash course
 
     const t1 = (-TwoFxy - Math.sqrt(discriminant)) / (2 * F);
-    // Note we actually do not need the second root (that is exit time of collision)
-    // const t2 = (-TwoFxy + Math.sqrt(discriminant)) / (2 * F);
 
-    // Collision is either already happening or it "happened in the past"
-    if (t1 < 0) return false;
-
-    // Collision is going to happen after more than one second
-    if (imminencyThreshold < t1) return false;
-
-    return true;
+    return t1 >= 0 ? t1 : undefined;
 }
 
 export function sanitizeAngle(angle: number): number {
