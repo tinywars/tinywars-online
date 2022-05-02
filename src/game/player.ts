@@ -12,7 +12,6 @@ export class Player extends GameObject {
     protected static RADIUS = 10;
     
     protected direction: Vector = Vector.zero();
-    protected forward: Vector = Vector.zero();
     protected speed = 0;
     protected health = 0;
     protected energy = 0;
@@ -94,10 +93,6 @@ export class Player extends GameObject {
 
     getHealth(): number {
         return this.health;
-    }
-
-    getForward(): Vector {
-        return this.forward;
     }
 
     private updateRotation(frameRotation: number, dt: number) {

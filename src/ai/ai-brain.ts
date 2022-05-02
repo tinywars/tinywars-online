@@ -148,7 +148,7 @@ export class AiBrain {
                 myPlayer.getForward(),
                 o.getForward());
 
-            if (t !== undefined)
+            if (t !== null)
                 result = result || t < COLLISION_CRITICAL_TIME; 
         });
 

@@ -35,7 +35,7 @@ describe("GameMath", () => {
     });
 
     describe("getTimeBeforeCollision", () => {
-        it ("Returns undefined if objects on parallel course, far away from each other", () => {
+        it ("Returns null if objects on parallel course, far away from each other", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 1);
             const colliderB = new CircleCollider(new Vector(3, 0), 1);
             const forwardA = new Vector(0, 1);
@@ -45,10 +45,10 @@ describe("GameMath", () => {
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.undefined;
+                forwardB)).to.be.null;
         });
 
-        it ("Returns undefined if objects are not moving", () => {
+        it ("Returns null if objects are not moving", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 1);
             const colliderB = new CircleCollider(new Vector(3, 0), 1);
 
@@ -56,7 +56,7 @@ describe("GameMath", () => {
                 colliderA, 
                 colliderB, 
                 Vector.zero(), 
-                Vector.zero())).to.be.undefined;
+                Vector.zero())).to.be.null;
         });
 
         it ("Returns positive number if objects on parallel course, but close enough", () => {
@@ -85,7 +85,7 @@ describe("GameMath", () => {
                 forwardB)).to.be.approximately(0.0298, 0.0001);
         });
 
-        it ("Returns undefined, if objects collided in the past (moving from each other)", () => {
+        it ("Returns null, if objects collided in the past (moving from each other)", () => {
             const colliderA = new CircleCollider(new Vector(0, 0), 2);
             const colliderB = new CircleCollider(new Vector(4, 1), 2);
             const forwardA = new Vector(-3, -2);
@@ -95,7 +95,7 @@ describe("GameMath", () => {
                 colliderA, 
                 colliderB, 
                 forwardA, 
-                forwardB)).to.be.undefined;
+                forwardB)).to.be.null;
         });
     });
 

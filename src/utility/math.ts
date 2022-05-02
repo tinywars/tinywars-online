@@ -27,14 +27,14 @@ export function lerp(a: number, b: number, t: number): number {
  * @param forwardA Forward vector of first object
  * @param forwardB Forward vector of second object
  * @returns Returns time in seconds when collision will occur or
- * undefined if no collision can occur.
+ * null if no collision can occur.
  */
 export function getTimeBeforeCollision(
     colliderA: CircleCollider, 
     colliderB: CircleCollider, 
     forwardA: Vector, 
     forwardB: Vector, 
-) : number | undefined {
+) : number | null {
     /**
      * Following equatations works on following basis:
      * There is a parameter t (time) such:
@@ -67,14 +67,14 @@ export function getTimeBeforeCollision(
     const TwoFxy = 2 * Fx * X + 2 * Fy * Y;
     const C = X * X + Y * Y - R * R;
 
-    if (F === 0) return undefined; // nobody is actually moving
+    if (F === 0) return null; // nobody is actually moving
 
     const discriminant = TwoFxy * TwoFxy - 4 * F * C;
-    if (discriminant < 0) return undefined; // quadratic has no solution, no crash course
+    if (discriminant < 0) return null; // quadratic has no solution, no crash course
 
     const t1 = (-TwoFxy - Math.sqrt(discriminant)) / (2 * F);
 
-    return t1 >= 0 ? t1 : undefined;
+    return t1 >= 0 ? t1 : null;
 }
 
 export function sanitizeAngle(angle: number): number {

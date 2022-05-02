@@ -5,7 +5,6 @@ import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
 
 export class Projectile extends GameObject {
-    private forward: Vector = Vector.zero();
     private damage = 0;
 
     constructor(
@@ -49,10 +48,6 @@ export class Projectile extends GameObject {
         else {
             this.handleLeavingScreen(context);
         }
-    }
-
-    getForward(): Vector {
-        return this.forward;
     }
 
     spawn(options: { position: Vector, forward: Vector, damage: number}) {

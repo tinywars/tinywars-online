@@ -6,8 +6,6 @@ import { GameObject } from "./game-object";
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    private forward: Vector;
-
     constructor(readonly id: number) {
         super();
         this.collider = new CircleCollider(
@@ -57,9 +55,5 @@ export class Obstacle extends GameObject {
     hit(force: Vector) {
         this.forward.add(force);
         // TODO: play sound
-    }
-
-    getForward(): Vector {
-        return this.forward;
     }
 }
