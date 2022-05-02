@@ -1,17 +1,23 @@
+import { AnimationEngine } from "../utility/animation";
 import { CircleCollider } from "../utility/circle-collider";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
+import { Coords } from "../utility/coords";
 
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    constructor(readonly id: number) {
+    constructor(
+        readonly id: number,
+        private animationEngine: AnimationEngine,
+    ) {
         super();
         this.collider = new CircleCollider(
             Vector.outOfView(),
             Obstacle.RADIUS);
         this.forward = Vector.zero();
+        this.animationEngine.setState("idle" + id % 2, true);
     }
 
     update(dt: number, context: GameContext) {
@@ -47,13 +53,20 @@ export class Obstacle extends GameObject {
         this.forward = options.forward;
 
         if (options.playerIndex > -1) {
-            // TODO: this is a wreck and not a rock
-            // use different animation
+            this.animationEngine.setState("wreck" + options.playerIndex);
         }
     }
 
     hit(force: Vector) {
         this.forward.add(force);
         // TODO: play sound
+    }
+    
+    getCoords(): Coords {
+        return {
+            position: this.collider.getPosition().copy(),
+            angle: this.rotation,
+            frame: this.animationEngine.getCurrentFrame()
+        };
     }
 }

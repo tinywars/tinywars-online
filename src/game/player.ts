@@ -6,6 +6,8 @@ import { eventSpawnProjectile, eventDestroyPlayer, eventSpawnWreck } from "../ev
 import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
+import { AnimationEngine } from "../utility/animation";
+import { Coords } from "../utility/coords";
 import { EventQueue } from "../events/event-queue";
 
 export class Player extends GameObject {
@@ -20,13 +22,16 @@ export class Player extends GameObject {
     constructor(
         readonly id: number,
         private controller: Controller,
-        private eventQueue: EventQueue
+        private animationEngine: AnimationEngine,
+        private eventQueue: EventQueue,
     ) {
         super();
+
         this.collider = new CircleCollider(
             Vector.outOfView(),
             Player.RADIUS
         );
+        this.animationEngine.setState("idle", true);
     }
 
     spawn(options: {position: Vector, initialHealth: number, initialEnergy: number, maxEnergy: number}) {
@@ -45,6 +50,10 @@ export class Player extends GameObject {
     }
 
     update(dt: number, context: GameContext) {
+        if (!this.animationEngine.update(dt)) {
+            this.animationEngine.setState("idle", true);
+        }
+
         let updateFwd = true;
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
@@ -72,10 +81,19 @@ export class Player extends GameObject {
             }
         });
     }
+    
+    getCoords(): Coords {
+        return {
+            position: this.collider.getPosition().copy(),
+            angle: this.rotation,
+            frame: this.animationEngine.getCurrentFrame()
+        };
+    }
 
     hit(damage: number) {
-        // TODO: play hitflash animation
+        this.animationEngine.setState("hit");
         this.health -= damage;
+        
         if (this.health < 0) {
             this.eventQueue.add(eventDestroyPlayer(this.id));
 
