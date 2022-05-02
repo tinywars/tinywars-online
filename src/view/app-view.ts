@@ -69,9 +69,6 @@ export class AppView {
             } else if (kind === "rock") {
                 return new ViewObstacle(this.viewApp, index);
             }
-            else if (kind === "rock") {
-                return new ViewObstacle(this.viewApp, index);
-            }
 
             // Instead of else if branch so I don't have to reurn undefined
             return new ViewProjectile(this.viewApp);
