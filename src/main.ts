@@ -61,6 +61,11 @@ const animations = {
     },
 };
 
+const hudFrames = {
+    healthbar: new AnimationFrame(247, 165, 12, 4),
+    energybar: new AnimationFrame(247, 206, 7, 4),
+};
+
 const app = new App();
 app.pushState(new AppStateGame(app, keyboardState, animations));
 app.run(FPS);
@@ -69,6 +74,7 @@ const appView = USE_NATIVE_RENDERER
     ? new AppViewCanvas(
           app,
           document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+          hudFrames,
       )
     : new AppView(app, document.body.querySelector("#app")!);
 appView.scale();
