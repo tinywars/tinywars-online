@@ -2,16 +2,18 @@ import { CircleCollider } from "../utility/circle-collider";
 import { Controller } from "../utility/controller";
 import { Vector } from "../utility/vector";
 import { clamp } from "../utility/math";
-import { eventSpawnProjectile } from "../events/game-event";
+import { eventSpawnProjectile, eventDestroyPlayer, eventSpawnWreck } from "../events/game-event";
 import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
+import { AnimationEngine } from "../utility/animation";
+import { Coords } from "../utility/coords";
+import { EventQueue } from "../events/event-queue";
 
 export class Player extends GameObject {
-    protected static RADIUS = 16;
+    protected static RADIUS = 10;
     
     protected direction: Vector = Vector.zero();
-    protected forward: Vector = Vector.zero();
     protected speed = 0;
     protected health = 0;
     protected energy = 0;
@@ -20,12 +22,16 @@ export class Player extends GameObject {
     constructor(
         readonly id: number,
         private controller: Controller,
+        private animationEngine: AnimationEngine,
+        private eventQueue: EventQueue,
     ) {
         super();
+
         this.collider = new CircleCollider(
             Vector.outOfView(),
             Player.RADIUS
         );
+        this.animationEngine.setState("idle", true);
     }
 
     spawn(options: {position: Vector, initialHealth: number, initialEnergy: number, maxEnergy: number}) {
@@ -44,6 +50,10 @@ export class Player extends GameObject {
     }
 
     update(dt: number, context: GameContext) {
+        if (!this.animationEngine.update(dt)) {
+            this.animationEngine.setState("idle", true);
+        }
+
         let updateFwd = true;
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
@@ -58,17 +68,40 @@ export class Player extends GameObject {
             rotation = context.PLAYER_ROTATION_SPEED;
         }
 
-        this.handleShooting(dt, context);
+        this.handleShooting(dt);
         this.updateRotation(rotation, dt);
         this.moveForward(updateFwd, dt, context);
         this.rechargeEnergy(dt, context);
+
+        context.obstacles.forEach((obstacle) => {
+            if (this.collider.collidesWith(obstacle.getCollider())) {
+                this.hit(context.OBSTACLE_HIT_DAMAGE);
+                obstacle.hit(this.forward.getScaled(context.PLAYER_MASS / context.OBSTACLE_MASS));
+                this.forward = this.forward.getScaled(0.1);
+            }
+        });
+    }
+    
+    getCoords(): Coords {
+        return {
+            position: this.collider.getPosition().copy(),
+            angle: this.rotation,
+            frame: this.animationEngine.getCurrentFrame()
+        };
     }
 
     hit(damage: number) {
-        // TODO: play hitflash animation
+        this.animationEngine.setState("hit");
         this.health -= damage;
+        
         if (this.health < 0) {
-            // TODO: destroy player
+            this.eventQueue.add(eventDestroyPlayer(this.id));
+
+            this.eventQueue.add(eventSpawnWreck({
+                position: this.collider.getPosition(),
+                forward: this.forward.getScaled(0.4),
+                index: this.id
+            }));
         }
     }
 
@@ -95,7 +128,7 @@ export class Player extends GameObject {
         this.handleLeavingScreenByWrappingAround(context);     
     }
 
-    private rechargeEnergy(dt: number, context: GameContext) {        
+    private rechargeEnergy(dt: number, context: GameContext) {     
         // Locking this behind condition ensures we can make a powerup that will
         // add energy above native maxEnergy limit
         if (this.energy >= this.maxEnergy)
@@ -107,7 +140,7 @@ export class Player extends GameObject {
             this.maxEnergy);
     }
 
-    private handleShooting(dt: number, context: GameContext) {
+    private handleShooting(dt: number) {
         if (!this.controller.isKeyPressed(KeyCode.Shoot))
             return;
         
@@ -116,7 +149,7 @@ export class Player extends GameObject {
         if (this.energy < 1)
             return;
 
-        context.eventQueue.add(
+        this.eventQueue.add(
             eventSpawnProjectile({
                 position: this.collider.getPosition().getSum(
                     // Spawn projectile right in front of the player so it doesn't collide with them

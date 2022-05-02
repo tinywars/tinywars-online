@@ -3,32 +3,48 @@ import { Vector } from "../utility/vector";
 import { GameObject } from "./game-object";
 import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
+import { AnimationEngine } from "../utility/animation";
+import { Coords } from "../utility/coords";
 
 export class Projectile extends GameObject {
-    private forward: Vector = Vector.zero();
     private damage = 0;
 
     constructor(
-        readonly id: number)
+        readonly id: number,
+        private animationEngine: AnimationEngine)
     {
         super();
         this.collider = new CircleCollider(
             Vector.outOfView(), 2
         );
+        this.animationEngine.setState("idle", true);
     }
 
     update(dt: number, context: GameContext) {
         this.collider.move(this.forward.getScaled(dt));
 
+        let destroyThis = false;
         context.players.forEach((player) => {
             if (this.collider.collidesWith(player.getCollider())) {
-                // TODO: play destruction animation and/or sound
                 player.hit(this.damage);
-                context.eventQueue.add(
-                    eventDestroyProjectile(this.id)
-                );
+                destroyThis = true;
             }
         });
+
+        context.obstacles.forEach((obstacle) => {
+            if (this.collider.collidesWith(obstacle.getCollider())) {
+                // transferred forward momentum is small because projectiles have
+                // almost no mass
+                obstacle.hit(this.forward.getScaled(
+                    context.PROJECTILE_MASS / context.OBSTACLE_MASS));
+                destroyThis = true;
+            }
+        });
+
+        if (destroyThis) {
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id));
+        }
 
         if (context.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
@@ -47,6 +63,14 @@ export class Projectile extends GameObject {
 
     despawn() {
         this.collider.setPosition(Vector.outOfView());
+    }
+    
+    getCoords(): Coords {
+        return {
+            position: this.collider.getPosition().copy(),
+            angle: this.rotation,
+            frame: this.animationEngine.getCurrentFrame()
+        };
     }
 
     private handleLeavingScreen(context: GameContext) {
