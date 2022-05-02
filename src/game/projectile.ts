@@ -7,7 +7,6 @@ import { AnimationEngine } from "../utility/animation";
 import { Coords } from "../utility/coords";
 
 export class Projectile extends GameObject {
-    private forward: Vector = Vector.zero();
     private damage = 0;
 
     constructor(

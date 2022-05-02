@@ -1,7 +1,9 @@
 import { Vector } from "./vector";
 
 export class CircleCollider {
-    constructor(private position: Vector, private radius: number) {}
+    constructor(
+        private position: Vector, 
+        readonly radius: number) {}
 
     move(direction: Vector) {
         this.position.add(direction);
@@ -13,10 +15,6 @@ export class CircleCollider {
 
     getPosition(): Vector {
         return this.position;
-    }
-
-    setRadius(r: number) {
-        this.radius = r;
     }
 
     collidesWith(collider: CircleCollider): boolean {

@@ -3,6 +3,15 @@ import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
 import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
+import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
+import { GameObject } from "../game/game-object";
+
+enum AiState {
+    Start,
+    TrackingAndShooting,
+    Evading,
+    Drifting
+}
 
 export class AiBrain {
     private goForwardTimeout = 0;
@@ -10,6 +19,8 @@ export class AiBrain {
     private MAX_GO_FORWARD_TIMEOUT = 2;
     private MAX_SHOOT_DELAY = 5;
     private MIN_SHOOT_DELAY = 2;
+    private aiState = AiState.Start;
+    private targetAngle = 0;
 
     constructor(private controller: AiPoweredController, private playerId: number) {
         this.goForwardTimeout = Math.random() * this.MAX_GO_FORWARD_TIMEOUT + this.MAX_GO_FORWARD_TIMEOUT;
@@ -17,29 +28,75 @@ export class AiBrain {
     }
 
     update(dt: number, context: GameContext) {
+        this.controller.releaseKey(KeyCode.Up);
+        this.controller.releaseKey(KeyCode.Down);
+        this.controller.releaseKey(KeyCode.Left);
+        this.controller.releaseKey(KeyCode.Right);
+        this.controller.releaseKey(KeyCode.Shoot);
+
         const myPlayer = this.getPlayerReference(context);
         if (myPlayer === null)
             return; // player is dead, nothing to control
 
-        const closestPlayer = this.pickClosestPlayer(myPlayer, context);
-        if (closestPlayer === null)
-            return;
-        
-        this.rotateTowardsClosestPlayer(myPlayer, closestPlayer);
-
-        this.goForwardTimeout -= dt;
-        if (this.goForwardTimeout <= 0) {
+        /**
+         * Note the structure of following FSM:
+         * Each state starts with series of test for
+         * transitions into different states.
+         * 
+         * If a test succeeds, a bootstrap logic (state with default transition)
+         * is carried out and then the state is changed.
+         * 
+         * If no transition should occur, default state
+         * logic is executed instead.
+         */
+        switch (this.aiState) {
+        case AiState.Start:
             this.controller.pressKey(KeyCode.Up);
-            this.goForwardTimeout = Math.random() * this.MAX_GO_FORWARD_TIMEOUT;
-        }
-        else {
-            this.controller.releaseKey(KeyCode.Up);
-        }
+            this.aiState = AiState.TrackingAndShooting;
+            break;
+        
+        case AiState.TrackingAndShooting: {
+            if (this.isCollisionImminent(myPlayer, context)) {
+                this.targetAngle = this.pickEvasionAngle(myPlayer);
+                this.aiState = AiState.Evading;
+                return;
+            }
 
-        this.shootTimeout -= dt;
-        if (this.shootTimeout <= 0) {
-            this.controller.pressKey(KeyCode.Shoot);
-            this.shootTimeout = Math.random() * this.MAX_SHOOT_DELAY + this.MIN_SHOOT_DELAY;
+            const closestPlayer = this.pickClosestPlayer(myPlayer, context);
+            if (closestPlayer === null) {
+                this.aiState = AiState.Drifting;
+                return;
+            }
+
+            this.targetObject(myPlayer, closestPlayer);
+            this.rotateTowardsTarget(myPlayer);
+
+            this.shootTimeout -= dt;
+            if (this.shootTimeout <= 0) {
+                this.controller.pressKey(KeyCode.Shoot);
+                this.shootTimeout = Math.random() * this.MAX_SHOOT_DELAY + this.MIN_SHOOT_DELAY;
+            }
+            break; }
+        
+        case AiState.Evading: {
+            if (this.isTargetAngleAchieved(myPlayer)) {
+                this.controller.pressKey(
+                    Math.random() * 10 % 2 == 0
+                        ? KeyCode.Up
+                        : KeyCode.Down
+                );
+                this.aiState = AiState.TrackingAndShooting;
+                return;
+            }
+
+            this.rotateTowardsTarget(myPlayer);   
+            break; }
+        
+        default:
+        case AiState.Drifting:
+            // drifting, do nothing, you're last
+            // player alive
+            break;
         }
     }
 
@@ -72,28 +129,58 @@ export class AiBrain {
         return closestPlayer;
     }
 
-    private rotateTowardsClosestPlayer(myPlayer: Player, closestPlayer: Player) {
+    private targetObject(myPlayer: Player, object: GameObject) {
         const direction = Vector.diff(
             myPlayer.getCollider().getPosition(),
-            closestPlayer.getCollider().getPosition(),
+            // aim a bit in front of the target
+            object.getCollider().getPosition().getSum(object.getForward().getScaled(0.5)),
         );
-        const targetAngle = direction.toAngle();
-        const myAngle = myPlayer.getCoords().angle;
-        const diffAngle = Math.abs(targetAngle - myAngle)
+        this.targetAngle = direction.toAngle();
+    }
 
-        if (diffAngle < 5) {
-            this.controller.releaseKey(KeyCode.Left);
-            this.controller.releaseKey(KeyCode.Right);
-        }
-        else if ((targetAngle > myAngle && diffAngle < 180)
-            || (myAngle > targetAngle && diffAngle > 180)) {
+    private isCollisionImminent(myPlayer: Player, context: GameContext) {
+        let result = false;
+        const COLLISION_CRITICAL_TIME = 2; // seconds
+        context.obstacles.forEach((o) => {
+            const t = getTimeBeforeCollision(
+                myPlayer.getCollider(),
+                o.getCollider(),
+                myPlayer.getForward(),
+                o.getForward());
+
+            if (t !== null)
+                result = result || t < COLLISION_CRITICAL_TIME; 
+        });
+
+        // TODO: want to test players once we enable collisions between them
+
+        if (result) console.log("Crash imminent!!");
+        return result;
+    }
+
+    private pickEvasionAngle(myPlayer: Player): number {
+        return sanitizeAngle(myPlayer.getForward().toAngle() + 90);
+    }
+
+    private isTargetAngleAchieved(myPlayer: Player): boolean {
+        const myAngle = myPlayer.getCoords().angle;
+        const diffAngle = Math.abs(this.targetAngle - myAngle);
+        // There's some weird issue with rotateTowardsAngle, so it always
+        // becomes stuck in opposite direction
+        return diffAngle < 5 || (diffAngle - 180) < 5;
+    }
+
+    private rotateTowardsTarget(myPlayer: Player) {
+        const myAngle = myPlayer.getCoords().angle;
+        const diffAngle = Math.abs(this.targetAngle - myAngle);
+
+        if ((this.targetAngle > myAngle && diffAngle < 180)
+            || (myAngle > this.targetAngle && diffAngle > 180)) {
             this.controller.pressKey(KeyCode.Left);
-            this.controller.releaseKey(KeyCode.Right);
         }
-        else if ((targetAngle > myAngle && diffAngle > 180)
-            || (myAngle > targetAngle && diffAngle < 180)) {
-            this.controller.releaseKey(KeyCode.Left);
+        else if ((this.targetAngle > myAngle && diffAngle > 180)
+            || (myAngle > this.targetAngle && diffAngle < 180)) {
             this.controller.pressKey(KeyCode.Right);
         }
-    } 
+    }
 }

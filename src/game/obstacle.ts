@@ -8,8 +8,6 @@ import { Coords } from "../utility/coords";
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    private forward: Vector;
-
     constructor(
         readonly id: number,
         private animationEngine: AnimationEngine,
