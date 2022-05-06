@@ -105,7 +105,7 @@ export class Player extends GameObject {
         this.animationEngine.setState("hit");
         this.health -= damage;
 
-        if (this.health < 0) {
+        if (this.health <= 0) {
             this.eventQueue.add(eventDestroyPlayer(this.id));
 
             this.eventQueue.add(

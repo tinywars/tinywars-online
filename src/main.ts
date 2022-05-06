@@ -32,31 +32,31 @@ console.log("App init");
 
 const animations = {
     player0: {
-        idle: [new AnimationFrame(0, 0, 32, 32)],
-        hit: [new AnimationFrame(32, 0, 32, 32)],
+        idle: [new AnimationFrame(1, 1, 40, 40)],
+        hit: [new AnimationFrame(83, 0, 40, 40)],
     },
     player1: {
-        idle: [new AnimationFrame(32, 0, 32, 32)],
-        hit: [new AnimationFrame(64, 0, 32, 32)],
+        idle: [new AnimationFrame(1, 42, 40, 40)],
+        hit: [new AnimationFrame(83, 42, 40, 40)],
     },
     player2: {
-        idle: [new AnimationFrame(64, 0, 32, 32)],
-        hit: [new AnimationFrame(96, 0, 32, 32)],
+        idle: [new AnimationFrame(1, 83, 40, 40)],
+        hit: [new AnimationFrame(83, 83, 40, 40)],
     },
     player3: {
-        idle: [new AnimationFrame(96, 0, 32, 32)],
-        hit: [new AnimationFrame(0, 0, 32, 32)],
+        idle: [new AnimationFrame(1, 124, 40, 40)],
+        hit: [new AnimationFrame(83, 124, 40, 40)],
     },
     projectile: {
-        idle: [new AnimationFrame(128, 0, 4, 10)],
+        idle: [new AnimationFrame(206, 165, 4, 10)],
     },
     rock: {
-        idle0: [new AnimationFrame(0, 36, 40, 40)],
-        idle1: [new AnimationFrame(40, 36, 40, 40)],
-        wreck0: [new AnimationFrame(0, 76, 40, 40)],
-        wreck1: [new AnimationFrame(40, 76, 40, 40)],
-        wreck2: [new AnimationFrame(80, 76, 40, 40)],
-        wreck3: [new AnimationFrame(120, 76, 40, 40)],
+        idle0: [new AnimationFrame(1, 165, 40, 40)],
+        idle1: [new AnimationFrame(1, 206, 40, 40)],
+        wreck0: [new AnimationFrame(42, 0, 40, 40)],
+        wreck1: [new AnimationFrame(42, 42, 40, 40)],
+        wreck2: [new AnimationFrame(42, 83, 40, 40)],
+        wreck3: [new AnimationFrame(42, 124, 40, 40)],
     },
 };
 
@@ -91,6 +91,11 @@ const gameSettings = {
     OBSTACLE_MASS: 15,
 };
 
+const hudFrames = {
+    healthbar: new AnimationFrame(247, 165, 12, 4),
+    energybar: new AnimationFrame(247, 206, 7, 4),
+};
+
 const app = new App(keyboardState, animations, gameSettings);
 app.start(FPS);
 
@@ -98,6 +103,7 @@ const appView = USE_NATIVE_RENDERER
     ? new AppViewCanvas(
           app,
           document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+          hudFrames,
       )
     : new AppView(app, document.body.querySelector("#app")!);
 appView.scale();
