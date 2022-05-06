@@ -5,6 +5,7 @@ import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
 import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
 import { GameObject } from "../game/game-object";
+import { FastArray } from "../utility/fast-array";
 
 enum AiState {
     Start,
@@ -14,24 +15,14 @@ enum AiState {
 }
 
 export class AiBrain {
-    private goForwardTimeout = 0;
     private shootTimeout = 0;
-    private MAX_GO_FORWARD_TIMEOUT = 2;
-    private MAX_SHOOT_DELAY = 5;
-    private MIN_SHOOT_DELAY = 2;
     private aiState = AiState.Start;
     private targetAngle = 0;
 
     constructor(
         private controller: AiPoweredController,
         private playerId: number,
-    ) {
-        this.goForwardTimeout =
-            Math.random() * this.MAX_GO_FORWARD_TIMEOUT +
-            this.MAX_GO_FORWARD_TIMEOUT;
-        this.shootTimeout =
-            Math.random() * this.MAX_SHOOT_DELAY + this.MAX_SHOOT_DELAY;
-    }
+    ) {}
 
     update(dt: number, context: GameContext) {
         this.controller.releaseKey(KeyCode.Up);
@@ -57,6 +48,9 @@ export class AiBrain {
         switch (this.aiState) {
             case AiState.Start:
                 this.controller.pressKey(KeyCode.Up);
+                this.shootTimeout =
+                    Math.random() * context.settings.AI_MIN_SHOOT_DELAY +
+                    context.settings.AI_MIN_SHOOT_DELAY;
                 this.aiState = AiState.TrackingAndShooting;
                 break;
 
@@ -80,14 +74,22 @@ export class AiBrain {
                 if (this.shootTimeout <= 0) {
                     this.controller.pressKey(KeyCode.Shoot);
                     this.shootTimeout =
-                        Math.random() * this.MAX_SHOOT_DELAY +
-                        this.MIN_SHOOT_DELAY;
+                        Math.random() * context.settings.AI_MIN_SHOOT_DELAY +
+                        context.settings.AI_MIN_SHOOT_DELAY;
                 }
                 break;
             }
 
             case AiState.Evading: {
+                console.log(
+                    myPlayer.id +
+                        ": evading " +
+                        myPlayer.getCoords().angle +
+                        "->" +
+                        this.targetAngle,
+                );
                 if (this.isTargetAngleAchieved(myPlayer)) {
+                    console.log(myPlayer.id + ": evade angle achieved");
                     this.controller.pressKey(
                         (Math.random() * 10) % 2 == 0
                             ? KeyCode.Up
@@ -107,6 +109,10 @@ export class AiBrain {
                 // player alive
                 break;
         }
+    }
+
+    reset() {
+        this.aiState = AiState.Start;
     }
 
     private getPlayerReference(context: GameContext): Player | null {
@@ -152,10 +158,14 @@ export class AiBrain {
         this.targetAngle = direction.toAngle();
     }
 
-    private isCollisionImminent(myPlayer: Player, context: GameContext) {
+    private isCollisionImminentForGivenFastArray(
+        myPlayer: Player,
+        objects: FastArray<GameObject>,
+    ) {
         let result = false;
-        const COLLISION_CRITICAL_TIME = 2; // seconds
-        context.obstacles.forEach((o) => {
+        const COLLISION_CRITICAL_TIME = 2;
+
+        objects.forEach((o) => {
             const t = getTimeBeforeCollision(
                 myPlayer.getCollider(),
                 o.getCollider(),
@@ -166,9 +176,23 @@ export class AiBrain {
             if (t !== null) result = result || t < COLLISION_CRITICAL_TIME;
         });
 
+        return result;
+    }
+
+    private isCollisionImminent(myPlayer: Player, context: GameContext) {
+        const result =
+            this.isCollisionImminentForGivenFastArray(
+                myPlayer,
+                context.obstacles,
+            ) ||
+            this.isCollisionImminentForGivenFastArray(
+                myPlayer,
+                context.projectiles,
+            );
+
         // TODO: want to test players once we enable collisions between them
 
-        if (result) console.log("Crash imminent!!");
+        if (result) console.log(myPlayer.id + ": Collision imminent");
         return result;
     }
 
@@ -181,23 +205,13 @@ export class AiBrain {
         const diffAngle = Math.abs(this.targetAngle - myAngle);
         // There's some weird issue with rotateTowardsAngle, so it always
         // becomes stuck in opposite direction
-        return diffAngle < 5 || diffAngle - 180 < 5;
+        return diffAngle < 5; // || diffAngle - 180 < 5;
     }
 
     private rotateTowardsTarget(myPlayer: Player) {
         const myAngle = myPlayer.getCoords().angle;
-        const diffAngle = Math.abs(this.targetAngle - myAngle);
-
-        if (
-            (this.targetAngle > myAngle && diffAngle < 180) ||
-            (myAngle > this.targetAngle && diffAngle > 180)
-        ) {
-            this.controller.pressKey(KeyCode.Left);
-        } else if (
-            (this.targetAngle > myAngle && diffAngle > 180) ||
-            (myAngle > this.targetAngle && diffAngle < 180)
-        ) {
-            this.controller.pressKey(KeyCode.Right);
-        }
+        const diffAngle = sanitizeAngle(myAngle - this.targetAngle);
+        if (diffAngle <= 180) this.controller.pressKey(KeyCode.Left);
+        else if (diffAngle > 180) this.controller.pressKey(KeyCode.Right);
     }
 }

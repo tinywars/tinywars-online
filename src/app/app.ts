@@ -161,6 +161,10 @@ export class App {
             alert("Programmatic error: Event queue not empty");
         }
 
+        this.aiBrains.forEach((brain) => {
+            brain.reset();
+        });
+
         this.spawnPlayersAndRocks();
     }
 
