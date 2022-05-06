@@ -73,6 +73,10 @@ export class Player extends GameObject {
             rotation = context.PLAYER_ROTATION_SPEED;
         }
 
+        // This makes player rotate into intuitive direction
+        // when they are pressing down KeyCode.Down
+        if (this.speed < 0 && updateFwd) rotation *= -1;
+
         this.handleShooting(dt);
         this.updateRotation(rotation, dt);
         this.moveForward(updateFwd, dt, context);
