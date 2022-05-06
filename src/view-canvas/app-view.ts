@@ -2,6 +2,7 @@ import { Coords } from "../utility/coords";
 import { App } from "../app-states/app";
 import { Vector } from "../utility/vector";
 import { AnimationFrame } from "../utility/animation";
+import { Player } from "../game/player";
 
 export class Sprite {
     constructor(private texture: CanvasImageSource) {}
@@ -36,6 +37,26 @@ export class Sprite {
         );
         context.restore();
     }
+
+    drawHud(
+        context: CanvasRenderingContext2D,
+        options: {
+            position: Vector;
+            frame: AnimationFrame;
+        },
+    ) {
+        context.drawImage(
+            this.texture,
+            options.frame.x,
+            options.frame.y,
+            options.frame.w,
+            options.frame.h,
+            options.position.x,
+            options.position.y,
+            options.frame.w,
+            options.frame.h,
+        );
+    }
 }
 
 export class AppViewCanvas {
@@ -44,7 +65,11 @@ export class AppViewCanvas {
     private ready = false;
     private sprite: Sprite;
 
-    constructor(private app: App, private canvas2d: HTMLCanvasElement) {
+    constructor(
+        private app: App,
+        private canvas2d: HTMLCanvasElement,
+        private hudFrames: Record<string, AnimationFrame>,
+    ) {
         this.context2d = this.canvas2d.getContext("2d")!;
 
         this.texture = new Image();
@@ -52,7 +77,7 @@ export class AppViewCanvas {
             console.log("texture loaded!");
             this.draw();
         };
-        this.texture.src = "./src/assets/gameTexture.png";
+        this.texture.src = "./src/assets/spritesheet_v2.png";
 
         this.sprite = new Sprite(this.texture);
     }
@@ -90,6 +115,7 @@ export class AppViewCanvas {
         const context = this.app.topState().getContext();
         context.players.forEach((p) => {
             this.drawEntity(p.getCoords());
+            this.drawHudForPlayer(p);
         });
         context.projectiles.forEach((p) => {
             this.drawEntity(p.getCoords());
@@ -109,5 +135,44 @@ export class AppViewCanvas {
             rotation: coords.angle,
             frame: coords.frame,
         });
+    }
+
+    private drawHudForPlayer(player: Player) {
+        const coords = player.getCoords();
+        const healthBarFrame = this.hudFrames["healthbar"]!;
+        const energyBarFrame = this.hudFrames["energybar"]!;
+        const energyFrameWidthBackup = energyBarFrame.w;
+
+        for (let i = 0; i < player.getHealth(); i++) {
+            this.sprite.drawHud(this.context2d, {
+                position: new Vector(
+                    coords.position.x - 16 + i * (healthBarFrame.w + 1),
+                    coords.position.y + 16,
+                ),
+                frame: healthBarFrame,
+            });
+        }
+
+        let energy = Math.floor(player.getEnergy() * 100);
+        let itr = 0;
+        while (energy >= 0) {
+            // Last bar, that is refilling most of the time needs
+            // to be scaled according to how much filled it is
+            energyBarFrame.w =
+                energyFrameWidthBackup * (energy > 100 ? 1 : energy / 100);
+            this.sprite.drawHud(this.context2d, {
+                position: new Vector(
+                    coords.position.x - 16 + itr * (energyFrameWidthBackup + 2),
+                    coords.position.y + 16 + healthBarFrame.h + 1,
+                ),
+                frame: energyBarFrame,
+            });
+
+            itr++;
+            energy -= 100;
+        }
+
+        // Restore width of energyBarFrame because we've changed it a lot
+        energyBarFrame.w = energyFrameWidthBackup;
     }
 }
