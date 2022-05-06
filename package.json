@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cp ./RELEASE.md ./dist/README.md",
     "preview": "vite preview",
     "typecheck": "tsc",
     "test": "mocha -r ts-node/register 'src/**/*.spec.ts'",

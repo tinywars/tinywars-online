@@ -3,6 +3,7 @@ import { App } from "../app/app";
 import { Vector } from "../utility/vector";
 import { AnimationFrame } from "../utility/animation";
 import { Player } from "../game/player";
+import spriteheetUrl from '../assets/spritesheet_v2.png';
 
 export class Sprite {
     constructor(private texture: CanvasImageSource) {}
@@ -77,7 +78,7 @@ export class AppViewCanvas {
             console.log("texture loaded!");
             this.draw();
         };
-        this.texture.src = "./src/assets/spritesheet_v2.png";
+        this.texture.src = spriteheetUrl;
 
         this.sprite = new Sprite(this.texture);
     }
