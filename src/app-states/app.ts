@@ -26,6 +26,6 @@ export class App {
 
         setInterval(() => {
             this.topState().updateLogic(frameTime);
-        }, frameTime);
+        }, Math.floor(frameTime * 1000));
     }
 }
