@@ -12,6 +12,7 @@ import { Player } from "../game/player";
 import { Obstacle } from "../game/obstacle";
 import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
+import { GameSettings } from "../game/game-settings";
 
 export class App {
     private gameContext: GameContext;
@@ -24,17 +25,71 @@ export class App {
     constructor(
         private keyboardState: Record<string, boolean>,
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
-        private options: {
-            INTERNAL_SCREEN_WIDTH: number;
-            INTERNAL_SCREEN_HEIGHT: number;
-            PLAYER_COUNT: number;
-            AI_PLAYER_COUNT: number;
-            ANIMATION_FPS: number;
-            TIME_TILL_RESTART: number;
-        },
+        private settings: GameSettings,
     ) {
+        const HUMAN_PLAYER_COUNT =
+            this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
+
         this.controllers = [];
         this.aiBrains = [];
+
+        for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
+            this.controllers.push(
+                this.createPhysicalController(i, this.keyboardState),
+            );
+
+        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
+            const aiController = new AiPoweredController();
+            this.controllers.push(aiController);
+            this.aiBrains.push(new AiBrain(aiController, i));
+        }
+
+        const createAnimationEngine = (
+            animationSetName: string,
+        ): AnimationEngine => {
+            return new AnimationEngine(
+                this.animationDB[animationSetName],
+                this.settings.ANIMATION_FPS,
+            );
+        };
+
+        const eventQueue = new EventQueue();
+        this.gameContext = {
+            settings: this.settings,
+
+            players: new FastArray<Player>(
+                this.settings.PLAYER_COUNT,
+                (i) =>
+                    new Player(
+                        i,
+                        this.controllers[i],
+                        createAnimationEngine("player" + i),
+                        eventQueue,
+                    ),
+            ),
+            projectiles: new FastArray<Projectile>(
+                64,
+                () =>
+                    new Projectile(
+                        this.uniqueId++,
+                        createAnimationEngine("projectile"),
+                    ),
+            ),
+            obstacles: new FastArray<Obstacle>(
+                this.settings.ROCK_COUNT + this.settings.PLAYER_COUNT,
+                () =>
+                    new Obstacle(
+                        this.uniqueId++,
+                        createAnimationEngine("rock"),
+                    ),
+            ),
+            eventQueue: eventQueue,
+
+            log: (msg: string): void => {
+                console.log("Debug: " + msg);
+            },
+        };
+
         this.reset();
     }
 
@@ -49,19 +104,13 @@ export class App {
     updateLogic(dt: number): void {
         if (this.gameContext.players.getSize() === 1 && !this.endgame) {
             this.endgame = true;
-            this.timeTillRestart = this.options.TIME_TILL_RESTART;
-        }
-
-        if (this.endgame) {
+            this.timeTillRestart = this.settings.TIME_TILL_RESTART;
+        } else if (this.endgame) {
             this.timeTillRestart -= dt;
-
-            console.log("Time till restart: " + this.timeTillRestart);
 
             if (this.timeTillRestart <= 0) {
                 this.reset();
             }
-
-            return;
         }
 
         this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
@@ -94,117 +143,18 @@ export class App {
     }
 
     private reset() {
-        const INITIAL_ROCK_COUNT = 4;
-        const PLAYER_INITIAL_HEALTH = 3;
-        const PLAYER_INITIAL_ENERGY = 2;
-        const PLAYER_MAX_ENERGY = 4;
-        const LIVE_PLAYER_COUNT =
-            this.options.PLAYER_COUNT - this.options.AI_PLAYER_COUNT;
-
         this.endgame = false;
         this.timeTillRestart = 0;
-        this.controllers = [];
-        this.aiBrains = [];
 
-        for (let i = 0; i < LIVE_PLAYER_COUNT; i++)
-            this.controllers.push(
-                this.createPhysicalController(i, this.keyboardState),
-            );
+        this.gameContext.players.clear();
+        this.gameContext.projectiles.clear();
+        this.gameContext.obstacles.clear();
 
-        for (let i = LIVE_PLAYER_COUNT; i < this.options.PLAYER_COUNT; i++) {
-            const aiController = new AiPoweredController();
-            this.controllers.push(aiController);
-            this.aiBrains.push(new AiBrain(aiController, i));
+        if (this.gameContext.eventQueue.events.length !== 0) {
+            alert("Programmatic error: Event queue not empty");
         }
 
-        const createAnimationEngine = (
-            animationSetName: string,
-        ): AnimationEngine => {
-            return new AnimationEngine(
-                this.animationDB[animationSetName],
-                this.options.ANIMATION_FPS,
-            );
-        };
-
-        const eventQueue = new EventQueue();
-        this.gameContext = {
-            SCREEN_WIDTH: this.options.INTERNAL_SCREEN_WIDTH,
-            SCREEN_HEIGHT: this.options.INTERNAL_SCREEN_HEIGHT,
-
-            PLAYER_FORWARD_SPEED: 500,
-            PLAYER_ROTATION_SPEED: 250,
-            PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
-            PLAYER_MASS: 10,
-            PROJECTILE_SPEED: 1000,
-            PROJECTILE_DAMAGE: 1,
-            PROJECTILE_ENABLE_TELEPORT: false,
-            PROJECTILE_MASS: 1.5,
-
-            OBSTACLE_MAX_SPEED: 750,
-            OBSTACLE_HIT_DAMAGE: 10,
-            OBSTACLE_MASS: 15,
-
-            players: new FastArray<Player>(
-                this.options.PLAYER_COUNT,
-                (i) =>
-                    new Player(
-                        i,
-                        this.controllers[i],
-                        createAnimationEngine("player" + i),
-                        eventQueue,
-                    ),
-            ),
-            projectiles: new FastArray<Projectile>(
-                64,
-                () =>
-                    new Projectile(
-                        this.uniqueId++,
-                        createAnimationEngine("projectile"),
-                    ),
-            ),
-            obstacles: new FastArray<Obstacle>(
-                16,
-                () =>
-                    new Obstacle(
-                        this.uniqueId++,
-                        createAnimationEngine("rock"),
-                    ),
-            ),
-            eventQueue: eventQueue,
-
-            log: (msg: string): void => {
-                console.log("Debug: " + msg);
-            },
-        };
-
-        const getRandomPosition = () =>
-            new Vector(
-                Math.floor(Math.random() * this.gameContext.SCREEN_WIDTH),
-                Math.floor(Math.random() * this.gameContext.SCREEN_HEIGHT),
-            );
-
-        for (let i = 0; i < this.options.PLAYER_COUNT; i++)
-            this.gameContext.players.grow();
-
-        this.gameContext.players.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                initialHealth: PLAYER_INITIAL_HEALTH,
-                initialEnergy: PLAYER_INITIAL_ENERGY,
-                maxEnergy: PLAYER_MAX_ENERGY,
-            });
-        });
-
-        for (let i = 0; i < INITIAL_ROCK_COUNT; i++)
-            this.gameContext.obstacles.grow();
-
-        this.gameContext.obstacles.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                forward: Vector.zero(),
-                playerIndex: -1,
-            });
-        });
+        this.spawnPlayersAndRocks();
     }
 
     private createPhysicalController(
@@ -235,5 +185,36 @@ export class App {
             result.bindKey(binding.key, binding.code);
         });
         return result;
+    }
+
+    private spawnPlayersAndRocks() {
+        const getRandomPosition = () =>
+            new Vector(
+                Math.floor(Math.random() * this.settings.SCREEN_WIDTH),
+                Math.floor(Math.random() * this.settings.SCREEN_HEIGHT),
+            );
+
+        for (let i = 0; i < this.settings.PLAYER_COUNT; i++)
+            this.gameContext.players.grow();
+
+        this.gameContext.players.forEach((p) => {
+            p.spawn({
+                position: getRandomPosition(),
+                initialHealth: this.settings.PLAYER_INITIAL_HEALTH,
+                initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
+                maxEnergy: this.settings.PLAYER_MAX_ENERGY,
+            });
+        });
+
+        for (let i = 0; i < this.settings.ROCK_COUNT; i++)
+            this.gameContext.obstacles.grow();
+
+        this.gameContext.obstacles.forEach((p) => {
+            p.spawn({
+                position: getRandomPosition(),
+                forward: Vector.zero(),
+                playerIndex: -1,
+            });
+        });
     }
 }

@@ -32,7 +32,8 @@ export class Projectile extends GameObject {
                 // almost no mass
                 obstacle.hit(
                     this.forward.getScaled(
-                        context.PROJECTILE_MASS / context.OBSTACLE_MASS,
+                        context.settings.PROJECTILE_MASS /
+                            context.settings.OBSTACLE_MASS,
                     ),
                 );
                 destroyThis = true;
@@ -43,7 +44,7 @@ export class Projectile extends GameObject {
             context.eventQueue.add(eventDestroyProjectile(this.id));
         }
 
-        if (context.PROJECTILE_ENABLE_TELEPORT) {
+        if (context.settings.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
         } else {
             this.handleLeavingScreen(context);
@@ -73,9 +74,9 @@ export class Projectile extends GameObject {
         const pos = this.collider.getPosition();
         if (
             pos.x < 0 ||
-            pos.x > context.SCREEN_WIDTH ||
+            pos.x > context.settings.SCREEN_WIDTH ||
             pos.y < 0 ||
-            pos.y > context.SCREEN_HEIGHT
+            pos.y > context.settings.SCREEN_HEIGHT
         ) {
             context.eventQueue.add(eventDestroyProjectile(this.id));
         }

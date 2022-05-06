@@ -72,8 +72,8 @@ export class AppViewCanvas {
         this.canvas2d.height = height;
 
         this.context2d.scale(
-            width / this.app.getContext().SCREEN_WIDTH,
-            height / this.app.getContext().SCREEN_HEIGHT,
+            width / this.app.getContext().settings.SCREEN_WIDTH,
+            height / this.app.getContext().settings.SCREEN_HEIGHT,
         );
     }
 
@@ -83,8 +83,8 @@ export class AppViewCanvas {
         this.context2d.fillRect(
             0,
             0,
-            context.SCREEN_WIDTH,
-            context.SCREEN_HEIGHT,
+            context.settings.SCREEN_WIDTH,
+            context.settings.SCREEN_HEIGHT,
         );
         context.players.forEach((p) => {
             this.drawEntity(p.getCoords());
@@ -100,13 +100,13 @@ export class AppViewCanvas {
         if (endgameStatus.endgameTriggered) {
             this.writeText(
                 endgameStatus.winnerName + " won",
-                context.SCREEN_WIDTH / 2,
-                context.SCREEN_HEIGHT / 2,
+                context.settings.SCREEN_WIDTH / 2,
+                context.settings.SCREEN_HEIGHT / 2,
             );
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
-                context.SCREEN_WIDTH / 2,
-                context.SCREEN_HEIGHT / 2 + 80,
+                context.settings.SCREEN_WIDTH / 2,
+                context.settings.SCREEN_HEIGHT / 2 + 80,
             );
         }
 

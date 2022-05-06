@@ -14,8 +14,8 @@ export class AppView {
         this.app = app;
         const context = this.app.getContext();
         this.viewApp = new PIXI.Application({
-            height: context.SCREEN_HEIGHT,
-            width: context.SCREEN_WIDTH,
+            height: context.settings.SCREEN_HEIGHT,
+            width: context.settings.SCREEN_WIDTH,
         });
         domElement.appendChild(this.viewApp.view);
 
@@ -39,8 +39,8 @@ export class AppView {
     scale() {
         const context = this.app.getContext();
         let scale = 1;
-        const height = context.SCREEN_HEIGHT;
-        const width = context.SCREEN_WIDTH;
+        const height = context.settings.SCREEN_HEIGHT;
+        const width = context.settings.SCREEN_WIDTH;
         if (
             this.domElement.clientHeight < height ||
             this.domElement.clientWidth < width

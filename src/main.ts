@@ -60,14 +60,37 @@ const animations = {
     },
 };
 
-const app = new App(keyboardState, animations, {
-    INTERNAL_SCREEN_WIDTH: 1280,
-    INTERNAL_SCREEN_HEIGHT: (1280 / 4) * 3,
-    PLAYER_COUNT: 2,
-    AI_PLAYER_COUNT: 0,
+const gameSettings = {
+    SCREEN_WIDTH: 1280,
+    SCREEN_HEIGHT: (1280 / 4) * 3,
     ANIMATION_FPS: 2,
     TIME_TILL_RESTART: 3,
-});
+    PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+    // Spawn settings
+    PLAYER_COUNT: 2,
+    NPC_COUNT: 0,
+    ROCK_COUNT: 4,
+    PLAYER_INITIAL_HEALTH: 3,
+    PLAYER_INITIAL_ENERGY: 2,
+    PLAYER_MAX_ENERGY: 4,
+    // Simulation settings
+    //   Player
+    PLAYER_FORWARD_SPEED: 500,
+    PLAYER_ROTATION_SPEED: 250,
+    PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
+    PLAYER_MASS: 10,
+    //   Projectile
+    PROJECTILE_SPEED: 1000,
+    PROJECTILE_DAMAGE: 1,
+    PROJECTILE_ENABLE_TELEPORT: false,
+    PROJECTILE_MASS: 1.5,
+    //   Obstacle
+    OBSTACLE_MAX_SPEED: 750,
+    OBSTACLE_HIT_DAMAGE: 10,
+    OBSTACLE_MASS: 15,
+};
+
+const app = new App(keyboardState, animations, gameSettings);
 app.start(FPS);
 
 const appView = USE_NATIVE_RENDERER
