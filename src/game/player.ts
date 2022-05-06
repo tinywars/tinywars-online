@@ -31,7 +31,6 @@ export class Player extends GameObject {
         super();
 
         this.collider = new CircleCollider(Vector.outOfView(), Player.RADIUS);
-        this.animationEngine.setState("idle", true);
     }
 
     spawn(options: {
@@ -48,6 +47,8 @@ export class Player extends GameObject {
         this.health = options.initialHealth;
         this.energy = options.initialEnergy;
         this.maxEnergy = options.maxEnergy;
+
+        this.animationEngine.setState("idle", true);
     }
 
     despawn() {
@@ -62,15 +63,15 @@ export class Player extends GameObject {
         let updateFwd = true;
         let rotation = 0;
         if (this.controller.isKeyPressed(KeyCode.Up)) {
-            this.speed = context.PLAYER_FORWARD_SPEED;
+            this.speed = context.settings.PLAYER_FORWARD_SPEED;
         } else if (this.controller.isKeyPressed(KeyCode.Down)) {
-            this.speed = -context.PLAYER_FORWARD_SPEED;
+            this.speed = -context.settings.PLAYER_FORWARD_SPEED;
         } else updateFwd = false;
 
         if (this.controller.isKeyPressed(KeyCode.Left)) {
-            rotation = -context.PLAYER_ROTATION_SPEED;
+            rotation = -context.settings.PLAYER_ROTATION_SPEED;
         } else if (this.controller.isKeyPressed(KeyCode.Right)) {
-            rotation = context.PLAYER_ROTATION_SPEED;
+            rotation = context.settings.PLAYER_ROTATION_SPEED;
         }
 
         this.handleShooting(dt);
@@ -80,10 +81,11 @@ export class Player extends GameObject {
 
         context.obstacles.forEach((obstacle) => {
             if (this.collider.collidesWith(obstacle.getCollider())) {
-                this.hit(context.OBSTACLE_HIT_DAMAGE);
+                this.hit(context.settings.OBSTACLE_HIT_DAMAGE);
                 obstacle.hit(
                     this.forward.getScaled(
-                        context.PLAYER_MASS / context.OBSTACLE_MASS,
+                        context.settings.PLAYER_MASS /
+                            context.settings.OBSTACLE_MASS,
                     ),
                 );
                 this.forward = this.forward.getScaled(0.1);
@@ -146,7 +148,7 @@ export class Player extends GameObject {
         if (this.energy >= this.maxEnergy) return;
 
         this.energy = clamp(
-            this.energy + context.PLAYER_ENERGY_RECHARGE_SPEED * dt,
+            this.energy + context.settings.PLAYER_ENERGY_RECHARGE_SPEED * dt,
             0,
             this.maxEnergy,
         );

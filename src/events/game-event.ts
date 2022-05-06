@@ -36,8 +36,12 @@ export function eventSpawnProjectile(options: {
 
             context.projectiles.getLastItem().spawn({
                 position: options.position,
-                forward: options.direction.getScaled(context.PROJECTILE_SPEED),
-                damage: options.damageMultiplier * context.PROJECTILE_DAMAGE,
+                forward: options.direction.getScaled(
+                    context.settings.PROJECTILE_SPEED,
+                ),
+                damage:
+                    options.damageMultiplier *
+                    context.settings.PROJECTILE_DAMAGE,
             });
         },
     };

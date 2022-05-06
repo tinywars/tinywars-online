@@ -1,5 +1,5 @@
 import { Coords } from "../utility/coords";
-import { App } from "../app-states/app";
+import { App } from "../app/app";
 import { Vector } from "../utility/vector";
 import { AnimationFrame } from "../utility/animation";
 import { Player } from "../game/player";
@@ -97,25 +97,31 @@ export class AppViewCanvas {
         this.canvas2d.height = height;
 
         this.context2d.scale(
-            width / this.app.topState().getContext().SCREEN_WIDTH,
-            height / this.app.topState().getContext().SCREEN_HEIGHT,
+            width / this.app.getContext().settings.SCREEN_WIDTH,
+            height / this.app.getContext().settings.SCREEN_HEIGHT,
         );
     }
 
     draw() {
-        console.log("Drawing");
+        const context = this.app.getContext();
 
         this.context2d.fillRect(
             0,
             0,
-            this.app.topState().getContext().SCREEN_WIDTH,
-            this.app.topState().getContext().SCREEN_HEIGHT,
+            context.settings.SCREEN_WIDTH,
+            context.settings.SCREEN_HEIGHT,
         );
-
-        const context = this.app.topState().getContext();
         context.players.forEach((p) => {
             this.drawEntity(p.getCoords());
             this.drawHudForPlayer(p);
+
+            if (context.settings.DISPLAY_PLAYER_NAMES)
+                this.writeText(
+                    context.settings.PLAYER_NAMES[p.id],
+                    p.getCoords().position.x,
+                    p.getCoords().position.y - 24,
+                    11,
+                );
         });
         context.projectiles.forEach((p) => {
             this.drawEntity(p.getCoords());
@@ -124,9 +130,34 @@ export class AppViewCanvas {
             this.drawEntity(o.getCoords());
         });
 
+        const endgameStatus = this.app.getEndgameStatus();
+        if (endgameStatus.endgameTriggered) {
+            this.writeText(
+                endgameStatus.winnerName + " won!",
+                context.settings.SCREEN_WIDTH / 2,
+                context.settings.SCREEN_HEIGHT / 2,
+                72,
+            );
+            this.writeText(
+                "Restart in: " + Math.round(endgameStatus.timeTillRestart),
+                context.settings.SCREEN_WIDTH / 2,
+                context.settings.SCREEN_HEIGHT / 2 + 80,
+                72,
+            );
+        }
+
         requestAnimationFrame(() => {
             this.draw();
         });
+    }
+
+    private writeText(text: string, x: number, y: number, fontSize: number) {
+        this.context2d.font = fontSize + "px arial";
+        this.context2d.textAlign = "center";
+        this.context2d.textBaseline = "middle";
+        this.context2d.fillStyle = "white";
+        this.context2d.fillText(text, x, y);
+        this.context2d.fillStyle = "black";
     }
 
     private drawEntity(coords: Coords) {

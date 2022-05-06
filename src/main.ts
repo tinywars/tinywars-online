@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { App } from "./app-states/app";
-import { AppStateGame } from "./app-states/app-state-game";
+import { App } from "./app/app";
 import "./style.css";
 import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
@@ -61,14 +60,44 @@ const animations = {
     },
 };
 
+const gameSettings = {
+    SCREEN_WIDTH: 1280,
+    SCREEN_HEIGHT: (1280 / 4) * 3,
+    ANIMATION_FPS: 2,
+    TIME_TILL_RESTART: 3,
+    PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+    DISPLAY_PLAYER_NAMES: true,
+    // Spawn settings
+    PLAYER_COUNT: 2,
+    NPC_COUNT: 0,
+    ROCK_COUNT: 4,
+    PLAYER_INITIAL_HEALTH: 3,
+    PLAYER_INITIAL_ENERGY: 2,
+    PLAYER_MAX_ENERGY: 4,
+    // Simulation settings
+    //   Player
+    PLAYER_FORWARD_SPEED: 500,
+    PLAYER_ROTATION_SPEED: 250,
+    PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
+    PLAYER_MASS: 10,
+    //   Projectile
+    PROJECTILE_SPEED: 1000,
+    PROJECTILE_DAMAGE: 1,
+    PROJECTILE_ENABLE_TELEPORT: false,
+    PROJECTILE_MASS: 1.5,
+    //   Obstacle
+    OBSTACLE_MAX_SPEED: 750,
+    OBSTACLE_HIT_DAMAGE: 10,
+    OBSTACLE_MASS: 15,
+};
+
 const hudFrames = {
     healthbar: new AnimationFrame(247, 165, 12, 4),
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const app = new App();
-app.pushState(new AppStateGame(app, keyboardState, animations));
-app.run(FPS);
+const app = new App(keyboardState, animations, gameSettings);
+app.start(FPS);
 
 const appView = USE_NATIVE_RENDERER
     ? new AppViewCanvas(

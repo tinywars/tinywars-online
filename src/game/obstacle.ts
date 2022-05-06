@@ -17,7 +17,7 @@ export class Obstacle extends GameObject {
     }
 
     update(dt: number, context: GameContext) {
-        this.forward.limit(context.OBSTACLE_MAX_SPEED);
+        this.forward.limit(context.settings.OBSTACLE_MAX_SPEED);
         this.collider.move(this.forward.getScaled(dt));
         this.rotation = sanitizeAngle(
             this.rotation +

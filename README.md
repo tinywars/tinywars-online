@@ -46,3 +46,8 @@ npm run test something
 # TODO: this also does not work, probably for the same reason. I'll have to do more research
 npm run test -- --watch
 ```
+
+## Known issues
+
+Game runs very sluggish on Waterfox browser.
+

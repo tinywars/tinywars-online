@@ -48,6 +48,10 @@ export class FastArray<T> implements Iterable<T> {
         this.items[this.size] = tmp;
     }
 
+    clear() {
+        this.size = 0;
+    }
+
     getSize(): number {
         return this.size;
     }
