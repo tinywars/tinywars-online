@@ -18,6 +18,8 @@ export class App {
     private uniqueId = 10; /// offseting this number so values below are reserved for players
     private controllers: Controller[];
     private aiBrains: AiBrain[];
+    private endgame = false;
+    private timeTillRestart = 0;
 
     constructor(
         private keyboardState: Record<string, boolean>,
@@ -28,6 +30,7 @@ export class App {
             PLAYER_COUNT: number;
             AI_PLAYER_COUNT: number;
             ANIMATION_FPS: number;
+            TIME_TILL_RESTART: number;
         },
     ) {
         this.controllers = [];
@@ -44,6 +47,22 @@ export class App {
     }
 
     updateLogic(dt: number): void {
+        if (this.gameContext.players.getSize() === 1 && !this.endgame) {
+            this.endgame = true;
+            this.timeTillRestart = this.options.TIME_TILL_RESTART;
+        }
+
+        if (this.endgame) {
+            this.timeTillRestart -= dt;
+
+            console.log("Time till restart: " + this.timeTillRestart);
+
+            if (this.timeTillRestart <= 0) {
+                this.reset();
+            }
+
+            return;
+        }
 
         this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
 
@@ -62,6 +81,18 @@ export class App {
         return this.gameContext;
     }
 
+    getEndgameStatus(): {
+        endgameTriggered: boolean;
+        timeTillRestart: number;
+        winnerName: string;
+    } {
+        return {
+            endgameTriggered: this.endgame,
+            timeTillRestart: this.timeTillRestart,
+            winnerName: "Player " + this.gameContext.players.getItem(0).id,
+        };
+    }
+
     private reset() {
         const INITIAL_ROCK_COUNT = 4;
         const PLAYER_INITIAL_HEALTH = 3;
@@ -70,6 +101,8 @@ export class App {
         const LIVE_PLAYER_COUNT =
             this.options.PLAYER_COUNT - this.options.AI_PLAYER_COUNT;
 
+        this.endgame = false;
+        this.timeTillRestart = 0;
         this.controllers = [];
         this.aiBrains = [];
 

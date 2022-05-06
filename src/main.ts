@@ -66,6 +66,7 @@ const app = new App(keyboardState, animations, {
     PLAYER_COUNT: 2,
     AI_PLAYER_COUNT: 0,
     ANIMATION_FPS: 2,
+    TIME_TILL_RESTART: 3,
 });
 app.start(FPS);
 

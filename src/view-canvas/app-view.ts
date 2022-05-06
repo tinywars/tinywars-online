@@ -96,9 +96,32 @@ export class AppViewCanvas {
             this.drawEntity(o.getCoords());
         });
 
+        const endgameStatus = this.app.getEndgameStatus();
+        if (endgameStatus.endgameTriggered) {
+            this.writeText(
+                endgameStatus.winnerName + " won",
+                context.SCREEN_WIDTH / 2,
+                context.SCREEN_HEIGHT / 2,
+            );
+            this.writeText(
+                "Restart in: " + Math.round(endgameStatus.timeTillRestart),
+                context.SCREEN_WIDTH / 2,
+                context.SCREEN_HEIGHT / 2 + 80,
+            );
+        }
+
         requestAnimationFrame(() => {
             this.draw();
         });
+    }
+
+    private writeText(text: string, x: number, y: number) {
+        this.context2d.font = "72px arial";
+        this.context2d.textAlign = "center";
+        this.context2d.textBaseline = "middle";
+        this.context2d.fillStyle = "white";
+        this.context2d.fillText(text, x, y);
+        this.context2d.fillStyle = "black";
     }
 
     private drawEntity(coords: Coords) {
