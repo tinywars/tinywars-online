@@ -21,6 +21,7 @@ export class App {
     private aiBrains: AiBrain[];
     private endgame = false;
     private timeTillRestart = 0;
+    private winnerName = "";
 
     constructor(
         private keyboardState: Record<string, boolean>,
@@ -102,9 +103,15 @@ export class App {
     }
 
     updateLogic(dt: number): void {
-        if (this.gameContext.players.getSize() === 1 && !this.endgame) {
+        if (this.gameContext.players.getSize() <= 1 && !this.endgame) {
             this.endgame = true;
             this.timeTillRestart = this.settings.TIME_TILL_RESTART;
+            this.winnerName =
+                this.gameContext.players.getSize() === 1
+                    ? this.settings.PLAYER_NAMES[
+                          this.gameContext.players.getItem(0).id
+                      ]
+                    : "nobody";
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
 
@@ -138,10 +145,7 @@ export class App {
         return {
             endgameTriggered: this.endgame,
             timeTillRestart: this.timeTillRestart,
-            winnerName:
-                this.settings.PLAYER_NAMES[
-                    this.gameContext.players.getItem(0).id
-                ],
+            winnerName: this.winnerName,
         };
     }
 
