@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { App } from "./app-states/app";
-import { AppStateGame } from "./app-states/app-state-game";
+import { App } from "./app/app";
 import "./style.css";
 import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
@@ -61,9 +60,14 @@ const animations = {
     },
 };
 
-const app = new App();
-app.pushState(new AppStateGame(app, keyboardState, animations));
-app.run(FPS);
+const app = new App(keyboardState, animations, {
+    INTERNAL_SCREEN_WIDTH: 1280,
+    INTERNAL_SCREEN_HEIGHT: (1280 / 4) * 3,
+    PLAYER_COUNT: 2,
+    AI_PLAYER_COUNT: 0,
+    ANIMATION_FPS: 2,
+});
+app.start(FPS);
 
 const appView = USE_NATIVE_RENDERER
     ? new AppViewCanvas(

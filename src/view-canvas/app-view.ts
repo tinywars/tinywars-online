@@ -1,5 +1,5 @@
 import { Coords } from "../utility/coords";
-import { App } from "../app-states/app";
+import { App } from "../app/app";
 import { Vector } from "../utility/vector";
 import { AnimationFrame } from "../utility/animation";
 
@@ -72,22 +72,20 @@ export class AppViewCanvas {
         this.canvas2d.height = height;
 
         this.context2d.scale(
-            width / this.app.topState().getContext().SCREEN_WIDTH,
-            height / this.app.topState().getContext().SCREEN_HEIGHT,
+            width / this.app.getContext().SCREEN_WIDTH,
+            height / this.app.getContext().SCREEN_HEIGHT,
         );
     }
 
     draw() {
-        console.log("Drawing");
+        const context = this.app.getContext();
 
         this.context2d.fillRect(
             0,
             0,
-            this.app.topState().getContext().SCREEN_WIDTH,
-            this.app.topState().getContext().SCREEN_HEIGHT,
+            context.SCREEN_WIDTH,
+            context.SCREEN_HEIGHT,
         );
-
-        const context = this.app.topState().getContext();
         context.players.forEach((p) => {
             this.drawEntity(p.getCoords());
         });

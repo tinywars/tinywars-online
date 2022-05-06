@@ -30,5 +30,4 @@ export interface GameContext {
     // etc...
     eventQueue: EventQueue;
     log: (msg: string) => void;
-    generateId: () => number;
 }
