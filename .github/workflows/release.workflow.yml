@@ -1,0 +1,68 @@
+name: Make release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version: 
+        type: string
+        description: patch, minor, major, or explicitly 1.2.3-whatever
+        default: minor
+        required: false
+      isPrerelease:
+        type: boolean
+        description: if it is prerelease
+        default: true
+        required: false
+
+concurrency:
+  cancel-in-progress: true
+  group: release-${{ github.ref }}
+
+jobs:
+  make_release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Print info
+        run: |
+          echo "Making ${{ github.event.inputs.version }} release"
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: npm
+      - run: npm ci --audit=false
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - name: Create changelog
+        run: |
+          lastTag=$(git tag | tail -1)
+          echo "Last version is $lastTag"
+          git log $lastTag..HEAD --oneline --no-decorate > CHANGELOG.md
+          cat CHANGELOG.md
+      - run: |
+          git config user.email github@github.com
+          git config user.name Github
+      - run: npm version ${{ github.event.inputs.version }}
+      - run: npm run build
+      - run: |
+          git push -f
+          git push -f --tags
+      - name: Get current version
+        id: version
+        run: |
+          version=v$(node -pe "require('./package.json')['version']")
+          echo "New version is $lastTag"
+          echo "::set-output name=version::$version"
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: ${{ github.event.inputs.isPrerelease }}
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.version }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
