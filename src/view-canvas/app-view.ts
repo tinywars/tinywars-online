@@ -88,6 +88,14 @@ export class AppViewCanvas {
         );
         context.players.forEach((p) => {
             this.drawEntity(p.getCoords());
+
+            if (context.settings.DISPLAY_PLAYER_NAMES)
+                this.writeText(
+                    context.settings.PLAYER_NAMES[p.id],
+                    p.getCoords().position.x,
+                    p.getCoords().position.y - 24,
+                    11,
+                );
         });
         context.projectiles.forEach((p) => {
             this.drawEntity(p.getCoords());
@@ -99,14 +107,16 @@ export class AppViewCanvas {
         const endgameStatus = this.app.getEndgameStatus();
         if (endgameStatus.endgameTriggered) {
             this.writeText(
-                endgameStatus.winnerName + " won",
+                endgameStatus.winnerName + " won!",
                 context.settings.SCREEN_WIDTH / 2,
                 context.settings.SCREEN_HEIGHT / 2,
+                72,
             );
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
                 context.settings.SCREEN_WIDTH / 2,
                 context.settings.SCREEN_HEIGHT / 2 + 80,
+                72,
             );
         }
 
@@ -115,8 +125,8 @@ export class AppViewCanvas {
         });
     }
 
-    private writeText(text: string, x: number, y: number) {
-        this.context2d.font = "72px arial";
+    private writeText(text: string, x: number, y: number, fontSize: number) {
+        this.context2d.font = fontSize + "px arial";
         this.context2d.textAlign = "center";
         this.context2d.textBaseline = "middle";
         this.context2d.fillStyle = "white";

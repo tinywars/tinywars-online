@@ -31,7 +31,6 @@ export class Player extends GameObject {
         super();
 
         this.collider = new CircleCollider(Vector.outOfView(), Player.RADIUS);
-        this.animationEngine.setState("idle", true);
     }
 
     spawn(options: {
@@ -48,6 +47,8 @@ export class Player extends GameObject {
         this.health = options.initialHealth;
         this.energy = options.initialEnergy;
         this.maxEnergy = options.maxEnergy;
+
+        this.animationEngine.setState("idle", true);
     }
 
     despawn() {

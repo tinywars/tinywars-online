@@ -138,7 +138,10 @@ export class App {
         return {
             endgameTriggered: this.endgame,
             timeTillRestart: this.timeTillRestart,
-            winnerName: "Player " + this.gameContext.players.getItem(0).id,
+            winnerName:
+                this.settings.PLAYER_NAMES[
+                    this.gameContext.players.getItem(0).id
+                ],
         };
     }
 

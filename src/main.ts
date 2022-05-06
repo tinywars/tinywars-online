@@ -66,6 +66,7 @@ const gameSettings = {
     ANIMATION_FPS: 2,
     TIME_TILL_RESTART: 3,
     PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+    DISPLAY_PLAYER_NAMES: true,
     // Spawn settings
     PLAYER_COUNT: 2,
     NPC_COUNT: 0,
