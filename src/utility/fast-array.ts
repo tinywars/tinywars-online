@@ -83,4 +83,12 @@ export class FastArray<T> implements Iterable<T> {
     forEach(cb: (item: T, index: number) => void) {
         for (let i = 0; i < this.size; i++) cb(this.items[i], i);
     }
+
+    filter(condition: (a: T) => boolean): T[] {
+        const result: T[] = [];
+        this.forEach((item: T) => {
+            if (condition(item)) result.push(item);
+        });
+        return result;
+    }
 }

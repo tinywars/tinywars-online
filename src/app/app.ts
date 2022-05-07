@@ -42,7 +42,6 @@ export class App {
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
             const aiController = new AiPoweredController();
             this.controllers.push(aiController);
-            this.aiBrains.push(new AiBrain(aiController, i));
         }
 
         const createAnimationEngine = (
@@ -90,6 +89,15 @@ export class App {
                 console.log("Debug: " + msg);
             },
         };
+
+        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
+            this.aiBrains.push(
+                new AiBrain(
+                    this.controllers[i] as AiPoweredController,
+                    this.gameContext.players.getItem(i),
+                ),
+            );
+        }
 
         this.reset();
     }
