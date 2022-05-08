@@ -87,4 +87,14 @@ describe("Vector", () => {
             expect(v1.getSize()).to.be.approximately(10, 0.001);
         });
     });
+
+    [new Vector(-266, 583), new Vector(1, 1), new Vector(0, -10)].forEach(
+        (v) => {
+            it(`Correctly constructs from polar coordinates |${v.toString()}| = ${v.getSize()}, alfa = ${v.toAngle()}`, () => {
+                const v2 = Vector.fromPolar(v.toAngle(), v.getSize());
+                expect(v2.x).to.be.approximately(v.x, 0.001);
+                expect(v2.y).to.be.approximately(v.y, 0.001);
+            });
+        },
+    );
 });
