@@ -7,18 +7,22 @@ import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
 import { GameObject } from "../game/game-object";
 import { FastArray } from "../utility/fast-array";
 import { assert } from "chai";
-import { Fsm } from "./fsm";
-import { If, Do, DoNothing, not } from "./fsm-builder";
+import { Fsm, FsmTransitionCondition } from "./fsm";
+import * as GameMath from "../utility/math";
+import { If, Do, DoNothing } from "./fsm-builder";
+import { Timer } from "../utility/timer";
+import { CircleCollider } from "../utility/circle-collider";
 
 export enum State {
     Start,
+    EndgameCheck,
     PickingTarget,
     TrackingAndShooting,
-    Hunting,
     StartEvasion,
     Evading,
     FinishEvasion,
     Drifting,
+    Shoot,
 }
 
 enum TargetingStrategy {
@@ -26,44 +30,80 @@ enum TargetingStrategy {
     Weakest,
 }
 
+enum ETimer {
+    Fire,
+    GoForward,
+    Log,
+}
+
+export function not(condition: FsmTransitionCondition): FsmTransitionCondition {
+    return (self: AiBrain, context: GameContext) => {
+        return !condition(self, context);
+    };
+}
+
+export function and(
+    cond1: FsmTransitionCondition,
+    cond2: FsmTransitionCondition,
+): FsmTransitionCondition {
+    return (self: AiBrain, context: GameContext) => {
+        return cond1(self, context) && cond2(self, context);
+    };
+}
+
+export function alwaysTrue(): boolean {
+    return true;
+}
+
+export function nothing() {
+    // intentionally left blank
+}
+
 export class AiBrain {
-    private shootTimeout = 0;
-    private goForwardTimeout = 0;
+    private timers: Record<ETimer, Timer>;
     private targetAngle = 0;
     private fsm: Fsm;
     private targetingStrategy: TargetingStrategy = TargetingStrategy.Closest;
     private targetPlayer: Player;
+    private ANGLE_DIFF_THRESHOLD = 5;
 
     constructor(
         private controller: AiPoweredController,
         private myPlayer: Player,
+        options: {
+            MIN_SHOOT_DELAY: number;
+            MAX_SHOOT_DELAY: number;
+        },
     ) {
         const states = {
             /* eslint-disable */
             [State.Start]:
-                 Do(this.startStateFsmStateLogic)
+                 Do(this.goForward)
                 .thenGoTo(State.PickingTarget),
+            [State.EndgameCheck]:
+                 If(this.isEverybodyElseDead).goTo(State.Drifting)
+                .otherwiseDo(nothing).thenGoTo(State.PickingTarget),
             [State.PickingTarget]:
-                Do(this.pickTargetPlayer).thenGoTo(State.TrackingAndShooting),
-                //Do(this.pickTargetPlayer).thenGoTo(State.Hunting),
-            [State.Hunting]:
-                 If(this.isCloseEnoughToTarget).goTo(State.TrackingAndShooting)
-                .otherwiseDo(this.trackAndGoForward),
+                 Do(this.pickTargetPlayer)
+                .thenGoTo(State.TrackingAndShooting),
             [State.TrackingAndShooting]: 
                  If(this.isCollisionImminent).goTo(State.StartEvasion)
                 .orIf(this.isEverybodyElseDead).goTo(State.Drifting)
-                //.orIf(not(this.isCloseEnoughToTarget)).goTo(State.PickingTarget)
-                .otherwiseDo(this.trackAndShoot),
+                .orIf(this.isTargetDead).goTo(State.EndgameCheck) // then to PickingTarget
+                .orIf(this.timerEnded(ETimer.Fire)).goTo(State.Shoot)
+                //.orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
+                .otherwiseDo(this.trackTarget).andLoop(),
+            [State.Shoot]:
+                Do(this.shoot).thenGoTo(State.TrackingAndShooting),
             [State.StartEvasion]:
                  Do(this.pickEvasionAngle)
                 .thenGoTo(State.Evading),
             [State.Evading]: 
-                 If(this.isTargetAngleAchieved).goTo(State.FinishEvasion)
-                .otherwiseDo(this.rotateTowardsTarget),
+                 If(this.isEvasionAngleAchieved).goTo(State.FinishEvasion)
+                .otherwiseDo(this.rotateTowardsTarget).andLoop(),
             [State.FinishEvasion]:
-                 Do(this.randomlyGoForwardOrBackward)
-                .thenGoTo(State.TrackingAndShooting,
-            ),
+                 Do(this.performEvasion)
+                .thenGoTo(State.TrackingAndShooting),
             [State.Drifting]: DoNothing(),
             /* eslint-enable */
         };
@@ -73,12 +113,29 @@ export class AiBrain {
         if (this.myPlayer.id % 2 === 1) {
             this.targetingStrategy = TargetingStrategy.Weakest;
         }
+
+        this.timers = {
+            [ETimer.Fire]: new Timer(
+                () =>
+                    Math.random() *
+                        (options.MAX_SHOOT_DELAY - options.MIN_SHOOT_DELAY) +
+                    options.MIN_SHOOT_DELAY,
+            ),
+            [ETimer.GoForward]: new Timer(() => 0.5),
+            [ETimer.Log]: new Timer(() => 1),
+        };
     }
 
     update(dt: number, context: GameContext) {
         this.releaseInputs();
         this.updateTimers(dt);
+
         this.fsm.update(this, context);
+
+        if (this.myPlayer.id === 0 && this.timers[ETimer.Log].ended()) {
+            console.log(State[this.fsm.getState()]);
+            this.timers[ETimer.Log].reset();
+        }
     }
 
     reset() {
@@ -96,8 +153,12 @@ export class AiBrain {
     }
 
     private updateTimers(dt: number) {
-        if (this.shootTimeout > 0) this.shootTimeout -= dt;
-        if (this.goForwardTimeout > 0) this.goForwardTimeout -= dt;
+        for (const timer in this.timers) {
+            const t = (this.timers as any)[timer];
+            if (t !== undefined) {
+                t.update(dt);
+            }
+        }
     }
 
     private getClosestPlayer(players: Player[]): Player {
@@ -137,19 +198,20 @@ export class AiBrain {
     }
 
     private targetObject(myPlayer: Player, object: GameObject) {
+        // TODO: improve
         const direction = Vector.diff(
-            myPlayer.getCollider().getPosition(),
-            // aim a bit in front of the target
             object
                 .getCollider()
                 .getPosition()
                 .getSum(object.getForward().getScaled(0.5)),
+            myPlayer.getCollider().getPosition(),
         );
         this.targetAngle = direction.toAngle();
     }
 
     private isCollisionImminentForGivenFastArray(
-        myPlayer: Player,
+        myCollider: CircleCollider,
+        myForward: Vector,
         objects: FastArray<GameObject>,
     ) {
         let result = false;
@@ -157,9 +219,9 @@ export class AiBrain {
 
         objects.forEach((o) => {
             const t = getTimeBeforeCollision(
-                myPlayer.getCollider(),
+                myCollider,
                 o.getCollider(),
-                myPlayer.getForward(),
+                myForward,
                 o.getForward(),
             );
 
@@ -169,9 +231,20 @@ export class AiBrain {
         return result;
     }
 
+    private getDiffFromTargetAngle(): number {
+        return GameMath.radialDifference(
+            this.targetAngle,
+            this.myPlayer.getCoords().angle,
+        );
+    }
+
     /* FSM CONDITIONS */
     private isEverybodyElseDead(self: AiBrain, context: GameContext): boolean {
         return context.players.getSize() <= 1;
+    }
+
+    private isTargetDead(self: AiBrain): boolean {
+        return self.targetPlayer.getHealth() <= 0;
     }
 
     private isCloseEnoughToTarget(self: AiBrain): boolean {
@@ -183,63 +256,92 @@ export class AiBrain {
         );
     }
 
+    private timerEnded(id: ETimer): FsmTransitionCondition {
+        return (self: AiBrain): boolean => {
+            return self.timers[id].ended();
+        };
+    }
+
+    private noCollisionInLookDirection(
+        self: AiBrain,
+        context: GameContext,
+    ): boolean {
+        return self.isCollisionImminentForGivenFastArray(
+            self.myPlayer.getCollider(),
+            Vector.fromPolar(
+                self.myPlayer.getCoords().angle,
+                self.myPlayer.getForward().getSize(),
+            ),
+            context.obstacles,
+        );
+    }
+
     private isTargetAngleAchieved(self: AiBrain): boolean {
-        const myAngle = self.myPlayer.getCoords().angle;
-        const diffAngle = Math.abs(self.targetAngle - myAngle);
-        return diffAngle < 5;
+        return self.getDiffFromTargetAngle() < self.ANGLE_DIFF_THRESHOLD;
+    }
+
+    private isEvasionAngleAchieved(self: AiBrain): boolean {
+        const diff = self.getDiffFromTargetAngle();
+        return (
+            diff < self.ANGLE_DIFF_THRESHOLD ||
+            diff - 180 < self.ANGLE_DIFF_THRESHOLD
+        );
     }
 
     private isCollisionImminent(self: AiBrain, context: GameContext) {
         const result =
             self.isCollisionImminentForGivenFastArray(
-                self.myPlayer,
+                self.myPlayer.getCollider(),
+                self.myPlayer.getForward(),
                 context.obstacles,
             ) ||
             self.isCollisionImminentForGivenFastArray(
-                self.myPlayer,
+                self.myPlayer.getCollider(),
+                self.myPlayer.getForward(),
                 context.projectiles,
             );
-
-        // TODO: want to FsmCondition players once we enable collisions between them
 
         if (result) console.log(self.myPlayer.id + ": Collision imminent");
         return result;
     }
 
     /* FSM LOGIC */
-    private startStateFsmStateLogic(self: AiBrain, context: GameContext) {
-        console.log(self);
-        self.randomlyGoForwardOrBackward(self);
-        self.shootTimeout =
-            Math.random() * context.settings.AI_MIN_SHOOT_DELAY +
-            context.settings.AI_MIN_SHOOT_DELAY;
+    private goForward(self: AiBrain) {
+        self.controller.pressKey(KeyCode.Up);
+        self.timers[ETimer.GoForward].reset();
     }
 
-    private randomlyGoForwardOrBackward(self: AiBrain) {
-        self.controller.pressKey(
-            (Math.random() * 10) % 2 == 0 ? KeyCode.Up : KeyCode.Down,
-        );
+    private shoot(self: AiBrain) {
+        self.controller.pressKey(KeyCode.Shoot);
+        self.timers[ETimer.Fire].reset();
     }
 
-    private trackAndShoot(self: AiBrain, context: GameContext) {
-        self.targetObject(self.myPlayer, self.targetPlayer);
-        self.rotateTowardsTarget(self);
-
-        if (self.shootTimeout <= 0) {
-            self.controller.pressKey(KeyCode.Shoot);
-            self.shootTimeout =
-                Math.random() * context.settings.AI_MIN_SHOOT_DELAY +
-                context.settings.AI_MIN_SHOOT_DELAY;
-        }
-    }
-
-    private trackAndGoForward(self: AiBrain) {
-        self.targetObject(self.myPlayer, self.targetPlayer);
-        self.rotateTowardsTarget(self);
-
-        if (self.goForwardTimeout <= 0) {
+    private performEvasion(self: AiBrain) {
+        const diff = self.getDiffFromTargetAngle();
+        if (diff < self.ANGLE_DIFF_THRESHOLD)
             self.controller.pressKey(KeyCode.Up);
-            self.goForwardTimeout = 0.4;
+        else self.controller.pressKey(KeyCode.Down);
+    }
+
+    private rotateTowardsTarget(self: AiBrain) {
+        const myAngle = self.myPlayer.getCoords().angle;
+        const diffAngle = sanitizeAngle(myAngle - self.targetAngle);
+        if (diffAngle <= 180) self.controller.pressKey(KeyCode.Left);
+        else if (diffAngle > 180) self.controller.pressKey(KeyCode.Right);
+    }
+
+    private trackTarget(self: AiBrain) {
+        self.targetObject(self.myPlayer, self.targetPlayer);
+        self.rotateTowardsTarget(self);
+
+        if (self.myPlayer.id === 0 && self.timers[ETimer.Log].ended()) {
+            console.log(
+                self.myPlayer.getCollider().getPosition().toString() +
+                    " -> " +
+                    self.targetPlayer.getCollider().getPosition().toString() +
+                    " @ " +
+                    self.targetAngle,
+            );
         }
     }
 
@@ -261,15 +363,9 @@ export class AiBrain {
     }
 
     private pickEvasionAngle(self: AiBrain) {
+        // TODO: better algorithm here
         self.targetAngle = sanitizeAngle(
             self.myPlayer.getForward().toAngle() + 90,
         );
-    }
-
-    private rotateTowardsTarget(self: AiBrain) {
-        const myAngle = self.myPlayer.getCoords().angle;
-        const diffAngle = sanitizeAngle(myAngle - self.targetAngle);
-        if (diffAngle <= 180) self.controller.pressKey(KeyCode.Left);
-        else if (diffAngle > 180) self.controller.pressKey(KeyCode.Right);
     }
 }

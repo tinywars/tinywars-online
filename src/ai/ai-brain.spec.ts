@@ -22,13 +22,16 @@ describe("AiBrain", () => {
 
     beforeEach(() => {
         controller = new AiPoweredController();
-        brain = new AiBrain(controller, 0);
         player = new Player(
             0,
             controller,
             new AnimationEngine(animations, 1),
             new EventQueue(),
         );
+        brain = new AiBrain(controller, player, {
+            MIN_SHOOT_DELAY: 1,
+            MAX_SHOOT_DELAY: 1,
+        });
 
         player.spawn({
             position: Vector.zero(),
@@ -46,12 +49,12 @@ describe("AiBrain", () => {
                 (anyPlayer.rotation as number) = startAngle;
                 (anyBrain.targetAngle as number) = targetAngle;
 
-                while (!anyBrain.isTargetAngleAchieved(player)) {
+                while (!anyBrain.isTargetAngleAchieved(brain)) {
                     //console.log("Player angle: " + player.getCoords().angle);
                     controller.releaseKey(KeyCode.Left);
                     controller.releaseKey(KeyCode.Right);
 
-                    anyBrain.rotateTowardsTarget(player);
+                    anyBrain.rotateTowardsTarget(brain);
 
                     if (controller.isKeyPressed(KeyCode.Left)) {
                         anyPlayer.updateRotation(-PLAYER_ROTATION_SPEED, DT);

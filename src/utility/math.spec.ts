@@ -128,4 +128,11 @@ describe("GameMath", () => {
             expect(GameMath.sanitizeAngle(721)).to.equal(1);
         });
     });
+
+    it("Properly computes radial difference", () => {
+        expect(GameMath.radialDifference(0, 10)).to.equal(10);
+        expect(GameMath.radialDifference(0, 350)).to.equal(10);
+        expect(GameMath.radialDifference(350, 0)).to.equal(10);
+        expect(GameMath.radialDifference(0, 180)).to.equal(180);
+    });
 });

@@ -81,3 +81,11 @@ export function sanitizeAngle(angle: number): number {
     const rem = angle % 360;
     return rem < 0 ? rem + 360 : rem;
 }
+
+export function radialDifference(alfa: number, beta: number): number {
+    return Math.min(
+        Math.abs(alfa - beta),
+        Math.min(alfa, beta) + 360 - Math.max(alfa, beta),
+    );
+}
+
