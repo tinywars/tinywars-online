@@ -135,4 +135,104 @@ describe("GameMath", () => {
         expect(GameMath.radialDifference(350, 0)).to.equal(10);
         expect(GameMath.radialDifference(0, 180)).to.equal(180);
     });
+
+    describe("getIntersectionBetweenMovingPointAndGrowingCircle", () => {
+        it("returns null, if point is moving away from circle and has higher speed than is circle grow rate", () => {
+            const pointOrigin = Vector.zero();
+            const pointForward = new Vector(-10, 0);
+            const circleOrigin = new Vector(1, 0);
+            const circleGrowSpeed = 9;
+
+            expect(
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                ),
+            ).to.be.null;
+        });
+
+        it("returns null if point is moving perpendicular to the circle at higher speed", () => {
+            const pointOrigin = Vector.zero();
+            const pointForward = new Vector(0, 10);
+            const circleOrigin = new Vector(1, 0);
+            const circleGrowSpeed = 5;
+
+            expect(
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                ),
+            ).to.be.null;
+        });
+
+        it("returns vector, if point is moving away from circle but at lower speed than circle grow rate", () => {
+            const pointOrigin = Vector.zero();
+            const pointForward = new Vector(-5, 0);
+            const circleOrigin = new Vector(1, 0);
+            const circleGrowSpeed = 6;
+
+            const result =
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                );
+
+            expect(result).not.be.null;
+
+            if (result !== null) {
+                expect(result.x).to.equal(-5);
+                expect(result.y).to.equal(0);
+            }
+        });
+
+        it("returns vector if point is moving perpendicular to the circle but at lower speed", () => {
+            const pointOrigin = Vector.zero();
+            const pointForward = new Vector(0, 1);
+            const circleOrigin = new Vector(1, 0);
+            const circleGrowSpeed = 2;
+
+            const result =
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                );
+
+            expect(result).not.be.null;
+
+            if (result !== null) {
+                expect(result.x).to.equal(0);
+                expect(result.y).to.be.approximately(0.577, 0.001);
+            }
+        });
+
+        it("returns vector under normal circumstances", () => {
+            const pointOrigin = new Vector(1, 4);
+            const pointForward = new Vector(2, 1);
+            const circleOrigin = new Vector(3, 1);
+            const circleGrowSpeed = 3;
+
+            const result =
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                );
+
+            expect(result).not.be.null;
+
+            if (result !== null) {
+                expect(result.x).to.be.approximately(4.14, 0.0001);
+                expect(result.y).to.be.approximately(5.57, 0.0001);
+            }
+        });
+    });
 });

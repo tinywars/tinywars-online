@@ -84,13 +84,13 @@ export class AiBrain {
                  If(this.isEverybodyElseDead).goTo(State.Drifting)
                 .otherwiseDo(nothing).thenGoTo(State.PickingTarget),
             [State.PickingTarget]:
-                 Do(this.pickTargetPlayer)
-                .thenGoTo(State.TrackingAndShooting),
+                If(this.isEverybodyElseDead).goTo(State.Drifting)
+                .otherwiseDo(this.pickTargetPlayer).thenGoTo(State.TrackingAndShooting),
             [State.TrackingAndShooting]: 
                  If(this.isCollisionImminent).goTo(State.StartEvasion)
                 .orIf(this.isEverybodyElseDead).goTo(State.Drifting)
                 .orIf(this.isTargetDead).goTo(State.EndgameCheck) // then to PickingTarget
-                .orIf(this.timerEnded(ETimer.Fire)).goTo(State.Shoot)
+                .orIf(and(this.timerEnded(ETimer.Fire),this.isCloseEnoughToTarget)).goTo(State.Shoot)
                 //.orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
                 .otherwiseDo(this.trackTarget).andLoop(),
             [State.Shoot]:
@@ -121,7 +121,7 @@ export class AiBrain {
                         (options.MAX_SHOOT_DELAY - options.MIN_SHOOT_DELAY) +
                     options.MIN_SHOOT_DELAY,
             ),
-            [ETimer.GoForward]: new Timer(() => 0.5),
+            [ETimer.GoForward]: new Timer(() => Math.random() * 3 + 1.5),
             [ETimer.Log]: new Timer(() => 1),
         };
     }
@@ -198,12 +198,21 @@ export class AiBrain {
     }
 
     private targetObject(myPlayer: Player, object: GameObject) {
-        // TODO: improve
+        const targetPoint =
+            GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                object.getCollider().getPosition(),
+                object.getForward(),
+                myPlayer.getCollider().getPosition(),
+                1000,
+            );
+        if (targetPoint === null) return;
+
         const direction = Vector.diff(
-            object
+            targetPoint,
+            /*object
                 .getCollider()
                 .getPosition()
-                .getSum(object.getForward().getScaled(0.5)),
+                .getSum(object.getForward().getScaled(timeDiff)),*/
             myPlayer.getCollider().getPosition(),
         );
         this.targetAngle = direction.toAngle();
@@ -266,7 +275,7 @@ export class AiBrain {
         self: AiBrain,
         context: GameContext,
     ): boolean {
-        return self.isCollisionImminentForGivenFastArray(
+        return !self.isCollisionImminentForGivenFastArray(
             self.myPlayer.getCollider(),
             Vector.fromPolar(
                 self.myPlayer.getCoords().angle,
@@ -334,7 +343,7 @@ export class AiBrain {
         self.targetObject(self.myPlayer, self.targetPlayer);
         self.rotateTowardsTarget(self);
 
-        if (self.myPlayer.id === 0 && self.timers[ETimer.Log].ended()) {
+        /*if (self.myPlayer.id === 0 && self.timers[ETimer.Log].ended()) {
             console.log(
                 self.myPlayer.getCollider().getPosition().toString() +
                     " -> " +
@@ -342,7 +351,7 @@ export class AiBrain {
                     " @ " +
                     self.targetAngle,
             );
-        }
+        }*/
     }
 
     private pickTargetPlayer(self: AiBrain, context: GameContext) {
@@ -363,9 +372,10 @@ export class AiBrain {
     }
 
     private pickEvasionAngle(self: AiBrain) {
-        // TODO: better algorithm here
         self.targetAngle = sanitizeAngle(
-            self.myPlayer.getForward().toAngle() + 90,
+            self.myPlayer.getForward().toAngle() +
+                90 +
+                Math.floor(Math.random() * 180),
         );
     }
 }

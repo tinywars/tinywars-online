@@ -75,7 +75,7 @@ const gameSettings = {
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
     // AI Settings
-    AI_MAX_SHOOT_DELAY: 2,
+    AI_MAX_SHOOT_DELAY: 1.5,
     AI_MIN_SHOOT_DELAY: 0.5,
     // Simulation settings
     //   Player
