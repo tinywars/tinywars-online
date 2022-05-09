@@ -195,33 +195,52 @@ export class App {
     }
 
     private spawnPlayersAndRocks() {
-        const getRandomPosition = () =>
-            new Vector(
-                Math.floor(Math.random() * this.settings.SCREEN_WIDTH),
-                Math.floor(Math.random() * this.settings.SCREEN_HEIGHT),
+        const distribution = [
+            1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+
+        const randomShuffleArray = (arr: number[]) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+            }
+        };
+
+        const getSpawnPosition = (xIndex: number, yIndex: number): Vector => {
+            const chunkW = this.gameContext.settings.SCREEN_WIDTH / 5;
+            const chunkH = this.gameContext.settings.SCREEN_HEIGHT / 4;
+            return new Vector(
+                chunkW / 2 + chunkW * xIndex,
+                chunkH / 2 + chunkH * yIndex,
             );
+        };
 
-        for (let i = 0; i < this.settings.PLAYER_COUNT; i++)
-            this.gameContext.players.grow();
+        randomShuffleArray(distribution);
+        console.log(distribution);
 
-        this.gameContext.players.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                initialHealth: this.settings.PLAYER_INITIAL_HEALTH,
-                initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
-                maxEnergy: this.settings.PLAYER_MAX_ENERGY,
-            });
-        });
-
-        for (let i = 0; i < this.settings.ROCK_COUNT; i++)
-            this.gameContext.obstacles.grow();
-
-        this.gameContext.obstacles.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                forward: Vector.zero(),
-                playerIndex: -1,
-            });
-        });
+        let i = 0;
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 5; x++, i++) {
+                if (distribution[i] === 0) continue;
+                else if (distribution[i] === 1) {
+                    this.gameContext.players.grow();
+                    this.gameContext.players.getLastItem().spawn({
+                        position: getSpawnPosition(x, y),
+                        initialHealth: this.settings.PLAYER_INITIAL_HEALTH,
+                        initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
+                        maxEnergy: this.settings.PLAYER_MAX_ENERGY,
+                    });
+                } else if (distribution[i] === 2) {
+                    this.gameContext.obstacles.grow();
+                    this.gameContext.obstacles.getLastItem().spawn({
+                        position: getSpawnPosition(x, y),
+                        forward: Vector.zero(),
+                        playerIndex: -1,
+                    });
+                }
+            }
+        }
     }
 }
