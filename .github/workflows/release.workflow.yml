@@ -31,6 +31,10 @@ jobs:
 
       - name: Create changelog
         run: |
+          git tag
+          git tag | tail -n 2
+          git tag | tail -n 2 | head -n 1
+          git tag | tail -n 1
           lastTag=$(git tag | tail -n 2 | head -n 1)
           newTag=$(git tag | tail -n 1)
           echo "Last version is $lastTag"
