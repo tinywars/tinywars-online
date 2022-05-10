@@ -7,6 +7,10 @@ export class AiPoweredController implements Controller {
         return this.inputs[code];
     }
 
+    getAxisValue(): number {
+        return 0;
+    }
+
     releaseKey(code: number): void {
         this.inputs[code] = false;
     }

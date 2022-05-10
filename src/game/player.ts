@@ -72,6 +72,10 @@ export class Player extends GameObject {
             rotation = -context.settings.PLAYER_ROTATION_SPEED;
         } else if (this.controller.isKeyPressed(KeyCode.Right)) {
             rotation = context.settings.PLAYER_ROTATION_SPEED;
+        } else {
+            rotation =
+                this.controller.getAxisValue(KeyCode.Rotation) *
+                context.settings.PLAYER_ROTATION_SPEED;
         }
 
         this.handleShooting(dt);

@@ -1,7 +1,11 @@
 import { AiBrain } from "../ai/ai-brain";
 import { GameContext } from "../game/game-context";
 import { Controller } from "../utility/controller";
-import { KeyboardController } from "../utility/keyboard-controller";
+import {
+    PhysicalController,
+    GamepadButton,
+    GamepadAxis,
+} from "../utility/physical-controller";
 import { KeyCode } from "../game/key-codes";
 import { AnimationFrame } from "../utility/animation";
 import { AiPoweredController } from "../ai/ai-controller";
@@ -167,30 +171,81 @@ export class App {
     private createPhysicalController(
         index: number,
         keyboardState: Record<string, boolean>,
-    ): KeyboardController {
+    ): PhysicalController {
         const bindings = [
             [
-                { key: "KeyW", code: KeyCode.Up },
-                { key: "KeyA", code: KeyCode.Left },
-                { key: "KeyS", code: KeyCode.Down },
-                { key: "KeyD", code: KeyCode.Right },
-                { key: "KeyE", code: KeyCode.Shoot },
-                { key: "KeyR", code: KeyCode.Boost },
+                {
+                    key: "KeyW",
+                    button: GamepadButton.RTrigger,
+                    code: KeyCode.Up,
+                },
+                {
+                    key: "KeyA",
+                    button: GamepadButton.DpadLeft,
+                    code: KeyCode.Left,
+                },
+                {
+                    key: "KeyS",
+                    button: GamepadButton.LTrigger,
+                    code: KeyCode.Down,
+                },
+                {
+                    key: "KeyD",
+                    button: GamepadButton.DpadRight,
+                    code: KeyCode.Right,
+                },
+                {
+                    key: "KeyE",
+                    button: GamepadButton.X,
+                    code: KeyCode.Shoot,
+                },
+                {
+                    key: "KeyR",
+                    button: GamepadButton.A,
+                    code: KeyCode.Boost,
+                },
             ],
             [
-                { key: "KeyI", code: KeyCode.Up },
-                { key: "KeyJ", code: KeyCode.Left },
-                { key: "KeyK", code: KeyCode.Down },
-                { key: "KeyL", code: KeyCode.Right },
-                { key: "KeyO", code: KeyCode.Shoot },
-                { key: "KeyP", code: KeyCode.Boost },
+                {
+                    key: "KeyI",
+                    button: GamepadButton.RTrigger,
+                    code: KeyCode.Up,
+                },
+                {
+                    key: "KeyJ",
+                    button: GamepadButton.DpadLeft,
+                    code: KeyCode.Left,
+                },
+                {
+                    key: "KeyK",
+                    button: GamepadButton.LTrigger,
+                    code: KeyCode.Down,
+                },
+                {
+                    key: "KeyL",
+                    button: GamepadButton.DpadRight,
+                    code: KeyCode.Right,
+                },
+                {
+                    key: "KeyO",
+                    button: GamepadButton.X,
+                    code: KeyCode.Shoot,
+                },
+                {
+                    key: "KeyP",
+                    button: GamepadButton.A,
+                    code: KeyCode.Boost,
+                },
             ],
         ];
 
-        const result = new KeyboardController(keyboardState);
+        const result = new PhysicalController(keyboardState);
         bindings[index].forEach((binding) => {
-            result.bindKey(binding.key, binding.code);
+            result.bindDigitalInput(binding.key, binding.button, binding.code);
         });
+        result.bindAnalogInput(GamepadAxis.LHorizontal, KeyCode.Rotation);
+        result.setGamepadIndex(index);
+        result.setGamepadAxisDeadzone(0.25);
         return result;
     }
 
