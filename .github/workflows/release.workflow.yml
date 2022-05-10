@@ -35,7 +35,8 @@ jobs:
           newTag=$(git tag | tail -1)
           echo "Last version is $lastTag"
           echo "New version is $newTag"
-          git log $lastTag..$newTag --oneline --no-decorate > CHANGELOG.md
+          git log $lastTag..$newTag --oneline --no-decorate --format="* %s"
+          git log $lastTag..$newTag --oneline --no-decorate --format="* %s" > CHANGELOG.md
           cat CHANGELOG.md
           zip release_$lastTag.zip dist/*
 
