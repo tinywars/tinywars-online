@@ -39,7 +39,7 @@ jobs:
           echo "New version is $currentTag"
           git log $previousTag..$currentTag --oneline --no-decorate --format="* %s" | tail -n+2 > CHANGELOG.md
           cat CHANGELOG.md
-          zip -r release_$previousTag.zip dist/*
+          zip -r release_$currentTag.zip dist/*
 
       - name: release
         uses: ncipollo/release-action@v1
