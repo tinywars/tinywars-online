@@ -31,14 +31,14 @@ jobs:
 
       - name: Create changelog
         run: |
-          lastTag=$(git tag | tail -2 | head -1)
-          newTag=$(git tag | tail -1)
+          lastTag=$(git tag | tail -n 2 | head -n 1)
+          newTag=$(git tag | tail -n 1)
           echo "Last version is $lastTag"
           echo "New version is $newTag"
           git log $lastTag..$newTag --oneline --no-decorate --format="* %s"
           git log $lastTag..$newTag --oneline --no-decorate --format="* %s" > CHANGELOG.md
           cat CHANGELOG.md
-          zip release_$lastTag.zip dist/*
+          zip -r release_$lastTag.zip dist/*
 
       - name: release
         uses: ncipollo/release-action@v1
