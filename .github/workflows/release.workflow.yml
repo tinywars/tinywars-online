@@ -33,18 +33,13 @@ jobs:
 
       - name: Create changelog
         run: |
-          git tag
-          git tag | tail -n 2
-          git tag | tail -n 2 | head -n 1
-          git tag | tail -n 1
-          lastTag=$(git tag | tail -n 2 | head -n 1)
-          newTag=$(git tag | tail -n 1)
-          echo "Last version is $lastTag"
-          echo "New version is $newTag"
-          git log $lastTag..$newTag --oneline --no-decorate --format="* %s"
-          git log $lastTag..$newTag --oneline --no-decorate --format="* %s" > CHANGELOG.md
+          previousTag=$(git tag | tail -n 2 | head -n 1)
+          currentTag=$(git tag | tail -n 1)
+          echo "Last version is $previousTag"
+          echo "New version is $currentTag"
+          git log $previousTag..$currentTag --oneline --no-decorate --format="* %s" | tail -n+2 > CHANGELOG.md
           cat CHANGELOG.md
-          zip -r release_$lastTag.zip dist/*
+          zip -r release_$previousTag.zip dist/*
 
       - name: release
         uses: ncipollo/release-action@v1
