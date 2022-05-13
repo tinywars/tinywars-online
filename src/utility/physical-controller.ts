@@ -68,7 +68,6 @@ export class PhysicalController extends Controller {
 
     bindDigitalInput(key: string, button: GamepadButton, code: number) {
         this.digitalMappings[code] = {
-            forciblyReleased: false,
             keyboardKeyName: key,
             gamepadButtonCode: button,
         };
