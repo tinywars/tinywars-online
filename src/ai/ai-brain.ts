@@ -12,6 +12,7 @@ import * as GameMath from "../utility/math";
 import { If, Do, DoNothing } from "./fsm-builder";
 import { Timer } from "../utility/timer";
 import { CircleCollider } from "../utility/circle-collider";
+import { PRNG } from "../utility/prng";
 
 export enum State {
     Start,
@@ -117,11 +118,11 @@ export class AiBrain {
         this.timers = {
             [ETimer.Fire]: new Timer(
                 () =>
-                    Math.random() *
+                    PRNG.randomFloat() *
                         (options.MAX_SHOOT_DELAY - options.MIN_SHOOT_DELAY) +
                     options.MIN_SHOOT_DELAY,
             ),
-            [ETimer.GoForward]: new Timer(() => Math.random() * 3 + 1.5),
+            [ETimer.GoForward]: new Timer(() => PRNG.randomFloat() * 3 + 1.5),
             [ETimer.Log]: new Timer(() => 1),
         };
     }

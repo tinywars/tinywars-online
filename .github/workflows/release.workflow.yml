@@ -17,7 +17,9 @@ jobs:
   make_release:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
           node-version: 16.x
@@ -31,13 +33,13 @@ jobs:
 
       - name: Create changelog
         run: |
-          lastTag=$(git tag | tail -2 | head -1)
-          newTag=$(git tag | tail -1)
-          echo "Last version is $lastTag"
-          echo "New version is $newTag"
-          git log $lastTag..$newTag --oneline --no-decorate > CHANGELOG.md
+          previousTag=$(git tag | tail -n 2 | head -n 1)
+          currentTag=$(git tag | tail -n 1)
+          echo "Last version is $previousTag"
+          echo "New version is $currentTag"
+          git log $previousTag..$currentTag --oneline --no-decorate --format="* %s" | tail -n+2 > CHANGELOG.md
           cat CHANGELOG.md
-          zip release_$lastTag.zip dist/*
+          zip -r release_$currentTag.zip dist/*
 
       - name: release
         uses: ncipollo/release-action@v1

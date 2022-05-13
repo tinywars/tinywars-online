@@ -67,6 +67,7 @@ const gameSettings = {
     TIME_TILL_RESTART: 3,
     PLAYER_NAMES: ["red", "green", "blue", "yellow"],
     DISPLAY_PLAYER_NAMES: true,
+    PRNG_SEED: Date.now(),
     // Spawn settings
     PLAYER_COUNT: 4,
     NPC_COUNT: 4,
