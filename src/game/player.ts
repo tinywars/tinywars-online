@@ -16,7 +16,6 @@ import { EventQueue } from "../events/event-queue";
 export class Player extends GameObject {
     protected static RADIUS = 10;
     protected direction: Vector = Vector.zero();
-    //protected speed = 0;
     protected health = 0;
     protected energy = 0;
     protected maxEnergy = 0;

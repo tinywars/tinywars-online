@@ -27,12 +27,11 @@ export enum GamepadAxis {
     None = -1,
     LHorizontal = 0,
     LVertical = 1,
-    RHorizontal = 0,
-    RVertical = 0,
+    RHorizontal = 2,
+    RVertical = 3,
 }
 
 interface InputMapping {
-    forciblyReleased: boolean;
     keyboardKeyName: string;
     gamepadButtonCode: GamepadButton;
 }
