@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { EventQueue } from "../events/event-queue";
 import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
@@ -44,7 +43,9 @@ describe("AiBrain", () => {
     [0, 45, 90, 135, 180, 225, 260, 305, 359].forEach((startAngle) => {
         [0, 45, 90, 135, 180, 225, 260, 305, 359].forEach((targetAngle) => {
             it(`Can rotate from ${startAngle} to ${targetAngle}`, () => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const anyPlayer = player as any;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const anyBrain = brain as any;
                 (anyPlayer.rotation as number) = startAngle;
                 (anyBrain.targetAngle as number) = targetAngle;
