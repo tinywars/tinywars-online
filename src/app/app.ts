@@ -13,6 +13,7 @@ import { Obstacle } from "../game/obstacle";
 import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
+import { PRNG } from "../utility/prng";
 
 export class App {
     private gameContext: GameContext;
@@ -28,6 +29,8 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
     ) {
+        PRNG.setSeed(Date.now()); // TODO: this.settings.PRNG_SEED
+
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
 
@@ -197,8 +200,8 @@ export class App {
     private spawnPlayersAndRocks() {
         const getRandomPosition = () =>
             new Vector(
-                Math.floor(Math.random() * this.settings.SCREEN_WIDTH),
-                Math.floor(Math.random() * this.settings.SCREEN_HEIGHT),
+                PRNG.randomRangedInt(0, this.settings.SCREEN_WIDTH),
+                PRNG.randomRangedInt(0, this.settings.SCREEN_HEIGHT),
             );
 
         for (let i = 0; i < this.settings.PLAYER_COUNT; i++)

@@ -8,6 +8,13 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "prettier/prettier": ["warn"]
+    "prettier/prettier": ["warn"],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.object.name=Math][callee.property.name=random]",
+        "message": "It is forbidden to call Math.random(). Use PRNG from utility/prng instead."
+      }
+    ]
   }
 }

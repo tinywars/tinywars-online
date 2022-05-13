@@ -6,6 +6,7 @@ export interface GameSettings {
     TIME_TILL_RESTART: number; // seconds
     PLAYER_NAMES: string[];
     DISPLAY_PLAYER_NAMES: boolean; // whether to display player names during gameplay
+    PRNG_SEED: number;
     // Spawn settings
     PLAYER_COUNT: number; // total number of ships, including NPCs
     NPC_COUNT: number;

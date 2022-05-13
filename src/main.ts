@@ -67,6 +67,7 @@ const gameSettings = {
     TIME_TILL_RESTART: 3,
     PLAYER_NAMES: ["red", "green", "blue", "yellow"],
     DISPLAY_PLAYER_NAMES: true,
+    PRNG_SEED: Date.now(),
     // Spawn settings
     PLAYER_COUNT: 2,
     NPC_COUNT: 0,
@@ -111,3 +112,4 @@ appView.scale();
 window.onresize = debounce(() => {
     appView.scale();
 }, 200);
+(window as any).app = app;

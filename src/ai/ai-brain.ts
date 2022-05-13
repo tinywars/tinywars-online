@@ -5,6 +5,7 @@ import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
 import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
 import { GameObject } from "../game/game-object";
+import { PRNG } from "../utility/prng";
 
 enum AiState {
     Start,
@@ -27,10 +28,10 @@ export class AiBrain {
         private playerId: number,
     ) {
         this.goForwardTimeout =
-            Math.random() * this.MAX_GO_FORWARD_TIMEOUT +
+            PRNG.randomFloat() * this.MAX_GO_FORWARD_TIMEOUT +
             this.MAX_GO_FORWARD_TIMEOUT;
         this.shootTimeout =
-            Math.random() * this.MAX_SHOOT_DELAY + this.MAX_SHOOT_DELAY;
+            PRNG.randomFloat() * this.MAX_SHOOT_DELAY + this.MAX_SHOOT_DELAY;
     }
 
     update(dt: number, context: GameContext) {
@@ -80,7 +81,7 @@ export class AiBrain {
                 if (this.shootTimeout <= 0) {
                     this.controller.pressKey(KeyCode.Shoot);
                     this.shootTimeout =
-                        Math.random() * this.MAX_SHOOT_DELAY +
+                        PRNG.randomFloat() * this.MAX_SHOOT_DELAY +
                         this.MIN_SHOOT_DELAY;
                 }
                 break;
@@ -89,9 +90,7 @@ export class AiBrain {
             case AiState.Evading: {
                 if (this.isTargetAngleAchieved(myPlayer)) {
                     this.controller.pressKey(
-                        (Math.random() * 10) % 2 == 0
-                            ? KeyCode.Up
-                            : KeyCode.Down,
+                        PRNG.randomInt() % 2 == 0 ? KeyCode.Up : KeyCode.Down,
                     );
                     this.aiState = AiState.TrackingAndShooting;
                     return;
