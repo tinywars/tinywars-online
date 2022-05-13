@@ -119,7 +119,7 @@ export class AppViewCanvas {
 
             if (context.settings.DISPLAY_PLAYER_NAMES)
                 this.writeText(
-                    context.settings.PLAYER_NAMES[p.id],
+                    context.settings.PLAYER_SETTINGS[p.id].name,
                     p.getCoords().position.x,
                     p.getCoords().position.y - 24,
                     11,

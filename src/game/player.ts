@@ -7,7 +7,6 @@ import {
     eventDestroyPlayer,
     eventSpawnWreck,
 } from "../events/game-event";
-import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 import { AnimationEngine } from "../utility/animation";
@@ -17,7 +16,6 @@ import { EventQueue } from "../events/event-queue";
 export class Player extends GameObject {
     protected static RADIUS = 10;
     protected direction: Vector = Vector.zero();
-    protected speed = 0;
     protected health = 0;
     protected energy = 0;
     protected maxEnergy = 0;
@@ -61,23 +59,13 @@ export class Player extends GameObject {
             this.animationEngine.setState("idle", true);
         }
 
-        let updateFwd = true;
-        let rotation = 0;
-        if (this.controller.isKeyPressed(KeyCode.Up)) {
-            this.speed = context.settings.PLAYER_FORWARD_SPEED;
-        } else if (this.controller.isKeyPressed(KeyCode.Down)) {
-            this.speed = -context.settings.PLAYER_FORWARD_SPEED;
-        } else updateFwd = false;
-
-        if (this.controller.isKeyPressed(KeyCode.Left)) {
-            rotation = -context.settings.PLAYER_ROTATION_SPEED;
-        } else if (this.controller.isKeyPressed(KeyCode.Right)) {
-            rotation = context.settings.PLAYER_ROTATION_SPEED;
-        }
+        let { throttle, steer } = this.controller.getThrottleAndSteer();
+        throttle *= context.settings.PLAYER_FORWARD_SPEED;
+        steer *= context.settings.PLAYER_ROTATION_SPEED;
 
         this.handleShooting(dt);
-        this.updateRotation(rotation, dt);
-        this.moveForward(updateFwd, dt, context);
+        this.updateRotation(steer, dt);
+        this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
 
         context.obstacles.forEach((obstacle) => {
@@ -132,12 +120,8 @@ export class Player extends GameObject {
         this.direction.setRotation(this.rotation);
     }
 
-    private moveForward(
-        updateForward: boolean,
-        dt: number,
-        context: GameContext,
-    ) {
-        if (updateForward) this.forward = this.direction.getScaled(this.speed);
+    private moveForward(throttle: number, dt: number, context: GameContext) {
+        if (throttle != 0) this.forward = this.direction.getScaled(throttle);
 
         this.collider.move(this.forward.getScaled(dt));
         this.handleLeavingScreenByWrappingAround(context);
@@ -156,9 +140,7 @@ export class Player extends GameObject {
     }
 
     private handleShooting(dt: number) {
-        if (!this.controller.isKeyPressed(KeyCode.Shoot)) return;
-
-        this.controller.releaseKey(KeyCode.Shoot);
+        if (!this.controller.readAttackToggled()) return;
 
         if (this.energy < 1) return;
 

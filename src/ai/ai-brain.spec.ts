@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { EventQueue } from "../events/event-queue";
 import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
@@ -17,7 +16,7 @@ describe("AiBrain", () => {
     let player: Player;
 
     // These must be the same as in gameSettings
-    const PLAYER_ROTATION_SPEED = 250;
+    const PLAYER_ROTATION_SPEED = 200;
     const DT = 1 / 60;
 
     beforeEach(() => {
@@ -44,7 +43,9 @@ describe("AiBrain", () => {
     [0, 45, 90, 135, 180, 225, 260, 305, 359].forEach((startAngle) => {
         [0, 45, 90, 135, 180, 225, 260, 305, 359].forEach((targetAngle) => {
             it(`Can rotate from ${startAngle} to ${targetAngle}`, () => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const anyPlayer = player as any;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const anyBrain = brain as any;
                 (anyPlayer.rotation as number) = startAngle;
                 (anyBrain.targetAngle as number) = targetAngle;
@@ -54,15 +55,11 @@ describe("AiBrain", () => {
                     controller.releaseKey(KeyCode.Left);
                     controller.releaseKey(KeyCode.Right);
 
-                    anyBrain.rotateTowardsTarget(brain);
+                    anyBrain.rotateTowardsTarget();
 
-                    if (controller.isKeyPressed(KeyCode.Left)) {
-                        anyPlayer.updateRotation(-PLAYER_ROTATION_SPEED, DT);
-                    } else if (controller.isKeyPressed(KeyCode.Right)) {
-                        anyPlayer.updateRotation(PLAYER_ROTATION_SPEED, DT);
-                    } else {
-                        throw new Error("Not rotating");
-                    }
+                    const { steer } = controller.getThrottleAndSteer();
+                    if (steer === 0) throw new Error("Not rotating");
+                    anyPlayer.updateRotation(steer * PLAYER_ROTATION_SPEED, DT);
                 }
             });
         });

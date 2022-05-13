@@ -1,4 +1,3 @@
-import { assert } from "chai";
 import { CircleCollider } from "./circle-collider";
 import { Vector } from "./vector";
 

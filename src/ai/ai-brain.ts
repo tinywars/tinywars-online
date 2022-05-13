@@ -92,7 +92,7 @@ export class AiBrain {
                 .orIf(this.isEverybodyElseDead).goTo(State.Drifting)
                 .orIf(this.isTargetDead).goTo(State.EndgameCheck) // then to PickingTarget
                 .orIf(and(this.timerEnded(ETimer.Fire),this.isCloseEnoughToTarget)).goTo(State.Shoot)
-                //.orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
+                .orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
                 .otherwiseDo(this.trackTarget).andLoop(),
             [State.Shoot]:
                 Do(this.shoot).thenGoTo(State.TrackingAndShooting),
@@ -150,7 +150,7 @@ export class AiBrain {
         this.controller.releaseKey(KeyCode.Left);
         this.controller.releaseKey(KeyCode.Right);
         this.controller.releaseKey(KeyCode.Shoot);
-        this.controller.releaseKey(KeyCode.Boost);
+        this.controller.releaseKey(KeyCode.Action);
     }
 
     private updateTimers(dt: number) {
@@ -216,7 +216,7 @@ export class AiBrain {
         objects: FastArray<GameObject>,
     ) {
         let result = false;
-        const COLLISION_CRITICAL_TIME = 2;
+        const COLLISION_CRITICAL_TIME = 1;
 
         objects.forEach((o) => {
             const t = getTimeBeforeCollision(
