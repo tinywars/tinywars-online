@@ -13,6 +13,7 @@ import { Obstacle } from "../game/obstacle";
 import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
+import { PRNG } from "../utility/prng";
 
 export class App {
     private gameContext: GameContext;
@@ -28,6 +29,8 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
     ) {
+        PRNG.setSeed(Date.now()); // TODO: this.settings.PRNG_SEED
+
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
 
@@ -201,7 +204,7 @@ export class App {
 
         const randomShuffleArray = (arr: number[]) => {
             for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
+                const j = PRNG.randomInt() % (i + 1);
                 const tmp = arr[i];
                 arr[i] = arr[j];
                 arr[j] = tmp;
