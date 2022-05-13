@@ -70,7 +70,7 @@ export class FastArray<T> implements Iterable<T> {
     }
 
     // Implementing Iterable<T>
-    [Symbol.iterator](): Iterator<T, any, undefined> {
+    [Symbol.iterator](): Iterator<T, T, undefined> {
         let index = 0;
         return {
             next: () => ({

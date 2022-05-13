@@ -115,4 +115,6 @@ appView.scale();
 window.onresize = debounce(() => {
     appView.scale();
 }, 200);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).app = app;

@@ -1,12 +1,12 @@
-import { AiBrain, State } from "./ai-brain";
-import {
-    FsmTransitionCondition,
-    FsmStateLogic,
-    FsmState,
-    FsmTransition,
-} from "./fsm";
-import { GameContext } from "../game/game-context";
 import { assert } from "chai";
+import { GameContext } from "../game/game-context";
+import { State } from "./ai-brain";
+import {
+    FsmState,
+    FsmStateLogic,
+    FsmTransition,
+    FsmTransitionCondition,
+} from "./fsm";
 
 export function DoNothing(): FsmState {
     return [];
