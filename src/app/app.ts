@@ -43,7 +43,11 @@ export class App {
 
         for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
             this.controllers.push(
-                this.createPhysicalController(i, this.keyboardState),
+                this.createPhysicalController(
+                    i,
+                    this.keyboardState,
+                    this.settings.PLAYER_SETTINGS[i].invertSteeringOnReverse,
+                ),
             );
 
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
@@ -125,9 +129,9 @@ export class App {
             this.timeTillRestart = this.settings.TIME_TILL_RESTART;
             this.winnerName =
                 this.gameContext.players.getSize() === 1
-                    ? this.settings.PLAYER_NAMES[
+                    ? this.settings.PLAYER_SETTINGS[
                           this.gameContext.players.getItem(0).id
-                      ]
+                      ].name
                     : "nobody";
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
@@ -188,6 +192,7 @@ export class App {
     private createPhysicalController(
         index: number,
         keyboardState: Record<string, boolean>,
+        invertSteeringOnReverse: boolean,
     ): PhysicalController {
         const bindings = [
             [
@@ -219,7 +224,7 @@ export class App {
                 {
                     key: "KeyR",
                     button: GamepadButton.A,
-                    code: KeyCode.Boost,
+                    code: KeyCode.Action,
                 },
             ],
             [
@@ -244,14 +249,14 @@ export class App {
                     code: KeyCode.Right,
                 },
                 {
-                    key: "KeyO",
+                    key: "KeyZ",
                     button: GamepadButton.X,
                     code: KeyCode.Shoot,
                 },
                 {
                     key: "KeyP",
                     button: GamepadButton.A,
-                    code: KeyCode.Boost,
+                    code: KeyCode.Action,
                 },
             ],
         ];
@@ -263,6 +268,7 @@ export class App {
         result.bindAnalogInput(GamepadAxis.LHorizontal, KeyCode.Rotation);
         result.setGamepadIndex(index);
         result.setGamepadAxisDeadzone(0.25);
+        result.setInvertSteeringOnReverse(invertSteeringOnReverse);
         return result;
     }
 

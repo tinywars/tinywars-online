@@ -61,7 +61,7 @@ export function getTimeBeforeCollision(
      */
     const X = colliderA.getPosition().x - colliderB.getPosition().x;
     const Y = colliderA.getPosition().y - colliderB.getPosition().y;
-    const R = colliderA.radius + colliderB.radius;
+    const R = colliderA.radius + 8 + colliderB.radius;
     const Fx = forwardA.x - forwardB.x;
     const Fy = forwardA.y - forwardB.y;
     const F = Fx * Fx + Fy * Fy;

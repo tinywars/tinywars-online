@@ -37,53 +37,34 @@ interface InputMapping {
     gamepadButtonCode: GamepadButton;
 }
 
-export class PhysicalController implements Controller {
+export class PhysicalController extends Controller {
     private digitalMappings: Record<number, InputMapping> = {};
     private gamepadIndex = 0;
     private deadzone = 0;
     private analogMapping: Record<number, GamepadAxis> = {};
+    private invertSteeringOnReverse = false;
 
-    constructor(private kbState: Record<string, boolean>) {}
-
-    private isGamepadUsable(pad: Gamepad): boolean {
-        return pad.mapping === "standard";
+    constructor(private kbState: Record<string, boolean>) {
+        super();
     }
 
-    isKeyPressed(code: number): boolean {
-        const gamepad = navigator.getGamepads()[this.gamepadIndex];
-        const mapping = this.digitalMappings[code];
-        let result = false;
-        if (gamepad !== null && this.isGamepadUsable(gamepad)) {
-            result =
-                result || mapping.gamepadButtonCode != GamepadButton.None
-                    ? gamepad.buttons[mapping.gamepadButtonCode].pressed
-                    : false;
-        }
-
-        result = result || this.kbState[mapping.keyboardKeyName];
-        if (mapping.forciblyReleased) {
-            mapping.forciblyReleased = result;
-            return false;
-        }
-        return result;
+    override getThrottleAndSteer(): { throttle: number; steer: number } {
+        const throttleAndSteer = super.getThrottleAndSteer();
+        if (this.invertSteeringOnReverse && throttleAndSteer.throttle < 0)
+            throttleAndSteer.steer *= -1;
+        return throttleAndSteer;
     }
 
-    getAxisValue(code: number) {
-        const gamepad = navigator.getGamepads()[this.gamepadIndex];
-        const axisCode = this.analogMapping[code];
-        if (
-            gamepad === null ||
-            !this.isGamepadUsable(gamepad) ||
-            axisCode === GamepadAxis.None
-        )
-            return 0;
-
-        if (Math.abs(gamepad.axes[axisCode]) < this.deadzone) return 0;
-        return gamepad.axes[axisCode];
+    setInvertSteeringOnReverse(flag: boolean) {
+        this.invertSteeringOnReverse = flag;
     }
 
-    releaseKey(code: number) {
-        this.digitalMappings[code].forciblyReleased = true;
+    setGamepadIndex(index: number) {
+        this.gamepadIndex = index;
+    }
+
+    setGamepadAxisDeadzone(deadzone: number) {
+        this.deadzone = deadzone;
     }
 
     bindDigitalInput(key: string, button: GamepadButton, code: number) {
@@ -98,11 +79,41 @@ export class PhysicalController implements Controller {
         this.analogMapping[code] = axis;
     }
 
-    setGamepadIndex(index: number) {
-        this.gamepadIndex = index;
+    protected isInputPressed(code: number): boolean {
+        const mapping = this.digitalMappings[code];
+        return (
+            this.isButtonPressed(mapping) || this.isKeyboardKeyPressed(mapping)
+        );
     }
 
-    setGamepadAxisDeadzone(deadzone: number) {
-        this.deadzone = deadzone;
+    protected getAxisValue(code: number) {
+        const gamepad = navigator.getGamepads()[this.gamepadIndex];
+        const axisCode = this.analogMapping[code];
+        if (
+            gamepad === null ||
+            !this.isGamepadUsable(gamepad) ||
+            axisCode === GamepadAxis.None
+        )
+            return 0;
+
+        if (Math.abs(gamepad.axes[axisCode]) < this.deadzone) return 0;
+        return gamepad.axes[axisCode];
+    }
+
+    private isGamepadUsable(pad: Gamepad | null): boolean {
+        return pad?.mapping === "standard";
+    }
+
+    private isKeyboardKeyPressed(mapping: InputMapping) {
+        return this.kbState[mapping.keyboardKeyName];
+    }
+
+    private isButtonPressed(mapping: InputMapping) {
+        const gamepad = navigator.getGamepads()[this.gamepadIndex];
+        return (
+            (this.isGamepadUsable(gamepad) &&
+                gamepad?.buttons[mapping.gamepadButtonCode].pressed) ??
+            false
+        );
     }
 }

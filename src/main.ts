@@ -5,6 +5,8 @@ import "./style.css";
 import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
 import { AnimationFrame } from "./utility/animation";
+import { PlayerSettings } from "./game/player-settings";
+import { GameSettings } from "./game/game-settings";
 
 const FPS = 60;
 const USE_NATIVE_RENDERER = true;
@@ -51,17 +53,36 @@ const animations = {
     },
 };
 
-const gameSettings = {
+const playerSettings: PlayerSettings[] = [
+    {
+        name: "red",
+        invertSteeringOnReverse: true,
+    },
+    {
+        name: "green",
+        invertSteeringOnReverse: false,
+    },
+    {
+        name: "blue",
+        invertSteeringOnReverse: false,
+    },
+    {
+        name: "yellow",
+        invertSteeringOnReverse: false,
+    },
+];
+
+const gameSettings: GameSettings = {
     SCREEN_WIDTH: 1280,
     SCREEN_HEIGHT: (1280 / 4) * 3,
     ANIMATION_FPS: 2,
     TIME_TILL_RESTART: 3,
-    PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+    PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
     PRNG_SEED: Date.now(),
     // Spawn settings
-    PLAYER_COUNT: 4,
-    NPC_COUNT: 4,
+    PLAYER_COUNT: 3,
+    NPC_COUNT: 1,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -71,17 +92,17 @@ const gameSettings = {
     AI_MIN_SHOOT_DELAY: 0.5,
     // Simulation settings
     //   Player
-    PLAYER_FORWARD_SPEED: 500,
-    PLAYER_ROTATION_SPEED: 250,
+    PLAYER_FORWARD_SPEED: 250,
+    PLAYER_ROTATION_SPEED: 200,
     PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
     PLAYER_MASS: 10,
     //   Projectile
-    PROJECTILE_SPEED: 1000,
+    PROJECTILE_SPEED: 500,
     PROJECTILE_DAMAGE: 1,
-    PROJECTILE_ENABLE_TELEPORT: false,
-    PROJECTILE_MASS: 1.5,
+    PROJECTILE_ENABLE_TELEPORT: true,
+    PROJECTILE_MASS: 5,
     //   Obstacle
-    OBSTACLE_MAX_SPEED: 750,
+    OBSTACLE_MAX_SPEED: 375,
     OBSTACLE_HIT_DAMAGE: 10,
     OBSTACLE_MASS: 15,
 };

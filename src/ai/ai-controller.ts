@@ -1,13 +1,13 @@
 import { Controller } from "../utility/controller";
 
-export class AiPoweredController implements Controller {
+export class AiPoweredController extends Controller {
     private inputs: Record<number, boolean> = {};
 
-    isKeyPressed(code: number): boolean {
+    protected isInputPressed(code: number): boolean {
         return this.inputs[code];
     }
 
-    getAxisValue(): number {
+    protected getAxisValue(): number {
         return 0;
     }
 
