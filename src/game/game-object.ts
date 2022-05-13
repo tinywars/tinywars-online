@@ -4,7 +4,7 @@ import { GameContext } from "./game-context";
 import { Coords } from "../utility/coords";
 
 export abstract class GameObject {
-    protected hash = crypto.randomUUID();
+    protected hash = "";
     // dummy values, must be overriden in derived ctor
     protected collider: CircleCollider = new CircleCollider(Vector.zero(), 0);
     protected forward: Vector = Vector.zero();

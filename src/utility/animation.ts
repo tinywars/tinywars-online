@@ -7,14 +7,20 @@ export class AnimationFrame {
     ) {}
 }
 
-export class AnimationEngine {
+export class AnimationEngine<
+    // TODO: figure out how to couple concrete animation engine to concrete game objects
+    TStates extends Record<string, AnimationFrame[]> = Record<
+        string,
+        AnimationFrame[]
+    >,
+> {
     private loop = false;
     private frameIndex = 0;
     private frameTimer = 0;
     private frameTimeout = 0;
-    private currentState = "";
+    private currentState: keyof TStates = "";
 
-    constructor(private states: Record<string, AnimationFrame[]>, fps: number) {
+    constructor(private states: TStates, fps: number) {
         this.frameTimeout = 1 / fps;
     }
 
@@ -38,7 +44,7 @@ export class AnimationEngine {
         return true;
     }
 
-    setState(name: string, looping = false) {
+    setState(name: keyof TStates, looping = false) {
         if (this.states[name] === undefined)
             throw (
                 "Programatic error: Trying to use non-existent animation state " +
@@ -56,7 +62,7 @@ export class AnimationEngine {
     }
 
     getCurrentFrame(): AnimationFrame {
-        const state = this.states[this.currentState]!;
+        const state = this.states[this.currentState];
         return state[this.frameIndex];
     }
 }

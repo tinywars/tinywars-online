@@ -69,12 +69,15 @@ const gameSettings = {
     DISPLAY_PLAYER_NAMES: true,
     PRNG_SEED: Date.now(),
     // Spawn settings
-    PLAYER_COUNT: 2,
-    NPC_COUNT: 0,
+    PLAYER_COUNT: 4,
+    NPC_COUNT: 4,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
+    // AI Settings
+    AI_MAX_SHOOT_DELAY: 1.5,
+    AI_MIN_SHOOT_DELAY: 0.5,
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: 500,
@@ -112,4 +115,6 @@ appView.scale();
 window.onresize = debounce(() => {
     appView.scale();
 }, 200);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).app = app;

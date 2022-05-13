@@ -14,6 +14,9 @@ export interface GameSettings {
     PLAYER_INITIAL_HEALTH: number;
     PLAYER_INITIAL_ENERGY: number;
     PLAYER_MAX_ENERGY: number;
+    // AI Settings
+    AI_MAX_SHOOT_DELAY: number;
+    AI_MIN_SHOOT_DELAY: number;
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: number;

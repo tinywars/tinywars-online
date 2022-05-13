@@ -45,12 +45,9 @@ export class App {
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
             const aiController = new AiPoweredController();
             this.controllers.push(aiController);
-            this.aiBrains.push(new AiBrain(aiController, i));
         }
 
-        const createAnimationEngine = (
-            animationSetName: string,
-        ): AnimationEngine => {
+        const createAnimationEngine = (animationSetName: string) => {
             return new AnimationEngine(
                 this.animationDB[animationSetName],
                 this.settings.ANIMATION_FPS,
@@ -93,6 +90,19 @@ export class App {
                 console.log("Debug: " + msg);
             },
         };
+
+        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
+            this.aiBrains.push(
+                new AiBrain(
+                    this.controllers[i] as AiPoweredController,
+                    this.gameContext.players.getItem(i),
+                    {
+                        MIN_SHOOT_DELAY: this.settings.AI_MIN_SHOOT_DELAY,
+                        MAX_SHOOT_DELAY: this.settings.AI_MAX_SHOOT_DELAY,
+                    },
+                ),
+            );
+        }
 
         this.reset();
     }
@@ -163,6 +173,10 @@ export class App {
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");
         }
+
+        this.aiBrains.forEach((brain) => {
+            brain.reset();
+        });
 
         this.spawnPlayersAndRocks();
     }
