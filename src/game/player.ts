@@ -25,7 +25,8 @@ export class Player extends GameObject {
     constructor(
         readonly id: number,
         private controller: Controller,
-        private animationEngine: AnimationEngine,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        private animationEngine: AnimationEngine<any>,
         private eventQueue: EventQueue,
     ) {
         super();

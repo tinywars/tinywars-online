@@ -4,7 +4,7 @@ import { GameContext } from "./game-context";
 import { Coords } from "../utility/coords";
 
 export abstract class GameObject {
-    protected hash = Math.random().toString(36).slice(-20);
+    protected hash = "";
     // dummy values, must be overriden in derived ctor
     protected collider: CircleCollider = new CircleCollider(Vector.zero(), 0);
     protected forward: Vector = Vector.zero();
@@ -17,7 +17,7 @@ export abstract class GameObject {
     }
 
     getHash() {
-        return Object.getPrototypeOf(this).name + this.hash;
+        return this.hash;
     }
 
     getCollider(): CircleCollider {

@@ -6,6 +6,7 @@ export interface GameSettings {
     TIME_TILL_RESTART: number; // seconds
     PLAYER_NAMES: string[];
     DISPLAY_PLAYER_NAMES: boolean; // whether to display player names during gameplay
+    PRNG_SEED: number;
     // Spawn settings
     PLAYER_COUNT: number; // total number of ships, including NPCs
     NPC_COUNT: number;
@@ -13,6 +14,9 @@ export interface GameSettings {
     PLAYER_INITIAL_HEALTH: number;
     PLAYER_INITIAL_ENERGY: number;
     PLAYER_MAX_ENERGY: number;
+    // AI Settings
+    AI_MAX_SHOOT_DELAY: number;
+    AI_MIN_SHOOT_DELAY: number;
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: number;

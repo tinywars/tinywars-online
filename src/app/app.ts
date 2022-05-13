@@ -17,6 +17,7 @@ import { Obstacle } from "../game/obstacle";
 import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
+import { PRNG } from "../utility/prng";
 
 export class App {
     private gameContext: GameContext;
@@ -32,6 +33,8 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
     ) {
+        PRNG.setSeed(Date.now()); // TODO: this.settings.PRNG_SEED
+
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
 
@@ -46,12 +49,9 @@ export class App {
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
             const aiController = new AiPoweredController();
             this.controllers.push(aiController);
-            this.aiBrains.push(new AiBrain(aiController, i));
         }
 
-        const createAnimationEngine = (
-            animationSetName: string,
-        ): AnimationEngine => {
+        const createAnimationEngine = (animationSetName: string) => {
             return new AnimationEngine(
                 this.animationDB[animationSetName],
                 this.settings.ANIMATION_FPS,
@@ -94,6 +94,19 @@ export class App {
                 console.log("Debug: " + msg);
             },
         };
+
+        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
+            this.aiBrains.push(
+                new AiBrain(
+                    this.controllers[i] as AiPoweredController,
+                    this.gameContext.players.getItem(i),
+                    {
+                        MIN_SHOOT_DELAY: this.settings.AI_MIN_SHOOT_DELAY,
+                        MAX_SHOOT_DELAY: this.settings.AI_MAX_SHOOT_DELAY,
+                    },
+                ),
+            );
+        }
 
         this.reset();
     }
@@ -164,6 +177,10 @@ export class App {
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");
         }
+
+        this.aiBrains.forEach((brain) => {
+            brain.reset();
+        });
 
         this.spawnPlayersAndRocks();
     }
@@ -250,33 +267,52 @@ export class App {
     }
 
     private spawnPlayersAndRocks() {
-        const getRandomPosition = () =>
-            new Vector(
-                Math.floor(Math.random() * this.settings.SCREEN_WIDTH),
-                Math.floor(Math.random() * this.settings.SCREEN_HEIGHT),
+        const distribution = [
+            1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+
+        const randomShuffleArray = (arr: number[]) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = PRNG.randomInt() % (i + 1);
+                const tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+            }
+        };
+
+        const getSpawnPosition = (xIndex: number, yIndex: number): Vector => {
+            const chunkW = this.gameContext.settings.SCREEN_WIDTH / 5;
+            const chunkH = this.gameContext.settings.SCREEN_HEIGHT / 4;
+            return new Vector(
+                chunkW / 2 + chunkW * xIndex,
+                chunkH / 2 + chunkH * yIndex,
             );
+        };
 
-        for (let i = 0; i < this.settings.PLAYER_COUNT; i++)
-            this.gameContext.players.grow();
+        randomShuffleArray(distribution);
+        console.log(distribution);
 
-        this.gameContext.players.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                initialHealth: this.settings.PLAYER_INITIAL_HEALTH,
-                initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
-                maxEnergy: this.settings.PLAYER_MAX_ENERGY,
-            });
-        });
-
-        for (let i = 0; i < this.settings.ROCK_COUNT; i++)
-            this.gameContext.obstacles.grow();
-
-        this.gameContext.obstacles.forEach((p) => {
-            p.spawn({
-                position: getRandomPosition(),
-                forward: Vector.zero(),
-                playerIndex: -1,
-            });
-        });
+        let i = 0;
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 5; x++, i++) {
+                if (distribution[i] === 0) continue;
+                else if (distribution[i] === 1) {
+                    this.gameContext.players.grow();
+                    this.gameContext.players.getLastItem().spawn({
+                        position: getSpawnPosition(x, y),
+                        initialHealth: this.settings.PLAYER_INITIAL_HEALTH,
+                        initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
+                        maxEnergy: this.settings.PLAYER_MAX_ENERGY,
+                    });
+                } else if (distribution[i] === 2) {
+                    this.gameContext.obstacles.grow();
+                    this.gameContext.obstacles.getLastItem().spawn({
+                        position: getSpawnPosition(x, y),
+                        forward: Vector.zero(),
+                        playerIndex: -1,
+                    });
+                }
+            }
+        }
     }
 }
