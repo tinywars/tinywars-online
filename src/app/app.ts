@@ -47,9 +47,7 @@ export class App {
             this.controllers.push(aiController);
         }
 
-        const createAnimationEngine = (
-            animationSetName: string,
-        ): AnimationEngine => {
+        const createAnimationEngine = (animationSetName: string) => {
             return new AnimationEngine(
                 this.animationDB[animationSetName],
                 this.settings.ANIMATION_FPS,

@@ -7,7 +7,13 @@ export class AnimationFrame {
     ) {}
 }
 
-export class AnimationEngine<TStates extends Record<string, AnimationFrame[]>> {
+export class AnimationEngine<
+    // TODO: figure out how to couple concrete animation engine to concrete game objects
+    TStates extends Record<string, AnimationFrame[]> = Record<
+        string,
+        AnimationFrame[]
+    >,
+> {
     private loop = false;
     private frameIndex = 0;
     private frameTimer = 0;
