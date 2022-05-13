@@ -120,23 +120,77 @@ describe("Player", () => {
 
     describe("#update", () => {
         describe("Shooting", () => {
-            it("Shoots when key is pressed and has enough energy", () => {
+            const INITIAL_ENERGY = 2;
+
+            beforeEach(() => {
                 player.spawn({
                     position: new Vector(42, 69),
                     initialHealth: 1,
-                    initialEnergy: 2,
+                    initialEnergy: INITIAL_ENERGY,
+                    maxEnergy: 3,
+                });
+            });
+
+            it("Shoots when key is pressed and has enough energy", () => {
+                controller.pressKey(KeyCode.Shoot);
+                player.update(0, gameContext);
+
+                expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
+                expect(player.getEnergy()).to.equal(INITIAL_ENERGY - 1);
+                expect(gameContext.eventQueue.events.length).to.equal(1);
+                expect(gameContext.eventQueue.events[0].name).to.equal(
+                    "SpawnProjectileEvent",
+                );
+            });
+
+            it("Does not shoot if shoot key is not pressed", () => {
+                controller.releaseKey(KeyCode.Shoot);
+                player.update(0, gameContext);
+                expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
+                expect(player.getEnergy()).to.equal(INITIAL_ENERGY);
+                expect(gameContext.eventQueue.events.length).to.equal(0);
+            });
+
+            it("Does not shoot if it doesn't have enough energy", () => {
+                player.spawn({
+                    position: new Vector(42, 69),
+                    initialHealth: 1,
+                    initialEnergy: 0,
                     maxEnergy: 3,
                 });
 
                 controller.pressKey(KeyCode.Shoot);
                 player.update(0, gameContext);
-
                 expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
-                expect(player.getEnergy()).to.equal(1);
-                expect(gameContext.eventQueue.events.length).to.equal(1);
-                expect(gameContext.eventQueue.events[0].name).to.equal(
-                    "SpawnProjectileEvent",
-                );
+                expect(player.getEnergy()).to.equal(0);
+                expect(gameContext.eventQueue.events.length).to.equal(0);
+            });
+        });
+
+        describe("#hit", () => {
+            const INITIAL_HEALTH = 3;
+            beforeEach(() => {
+                player.spawn({
+                    position: new Vector(42, 69),
+                    initialHealth: INITIAL_HEALTH,
+                    initialEnergy: 2,
+                    maxEnergy: 3,
+                });
+            });
+
+            it("Loses lives when hit and changes animation", () => {
+                player.hit(1);
+                expect(player.getHealth()).to.equal(INITIAL_HEALTH - 1);
+                expect(player.getCoords().frame.x).to.equal(5);
+                expect(player.getCoords().frame.y).to.equal(6);
+            });
+
+            it("Dies when damage is greater than remaining lives", () => {
+                player.hit(3);
+                expect(player.getHealth()).to.equal(0);
+                expect(player.getHealth()).to.equal(0);
+                expect(player.getCoords().frame.x).to.equal(5);
+                expect(player.getCoords().frame.y).to.equal(6);
             });
         });
     });
