@@ -27,8 +27,8 @@ class FsmTransitionBuilder {
     ) {}
 
     goTo(state: State): FsmConditionBuilder {
-        this.transitions.push((self: AiBrain, context: GameContext) => {
-            return this.currentCondition(self, context) ? state : null;
+        this.transitions.push((context: GameContext) => {
+            return this.currentCondition(context) ? state : null;
         });
         return new FsmConditionBuilder(this.transitions);
     }
@@ -53,8 +53,8 @@ class FsmDefaultLogicBuilder {
     ) {}
 
     thenGoTo(state: State): FsmState {
-        this.transitions.push((self: AiBrain, context: GameContext) => {
-            this.defaultLogic(self, context);
+        this.transitions.push((context: GameContext) => {
+            this.defaultLogic(context);
             return state;
         });
         return this.transitions;
@@ -65,8 +65,8 @@ class FsmDefaultLogicBuilder {
             this.transitions.length !== 0,
             "You are trying to make a FSM state is looping and has no transition conditions",
         );
-        this.transitions.push((self: AiBrain, context: GameContext) => {
-            this.defaultLogic(self, context);
+        this.transitions.push((context: GameContext) => {
+            this.defaultLogic(context);
             return null;
         });
         return this.transitions;

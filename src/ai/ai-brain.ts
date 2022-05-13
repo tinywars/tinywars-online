@@ -38,8 +38,8 @@ enum ETimer {
 }
 
 export function not(condition: FsmTransitionCondition): FsmTransitionCondition {
-    return (self: AiBrain, context: GameContext) => {
-        return !condition(self, context);
+    return (context: GameContext) => {
+        return !condition(context);
     };
 }
 
@@ -47,8 +47,8 @@ export function and(
     cond1: FsmTransitionCondition,
     cond2: FsmTransitionCondition,
 ): FsmTransitionCondition {
-    return (self: AiBrain, context: GameContext) => {
-        return cond1(self, context) && cond2(self, context);
+    return (context: GameContext) => {
+        return cond1(context) && cond2(context);
     };
 }
 
@@ -131,7 +131,7 @@ export class AiBrain {
         this.releaseInputs();
         this.updateTimers(dt);
 
-        this.fsm.update(this, context);
+        this.fsm.update(context);
 
         if (this.myPlayer.id === 0 && this.timers[ETimer.Log].ended()) {
             console.log(State[this.fsm.getState()]);
@@ -154,12 +154,7 @@ export class AiBrain {
     }
 
     private updateTimers(dt: number) {
-        for (const timer in this.timers) {
-            const t = (this.timers as any)[timer];
-            if (t !== undefined) {
-                t.update(dt);
-            }
-        }
+        Object.values(this.timers).forEach((t) => t.update(dt));
     }
 
     private getClosestPlayer(players: Player[]): Player {
@@ -210,10 +205,6 @@ export class AiBrain {
 
         const direction = Vector.diff(
             targetPoint,
-            /*object
-                .getCollider()
-                .getPosition()
-                .getSum(object.getForward().getScaled(timeDiff)),*/
             myPlayer.getCollider().getPosition(),
         );
         this.targetAngle = direction.toAngle();
@@ -241,142 +232,129 @@ export class AiBrain {
         return result;
     }
 
-    private getDiffFromTargetAngle(): number {
+    private getDiffFromTargetAngle = (): number => {
         return GameMath.radialDifference(
             this.targetAngle,
             this.myPlayer.getCoords().angle,
         );
-    }
+    };
 
     /* FSM CONDITIONS */
-    private isEverybodyElseDead(self: AiBrain, context: GameContext): boolean {
+    private isEverybodyElseDead = (context: GameContext): boolean => {
         return context.players.getSize() <= 1;
-    }
+    };
 
-    private isTargetDead(self: AiBrain): boolean {
-        return self.targetPlayer.getHealth() <= 0;
-    }
+    private isTargetDead = (): boolean => {
+        return this.targetPlayer.getHealth() <= 0;
+    };
 
-    private isCloseEnoughToTarget(self: AiBrain): boolean {
+    private isCloseEnoughToTarget = (): boolean => {
         return (
             Vector.diff(
-                self.myPlayer.getCoords().position,
-                self.targetPlayer.getCoords().position,
+                this.myPlayer.getCoords().position,
+                this.targetPlayer.getCoords().position,
             ).getSize() < 300
         );
-    }
+    };
 
     private timerEnded(id: ETimer): FsmTransitionCondition {
-        return (self: AiBrain): boolean => {
-            return self.timers[id].ended();
+        return (): boolean => {
+            return this.timers[id].ended();
         };
     }
 
-    private noCollisionInLookDirection(
-        self: AiBrain,
-        context: GameContext,
-    ): boolean {
-        return !self.isCollisionImminentForGivenFastArray(
-            self.myPlayer.getCollider(),
+    private noCollisionInLookDirection = (context: GameContext): boolean => {
+        return !this.isCollisionImminentForGivenFastArray(
+            this.myPlayer.getCollider(),
             Vector.fromPolar(
-                self.myPlayer.getCoords().angle,
-                self.myPlayer.getForward().getSize(),
+                this.myPlayer.getCoords().angle,
+                this.myPlayer.getForward().getSize(),
             ),
             context.obstacles,
         );
-    }
+    };
 
-    private isTargetAngleAchieved(self: AiBrain): boolean {
-        return self.getDiffFromTargetAngle() < self.ANGLE_DIFF_THRESHOLD;
-    }
+    private isTargetAngleAchieved = (): boolean => {
+        return this.getDiffFromTargetAngle() < this.ANGLE_DIFF_THRESHOLD;
+    };
 
-    private isEvasionAngleAchieved(self: AiBrain): boolean {
-        const diff = self.getDiffFromTargetAngle();
+    private isEvasionAngleAchieved = (): boolean => {
+        const diff = this.getDiffFromTargetAngle();
         return (
-            diff < self.ANGLE_DIFF_THRESHOLD ||
-            diff - 180 < self.ANGLE_DIFF_THRESHOLD
+            diff < this.ANGLE_DIFF_THRESHOLD ||
+            diff - 180 < this.ANGLE_DIFF_THRESHOLD
         );
-    }
+    };
 
-    private isCollisionImminent(self: AiBrain, context: GameContext) {
+    private isCollisionImminent = (context: GameContext) => {
         const result =
-            self.isCollisionImminentForGivenFastArray(
-                self.myPlayer.getCollider(),
-                self.myPlayer.getForward(),
+            this.isCollisionImminentForGivenFastArray(
+                this.myPlayer.getCollider(),
+                this.myPlayer.getForward(),
                 context.obstacles,
             ) ||
-            self.isCollisionImminentForGivenFastArray(
-                self.myPlayer.getCollider(),
-                self.myPlayer.getForward(),
+            this.isCollisionImminentForGivenFastArray(
+                this.myPlayer.getCollider(),
+                this.myPlayer.getForward(),
                 context.projectiles,
             );
 
-        if (result) console.log(self.myPlayer.id + ": Collision imminent");
+        if (result) console.log(this.myPlayer.id + ": Collision imminent");
         return result;
-    }
+    };
 
     /* FSM LOGIC */
-    private goForward(self: AiBrain) {
-        self.controller.pressKey(KeyCode.Up);
-        self.timers[ETimer.GoForward].reset();
-    }
+    private goForward = () => {
+        this.controller.pressKey(KeyCode.Up);
+        this.timers[ETimer.GoForward].reset();
+    };
 
-    private shoot(self: AiBrain) {
-        self.controller.pressKey(KeyCode.Shoot);
-        self.timers[ETimer.Fire].reset();
-    }
+    private shoot = () => {
+        this.controller.pressKey(KeyCode.Shoot);
+        this.timers[ETimer.Fire].reset();
+    };
 
-    private performEvasion(self: AiBrain) {
-        const diff = self.getDiffFromTargetAngle();
-        if (diff < self.ANGLE_DIFF_THRESHOLD)
-            self.controller.pressKey(KeyCode.Up);
-        else self.controller.pressKey(KeyCode.Down);
-    }
+    private performEvasion = () => {
+        const diff = this.getDiffFromTargetAngle();
+        if (diff < this.ANGLE_DIFF_THRESHOLD)
+            this.controller.pressKey(KeyCode.Up);
+        else this.controller.pressKey(KeyCode.Down);
+    };
 
-    private rotateTowardsTarget(self: AiBrain) {
-        const myAngle = self.myPlayer.getCoords().angle;
-        const diffAngle = sanitizeAngle(myAngle - self.targetAngle);
-        if (diffAngle <= 180) self.controller.pressKey(KeyCode.Left);
-        else if (diffAngle > 180) self.controller.pressKey(KeyCode.Right);
-    }
+    private rotateTowardsTarget = () => {
+        const myAngle = this.myPlayer.getCoords().angle;
+        const diffAngle = sanitizeAngle(myAngle - this.targetAngle);
+        if (diffAngle <= 180) this.controller.pressKey(KeyCode.Left);
+        else if (diffAngle > 180) this.controller.pressKey(KeyCode.Right);
+    };
 
-    private trackTarget(self: AiBrain) {
-        self.targetObject(self.myPlayer, self.targetPlayer);
-        self.rotateTowardsTarget(self);
+    private trackTarget = () => {
+        this.targetObject(this.myPlayer, this.targetPlayer);
+        this.rotateTowardsTarget();
+    };
 
-        /*if (self.myPlayer.id === 0 && self.timers[ETimer.Log].ended()) {
-            console.log(
-                self.myPlayer.getCollider().getPosition().toString() +
-                    " -> " +
-                    self.targetPlayer.getCollider().getPosition().toString() +
-                    " @ " +
-                    self.targetAngle,
-            );
-        }*/
-    }
-
-    private pickTargetPlayer(self: AiBrain, context: GameContext) {
-        const otherPlayers = self.getOtherPlayers(context.players);
+    private pickTargetPlayer = (context: GameContext) => {
+        const otherPlayers = this.getOtherPlayers(context.players);
         assert(
             otherPlayers.length,
             "Programmatic error: This function should never be called if there are no other players",
         );
 
-        switch (self.targetingStrategy) {
+        switch (this.targetingStrategy) {
             case TargetingStrategy.Closest:
-                self.targetPlayer = self.getClosestPlayer(otherPlayers);
+                this.targetPlayer = this.getClosestPlayer(otherPlayers);
                 break;
             case TargetingStrategy.Weakest:
-                self.targetPlayer = self.getWeakestPlayer(otherPlayers);
+                this.targetPlayer = this.getWeakestPlayer(otherPlayers);
                 break;
         }
-    }
+    };
 
-    private pickEvasionAngle(self: AiBrain) {
-        self.targetAngle = sanitizeAngle(
-            self.myPlayer.getForward().toAngle() +
+    private pickEvasionAngle = () => {
+        this.targetAngle = sanitizeAngle(
+            this.myPlayer.getForward().toAngle() +
                 90 +
-                Math.floor(Math.random() * 180),
+                PRNG.randomRangedInt(0, 180),
         );
-    }
+    };
 }

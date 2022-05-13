@@ -1,15 +1,9 @@
-import { AiBrain, State } from "./ai-brain";
+import { State } from "./ai-brain";
 import { GameContext } from "../game/game-context";
 
-export type FsmTransitionCondition = (
-    self: AiBrain,
-    context: GameContext,
-) => boolean;
-export type FsmStateLogic = (self: AiBrain, context: GameContext) => void;
-export type FsmTransition = (
-    self: AiBrain,
-    context: GameContext,
-) => State | null;
+export type FsmTransitionCondition = (context: GameContext) => boolean;
+export type FsmStateLogic = (context: GameContext) => void;
+export type FsmTransition = (context: GameContext) => State | null;
 
 // FsmState consist of:
 // * array of pairs - FsmCondition and code of state to go to if condition is true
@@ -33,12 +27,12 @@ export class Fsm {
         this.currentState = initialState;
     }
 
-    update(self: AiBrain, context: GameContext) {
+    update(context: GameContext) {
         const state = this.states[this.currentState];
         if (state === undefined) return;
 
         for (const transition of state) {
-            const newState = transition(self, context);
+            const newState = transition(context);
             if (newState !== null) {
                 this.currentState = newState;
                 return;
