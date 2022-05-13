@@ -17,7 +17,7 @@ describe("AiBrain", () => {
     let player: Player;
 
     // These must be the same as in gameSettings
-    const PLAYER_ROTATION_SPEED = 250;
+    const PLAYER_ROTATION_SPEED = 200;
     const DT = 1 / 60;
 
     beforeEach(() => {
@@ -54,15 +54,11 @@ describe("AiBrain", () => {
                     controller.releaseKey(KeyCode.Left);
                     controller.releaseKey(KeyCode.Right);
 
-                    anyBrain.rotateTowardsTarget(brain);
+                    anyBrain.rotateTowardsTarget();
 
-                    if (controller.isKeyPressed(KeyCode.Left)) {
-                        anyPlayer.updateRotation(-PLAYER_ROTATION_SPEED, DT);
-                    } else if (controller.isKeyPressed(KeyCode.Right)) {
-                        anyPlayer.updateRotation(PLAYER_ROTATION_SPEED, DT);
-                    } else {
-                        throw new Error("Not rotating");
-                    }
+                    const { steer } = controller.getThrottleAndSteer();
+                    if (steer === 0) throw new Error("Not rotating");
+                    anyPlayer.updateRotation(steer * PLAYER_ROTATION_SPEED, DT);
                 }
             });
         });
