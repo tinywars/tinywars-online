@@ -39,9 +39,6 @@ export class FastArray<T> implements Iterable<T> {
 
         this.size--;
 
-        // No need to swap anything if there was only 1 item
-        if (this.size === 0) return;
-
         // Swap last item with the removed one
         const tmp = this.items[index];
         this.items[index] = this.items[this.size];

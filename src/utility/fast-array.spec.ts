@@ -43,6 +43,7 @@ describe("FastArray", () => {
 
     describe("#pop", () => {
         it("is ok to pop empty array", () => {
+            expect(fa.getSize()).to.equal(0);
             fa.popItem(0);
             expect(fa.getSize()).to.equal(0);
         });
@@ -61,5 +62,38 @@ describe("FastArray", () => {
             fa.popItem(0);
             expect(fa.getLastItem()).to.have.property("value", 2);
         });
+    });
+
+    it("#clear", () => {
+        fa.grow();
+        fa.grow();
+        fa.grow();
+        expect(fa.getSize()).to.equal(3);
+        fa.clear();
+        expect(fa.getSize()).to.equal(0);
+    });
+
+    it("#getItem", () => {
+        fa.grow();
+        expect(fa.getItem(0).value).to.equal(0);
+    });
+
+    it("iterators", () => {
+        for (let i = 0; i < fa.getCapacity(); i++) {
+            fa.grow();
+            fa.getItem(i).value = i;
+        }
+
+        let cnt = 0;
+        fa.forEach((i) => {
+            expect(i.value).to.equal(cnt);
+            cnt++;
+        });
+
+        cnt = 0;
+        for (const item of fa) {
+            expect(item.value).to.equal(cnt);
+            cnt++;
+        }
     });
 });

@@ -9,7 +9,10 @@ import { sanitizeAngle } from "../utility/math";
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
 
-    constructor(readonly id: number, private animationEngine: AnimationEngine) {
+    constructor(
+        readonly id: number,
+        private animationEngine: AnimationEngine<any>,
+    ) {
         super();
         this.collider = new CircleCollider(Vector.outOfView(), Obstacle.RADIUS);
         this.forward = Vector.zero();

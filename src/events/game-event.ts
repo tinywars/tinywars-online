@@ -9,6 +9,8 @@ export interface GameEvent {
      * callback by the factory method
      */
     process: (context: GameContext) => void;
+    // For testing purposes
+    name: string;
 }
 
 /**
@@ -18,6 +20,7 @@ export interface GameEvent {
  */
 export function eventDebug(message: string) {
     const e: GameEvent = {
+        name: "DebugEvent",
         process: (context: GameContext): void => {
             context.log("DebugEvent: " + message);
         },
@@ -31,6 +34,7 @@ export function eventSpawnProjectile(options: {
     damageMultiplier: number;
 }) {
     const e: GameEvent = {
+        name: "SpawnProjectileEvent",
         process: (context: GameContext): void => {
             if (!context.projectiles.grow()) return;
 
@@ -50,6 +54,7 @@ export function eventSpawnProjectile(options: {
 
 export function eventDestroyProjectile(index: number) {
     const e: GameEvent = {
+        name: "DestroyProjectileEvent",
         process: (context: GameContext): void => {
             // TODO: play destruction animation and/or sound
             for (let i = 0; i < context.projectiles.getSize(); i++) {
@@ -66,6 +71,7 @@ export function eventDestroyProjectile(index: number) {
 
 export function eventDestroyPlayer(index: number) {
     const e: GameEvent = {
+        name: "DestroyPlayerEvent",
         process: (context: GameContext): void => {
             context.players.forEach((p, i) => {
                 if (p.id !== index) return;
@@ -84,6 +90,7 @@ export function eventSpawnWreck(options: {
     forward: Vector;
 }) {
     const e: GameEvent = {
+        name: "SpawnWreckEvent",
         process: (context: GameContext): void => {
             if (!context.obstacles.grow()) return;
 
