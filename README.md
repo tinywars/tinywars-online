@@ -47,6 +47,12 @@ npm run test something
 npm run test -- --watch
 ```
 
+- Test coverage
+
+```sh
+npm run coverage
+```
+
 ## Known issues
 
 Game runs very sluggish on Waterfox browser.
