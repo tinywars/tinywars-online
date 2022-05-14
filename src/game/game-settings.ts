@@ -42,8 +42,14 @@ export function getDefaultSettings(): GameSettings {
         SCREEN_HEIGHT: 1000,
         ANIMATION_FPS: 2,
         TIME_TILL_RESTART: 5,
-        PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+        PLAYER_SETTINGS: [
+            { name: "red", invertSteeringOnReverse: false },
+            { name: "green", invertSteeringOnReverse: false },
+            { name: "blue", invertSteeringOnReverse: false },
+            { name: "yellow", invertSteeringOnReverse: false },
+        ],
         DISPLAY_PLAYER_NAMES: true,
+        PRNG_SEED: 0,
         // Spawn settings
         PLAYER_COUNT: 4,
         NPC_COUNT: 0,
@@ -51,6 +57,9 @@ export function getDefaultSettings(): GameSettings {
         PLAYER_INITIAL_HEALTH: 3,
         PLAYER_INITIAL_ENERGY: 2,
         PLAYER_MAX_ENERGY: 4,
+        // AI Settings
+        AI_MAX_SHOOT_DELAY: 1.5,
+        AI_MIN_SHOOT_DELAY: 0.5,
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 500,

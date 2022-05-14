@@ -9,7 +9,10 @@ import { Coords } from "../utility/coords";
 export class Projectile extends GameObject {
     private damage = 0;
 
-    constructor(readonly id: number, private animationEngine: AnimationEngine) {
+    constructor(
+        readonly id: number,
+        private animationEngine: AnimationEngine<any>,
+    ) {
         super();
         this.collider = new CircleCollider(Vector.outOfView(), 2);
         this.animationEngine.setState("idle", true);

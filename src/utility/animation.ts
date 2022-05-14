@@ -46,9 +46,9 @@ export class AnimationEngine<
 
     setState(name: keyof TStates, looping = false) {
         if (this.states[name] === undefined)
-            throw (
+            throw new Error(
                 "Programatic error: Trying to use non-existent animation state " +
-                name
+                    name,
             );
 
         this.loop = looping;

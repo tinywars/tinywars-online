@@ -31,7 +31,6 @@ const obstacleAnimationMock = {
 
 describe("Player", () => {
     let controller: AiPoweredController;
-    let animationEngine: AnimationEngine;
     let eventQueue: EventQueue;
     let player: Player;
     let settings: GameSettings;
@@ -44,9 +43,9 @@ describe("Player", () => {
         controller.releaseKey(KeyCode.Left);
         controller.releaseKey(KeyCode.Right);
         controller.releaseKey(KeyCode.Shoot);
-        controller.releaseKey(KeyCode.Boost);
+        controller.releaseKey(KeyCode.Action);
+        controller.releaseKey(KeyCode.Rotation);
 
-        animationEngine = new AnimationEngine(playerAnimationMock, 2);
         eventQueue = new EventQueue();
 
         settings = getDefaultSettings();
@@ -56,7 +55,12 @@ describe("Player", () => {
             players: new FastArray<Player>(
                 1,
                 (index) =>
-                    new Player(index, controller, animationEngine, eventQueue),
+                    new Player(
+                        index,
+                        controller,
+                        new AnimationEngine(playerAnimationMock, 2),
+                        eventQueue,
+                    ),
             ),
             projectiles: new FastArray<Projectile>(
                 64,
@@ -135,7 +139,7 @@ describe("Player", () => {
                 controller.pressKey(KeyCode.Shoot);
                 player.update(0, gameContext);
 
-                expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
+                expect(controller.readAttackToggled()).to.be.false;
                 expect(player.getEnergy()).to.equal(INITIAL_ENERGY - 1);
                 expect(gameContext.eventQueue.events.length).to.equal(1);
                 expect(gameContext.eventQueue.events[0].name).to.equal(
@@ -146,7 +150,7 @@ describe("Player", () => {
             it("Does not shoot if shoot key is not pressed", () => {
                 controller.releaseKey(KeyCode.Shoot);
                 player.update(0, gameContext);
-                expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
+                expect(controller.readAttackToggled()).to.be.false;
                 expect(player.getEnergy()).to.equal(INITIAL_ENERGY);
                 expect(gameContext.eventQueue.events.length).to.equal(0);
             });
@@ -161,7 +165,7 @@ describe("Player", () => {
 
                 controller.pressKey(KeyCode.Shoot);
                 player.update(0, gameContext);
-                expect(controller.isKeyPressed(KeyCode.Shoot)).to.be.false;
+                expect(controller.readAttackToggled()).to.be.false;
                 expect(player.getEnergy()).to.equal(0);
                 expect(gameContext.eventQueue.events.length).to.equal(0);
             });
