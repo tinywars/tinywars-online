@@ -10,7 +10,7 @@
     "test:all": "ts-mocha **/*.spec.ts",
     "test": "ts-mocha",
     "test:watch": "ts-mocha --watch",
-    "coverage": "nyc ts-mocha",
+    "coverage": "nyc npm run test:all",
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint ./src --fix --ext .ts"
   },
