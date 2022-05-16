@@ -30,6 +30,7 @@ export interface GameSettings {
     PROJECTILE_DAMAGE: number;
     PROJECTILE_ENABLE_TELEPORT: boolean;
     PROJECTILE_MASS: number;
+    PROJECTILE_SELF_DESTRUCT_TIMEOUT: number;
     //   Obstacle
     OBSTACLE_MAX_SPEED: number;
     OBSTACLE_HIT_DAMAGE: number;
@@ -62,17 +63,18 @@ export function getDefaultSettings(): GameSettings {
         AI_MIN_SHOOT_DELAY: 0.5,
         // Simulation settings
         //   Player
-        PLAYER_FORWARD_SPEED: 500,
+        PLAYER_FORWARD_SPEED: 250,
         PLAYER_ROTATION_SPEED: 250,
         PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
         PLAYER_MASS: 10,
         //   Projectile
-        PROJECTILE_SPEED: 1000,
+        PROJECTILE_SPEED: 500,
         PROJECTILE_DAMAGE: 1,
         PROJECTILE_ENABLE_TELEPORT: false,
-        PROJECTILE_MASS: 1.5,
+        PROJECTILE_MASS: 5,
+        PROJECTILE_SELF_DESTRUCT_TIMEOUT: 6,
         //   Obstacle
-        OBSTACLE_MAX_SPEED: 750,
+        OBSTACLE_MAX_SPEED: 375,
         OBSTACLE_HIT_DAMAGE: 10,
         OBSTACLE_MASS: 15,
     };

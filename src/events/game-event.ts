@@ -46,6 +46,8 @@ export function eventSpawnProjectile(options: {
                 damage:
                     options.damageMultiplier *
                     context.settings.PROJECTILE_DAMAGE,
+                selfDestructTimeout:
+                    context.settings.PROJECTILE_SELF_DESTRUCT_TIMEOUT,
             });
         },
     };

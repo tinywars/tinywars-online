@@ -8,6 +8,7 @@ import { Coords } from "../utility/coords";
 
 export class Projectile extends GameObject {
     private damage = 0;
+    private selfDestructTimeout = 0;
 
     constructor(
         readonly id: number,
@@ -43,6 +44,9 @@ export class Projectile extends GameObject {
             }
         });
 
+        this.selfDestructTimeout -= dt;
+        if (this.selfDestructTimeout <= 0) destroyThis = true;
+
         if (destroyThis) {
             context.eventQueue.add(eventDestroyProjectile(this.id));
         }
@@ -54,11 +58,17 @@ export class Projectile extends GameObject {
         }
     }
 
-    spawn(options: { position: Vector; forward: Vector; damage: number }) {
+    spawn(options: {
+        position: Vector;
+        forward: Vector;
+        damage: number;
+        selfDestructTimeout: number;
+    }) {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
         this.damage = options.damage;
         this.rotation = this.forward.toAngle();
+        this.selfDestructTimeout = options.selfDestructTimeout;
     }
 
     despawn() {
