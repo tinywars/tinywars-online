@@ -27,7 +27,7 @@ jobs:
       - run: npm ci --audit=false
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm run test
+      - run: npm run test:all
 
       - run: npm run build
 
