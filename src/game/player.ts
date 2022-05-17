@@ -63,8 +63,8 @@ export class Player extends GameObject {
         throttle *= context.settings.PLAYER_FORWARD_SPEED;
         steer *= context.settings.PLAYER_ROTATION_SPEED;
 
-        this.handleShooting(dt);
         this.handleAction(context);
+        this.handleShooting(dt);
         this.updateRotation(steer, dt);
         this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
@@ -149,6 +149,9 @@ export class Player extends GameObject {
             eventSpawnProjectile({
                 position: this.collider.getPosition().getSum(
                     // Spawn projectile right in front of the player so it doesn't collide with them
+                    // There is some rounding error that I cannot reproduce in unit tests, but when
+                    // you turbo and fire, then your own projectile will damage you, unless the +1
+                    // is in the expression below.
                     this.direction.getScaled(
                         Player.RADIUS + this.forward.getScaled(dt).getSize(),
                     ),
