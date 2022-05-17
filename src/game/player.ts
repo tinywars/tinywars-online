@@ -64,7 +64,6 @@ export class Player extends GameObject {
         steer *= context.settings.PLAYER_ROTATION_SPEED;
 
         this.handleShooting(dt);
-        this.handleAction(context);
         this.updateRotation(steer, dt);
         this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
@@ -157,23 +156,6 @@ export class Player extends GameObject {
                 damageMultiplier: 1,
             }),
         );
-        this.energy--;
-    }
-
-    private handleAction(context: GameContext) {
-        if (!this.controller.readActionToggled()) return;
-        if (this.energy < 1) return;
-
-        /*
-        NOTE: Once we have implemeted powerups, we can give player
-        a new property to hold currently equipped powerup, a setter
-        for it and then this method would select between behaviours
-        based on active power.
-        */
-
-        this.forward = this.forward
-            .getUnit()
-            .getScaled(context.settings.PLAYER_TURBO_FORWARD_SPEED);
         this.energy--;
     }
 }

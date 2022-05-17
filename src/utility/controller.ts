@@ -23,8 +23,8 @@ export abstract class Controller {
     readActionToggled(): boolean {
         const result = this.isInputPressed(KeyCode.Action);
 
-        if (result && this.isWaitingForActionToRelease) return false;
-        this.isWaitingForActionToRelease = result;
+        if (!result) this.isWaitingForAttackToRelease = false;
+        else if (this.isWaitingForAttackToRelease) return false;
 
         return result;
     }
