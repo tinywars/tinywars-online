@@ -36,15 +36,17 @@ npm run lint:fix
 -   Test
 
 ```sh
-npm run test
+# To run all test suites, use
+npm run test:all
 
-# to run only files mathing a certain pattern matching a pattern "something", run
-# TODO: this does not work for some reason, probably due to typescript transpilation
-npm run test something
+# to run only files mathing a certain pattern use
+# note that we need to include ".spec.ts" so it doesn't try to run actual source files
+npm run test **/*pattern*.spec.ts
 
 # to watch for changes on the test file and re-run it on save, use
-# TODO: this also does not work, probably for the same reason. I'll have to do more research
-npm run test -- --watch
+npm run test **/*pattern*.spec.ts -- --watch
+# or the convenience npm script
+npm run test:watch **/*pattern*.spec.ts
 ```
 
 - Test coverage
