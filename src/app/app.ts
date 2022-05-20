@@ -1,11 +1,7 @@
 import { AiBrain } from "../ai/ai-brain";
 import { GameContext } from "../game/game-context";
 import { Controller } from "../utility/controller";
-import {
-    PhysicalController,
-    GamepadButton,
-    GamepadAxis,
-} from "../utility/physical-controller";
+import { PhysicalController } from "../utility/physical-controller";
 import { KeyCode } from "../game/key-codes";
 import { AnimationFrame } from "../utility/animation";
 import { AiPoweredController } from "../ai/ai-controller";

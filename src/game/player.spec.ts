@@ -6,7 +6,7 @@ import { Vector } from "../utility/vector";
 import { Player } from "./player";
 import { KeyCode } from "./key-codes";
 import { GameContext } from "./game-context";
-import { GameSettings, getDefaultSettings } from "./game-settings";
+import { GameSettings, getMockSettings } from "./game-settings";
 import { FastArray } from "../utility/fast-array";
 import { Projectile } from "./projectile";
 import { Obstacle } from "./obstacle";
@@ -48,7 +48,7 @@ describe("Player", () => {
 
         eventQueue = new EventQueue();
 
-        settings = getDefaultSettings();
+        settings = getMockSettings();
 
         gameContext = {
             settings: settings,

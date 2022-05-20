@@ -37,18 +37,13 @@ export interface GameSettings {
     OBSTACLE_MASS: number;
 }
 
-export function getDefaultSettings(): GameSettings {
+export function getMockSettings(): GameSettings {
     return {
         SCREEN_WIDTH: 1000,
         SCREEN_HEIGHT: 1000,
         ANIMATION_FPS: 2,
         TIME_TILL_RESTART: 5,
-        PLAYER_SETTINGS: [
-            { name: "red", invertSteeringOnReverse: false },
-            { name: "green", invertSteeringOnReverse: false },
-            { name: "blue", invertSteeringOnReverse: false },
-            { name: "yellow", invertSteeringOnReverse: false },
-        ],
+        PLAYER_SETTINGS: [],
         DISPLAY_PLAYER_NAMES: true,
         PRNG_SEED: 0,
         // Spawn settings
