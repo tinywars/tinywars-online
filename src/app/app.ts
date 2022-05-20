@@ -43,11 +43,7 @@ export class App {
 
         for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
             this.controllers.push(
-                this.createPhysicalController(
-                    i,
-                    this.keyboardState,
-                    this.settings.PLAYER_SETTINGS[i].invertSteeringOnReverse,
-                ),
+                this.createPhysicalController(i, this.keyboardState),
             );
 
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
@@ -192,83 +188,32 @@ export class App {
     private createPhysicalController(
         index: number,
         keyboardState: Record<string, boolean>,
-        invertSteeringOnReverse: boolean,
     ): PhysicalController {
-        const bindings = [
-            [
-                {
-                    key: "KeyW",
-                    button: GamepadButton.RTrigger,
-                    code: KeyCode.Up,
-                },
-                {
-                    key: "KeyA",
-                    button: GamepadButton.DpadLeft,
-                    code: KeyCode.Left,
-                },
-                {
-                    key: "KeyS",
-                    button: GamepadButton.LTrigger,
-                    code: KeyCode.Down,
-                },
-                {
-                    key: "KeyD",
-                    button: GamepadButton.DpadRight,
-                    code: KeyCode.Right,
-                },
-                {
-                    key: "KeyE",
-                    button: GamepadButton.X,
-                    code: KeyCode.Shoot,
-                },
-                {
-                    key: "KeyR",
-                    button: GamepadButton.A,
-                    code: KeyCode.Action,
-                },
-            ],
-            [
-                {
-                    key: "KeyI",
-                    button: GamepadButton.RTrigger,
-                    code: KeyCode.Up,
-                },
-                {
-                    key: "KeyJ",
-                    button: GamepadButton.DpadLeft,
-                    code: KeyCode.Left,
-                },
-                {
-                    key: "KeyK",
-                    button: GamepadButton.LTrigger,
-                    code: KeyCode.Down,
-                },
-                {
-                    key: "KeyL",
-                    button: GamepadButton.DpadRight,
-                    code: KeyCode.Right,
-                },
-                {
-                    key: "KeyZ",
-                    button: GamepadButton.X,
-                    code: KeyCode.Shoot,
-                },
-                {
-                    key: "KeyP",
-                    button: GamepadButton.A,
-                    code: KeyCode.Action,
-                },
-            ],
+        const controls = this.settings.PLAYER_SETTINGS[index].controls;
+        const result = new PhysicalController(keyboardState);
+        const controlNames = [
+            "forward",
+            "backward",
+            "steerLeft",
+            "steerRight",
+            "shoot",
+            "action",
         ];
 
-        const result = new PhysicalController(keyboardState);
-        bindings[index].forEach((binding) => {
-            result.bindDigitalInput(binding.key, binding.button, binding.code);
-        });
-        result.bindAnalogInput(GamepadAxis.LHorizontal, KeyCode.Rotation);
+        for (const key of controlNames) {
+            result.bindDigitalInput(
+                (controls as any)[key].key,
+                (controls as any)[key].button,
+                (controls as any)[key].code,
+            );
+        }
+
+        result.bindAnalogInput(controls.steerAxis, KeyCode.Rotation);
         result.setGamepadIndex(index);
         result.setGamepadAxisDeadzone(0.25);
-        result.setInvertSteeringOnReverse(invertSteeringOnReverse);
+        result.setInvertSteeringOnReverse(
+            this.settings.PLAYER_SETTINGS[index].invertSteeringOnReverse,
+        );
         return result;
     }
 
