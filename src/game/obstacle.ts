@@ -27,25 +27,6 @@ export class Obstacle extends GameObject {
                 this.forward.getSize() * dt * (this.id % 2 ? -1 : 1),
         );
 
-        context.obstacles.forEach((obstacle) => {
-            if (this.id === obstacle.id) return;
-
-            if (this.collider.collidesWith(obstacle.getCollider())) {
-                // Exchange their movement vector
-                const tmp = this.forward.getScaled(0.8);
-                this.forward = obstacle.forward.getScaled(0.8);
-                obstacle.forward = tmp;
-
-                // nudge them apart from each other so they won't become stuck
-                const diff = Vector.diff(
-                    this.collider.getPosition(),
-                    obstacle.collider.getPosition(),
-                ).getUnit();
-                this.collider.move(diff);
-                obstacle.collider.move(diff.getInverted());
-            }
-        });
-
         this.handleLeavingScreenByWrappingAround(context);
     }
 
@@ -62,6 +43,11 @@ export class Obstacle extends GameObject {
         this.forward.add(force);
         // TODO: play sound
     }
+
+    setForward(fwd: Vector) {
+        this.forward = fwd;
+    }
+
     getCoords(): Coords {
         return {
             position: this.collider.getPosition().copy(),

@@ -22,34 +22,9 @@ export class Projectile extends GameObject {
     update(dt: number, context: GameContext) {
         this.collider.move(this.forward.getScaled(dt));
 
-        let destroyThis = false;
-        context.players.forEach((player) => {
-            if (this.collider.collidesWith(player.getCollider())) {
-                player.hit(this.damage);
-                destroyThis = true;
-            }
-        });
-
-        context.obstacles.forEach((obstacle) => {
-            if (this.collider.collidesWith(obstacle.getCollider())) {
-                // transferred forward momentum is small because projectiles have
-                // almost no mass
-                obstacle.hit(
-                    this.forward.getScaled(
-                        context.settings.PROJECTILE_MASS /
-                            context.settings.OBSTACLE_MASS,
-                    ),
-                );
-                destroyThis = true;
-            }
-        });
-
         this.selfDestructTimeout -= dt;
-        if (this.selfDestructTimeout <= 0) destroyThis = true;
-
-        if (destroyThis) {
+        if (this.selfDestructTimeout <= 0)
             context.eventQueue.add(eventDestroyProjectile(this.id));
-        }
 
         if (context.settings.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
@@ -81,6 +56,9 @@ export class Projectile extends GameObject {
             angle: this.rotation,
             frame: this.animationEngine.getCurrentFrame(),
         };
+    }
+    getDamage(): number {
+        return this.damage;
     }
 
     private handleLeavingScreen(context: GameContext) {

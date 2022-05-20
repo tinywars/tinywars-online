@@ -1,33 +1,12 @@
 import { expect } from "chai";
 import { AiPoweredController } from "../ai/ai-controller";
 import { EventQueue } from "../events/event-queue";
-import { AnimationEngine, AnimationFrame } from "../utility/animation";
 import { Vector } from "../utility/vector";
 import { Player } from "./player";
 import { KeyCode } from "./key-codes";
 import { GameContext } from "./game-context";
 import { GameSettings, getDefaultSettings } from "./game-settings";
-import { FastArray } from "../utility/fast-array";
-import { Projectile } from "./projectile";
-import { Obstacle } from "./obstacle";
-
-const playerAnimationMock = {
-    idle: [new AnimationFrame(1, 2, 3, 4)],
-    hit: [new AnimationFrame(5, 6, 7, 8)],
-};
-
-const projectileAnimationMock = {
-    idle: [new AnimationFrame(9, 10, 11, 12)],
-};
-
-const obstacleAnimationMock = {
-    idle0: [new AnimationFrame(13, 14, 15, 16)],
-    idle1: [new AnimationFrame(17, 18, 19, 20)],
-    wreck0: [new AnimationFrame(21, 22, 23, 24)],
-    wreck1: [new AnimationFrame(25, 26, 27, 28)],
-    wreck2: [new AnimationFrame(29, 30, 31, 32)],
-    wreck3: [new AnimationFrame(33, 34, 35, 36)],
-};
+import { getMockGameContext } from "../utility/mocks";
 
 describe("Player", () => {
     let controller: AiPoweredController;
@@ -50,39 +29,14 @@ describe("Player", () => {
 
         settings = getDefaultSettings();
 
-        gameContext = {
+        gameContext = getMockGameContext({
+            numPlayers: 1,
+            numProjectiles: 64,
+            numObstacles: 8,
+            controllers: [controller],
             settings: settings,
-            players: new FastArray<Player>(
-                1,
-                (index) =>
-                    new Player(
-                        index,
-                        controller,
-                        new AnimationEngine(playerAnimationMock, 2),
-                        eventQueue,
-                    ),
-            ),
-            projectiles: new FastArray<Projectile>(
-                64,
-                (index) =>
-                    new Projectile(
-                        index,
-                        new AnimationEngine(projectileAnimationMock, 2),
-                    ),
-            ),
-            obstacles: new FastArray<Obstacle>(
-                8,
-                (index) =>
-                    new Obstacle(
-                        index,
-                        new AnimationEngine(obstacleAnimationMock, 2),
-                    ),
-            ),
             eventQueue: eventQueue,
-            log: (msg: string) => {
-                console.log(msg);
-            },
-        };
+        });
 
         gameContext.players.grow();
         player = gameContext.players.getItem(0);
