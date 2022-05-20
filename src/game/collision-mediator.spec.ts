@@ -6,6 +6,7 @@ import { Vector } from "../utility/vector";
 import { CollisionMediator } from "./collision-mediator";
 import { GameContext } from "./game-context";
 import { GameSettings, getDefaultSettings } from "./game-settings";
+import { KeyCode } from "./key-codes";
 
 describe("CollisionMediator", () => {
     let controller: AiPoweredController;
@@ -88,6 +89,8 @@ describe("CollisionMediator", () => {
     });
 
     describe("projectile <-> player collisions", () => {
+        const INITIAL_HEALTH = 2;
+
         beforeEach(() => {
             gameContext.projectiles.grow();
             gameContext.players.grow();
@@ -105,7 +108,7 @@ describe("CollisionMediator", () => {
                 position: new Vector(100, 100),
                 maxEnergy: 1,
                 initialEnergy: 1,
-                initialHealth: 1,
+                initialHealth: INITIAL_HEALTH,
             });
 
             CollisionMediator.processCollisions(gameContext);
@@ -113,11 +116,34 @@ describe("CollisionMediator", () => {
 
             expect(gameContext.projectiles.getSize()).to.equal(1);
             expect(gameContext.players.getSize()).to.equal(1);
-            expect(gameContext.players.getItem(0).getHealth()).to.equal(1);
+            expect(gameContext.players.getItem(0).getHealth()).to.equal(
+                INITIAL_HEALTH,
+            );
         });
 
         it("destroys projectile and damages player on collision", () => {
-            // TODO: this
+            gameContext.projectiles.getItem(0).spawn({
+                position: new Vector(0, 0),
+                forward: Vector.zero(), // irrelevant
+                damage: 1,
+                selfDestructTimeout: Infinity,
+            });
+
+            gameContext.players.getItem(0).spawn({
+                position: new Vector(5, 5),
+                maxEnergy: 1,
+                initialEnergy: 1,
+                initialHealth: INITIAL_HEALTH,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(gameContext.projectiles.getSize()).to.equal(0);
+            expect(gameContext.players.getSize()).to.equal(1);
+            expect(gameContext.players.getItem(0).getHealth()).to.equal(
+                INITIAL_HEALTH - 1,
+            );
         });
     });
 
@@ -128,27 +154,133 @@ describe("CollisionMediator", () => {
         });
 
         it("does nothing if there are no collisions", () => {
-            // TODO: this
+            gameContext.players.getItem(0).spawn({
+                position: Vector.zero(),
+                maxEnergy: 1,
+                initialEnergy: 1,
+                initialHealth: 1,
+            });
+
+            gameContext.obstacles.getItem(0).spawn({
+                position: new Vector(100, 100),
+                forward: Vector.zero(),
+                playerIndex: -1,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(gameContext.players.getSize()).to.equal(1);
         });
 
-        it("damages player and moves obstacle on collision", () => {
-            // TODO: this
+        it("destroys player and moves obstacle on collision", () => {
+            gameContext.players.getItem(0).spawn({
+                position: Vector.zero(),
+                maxEnergy: 1,
+                initialEnergy: 1,
+                initialHealth: 1,
+            });
+
+            gameContext.obstacles.getItem(0).spawn({
+                position: new Vector(10, 10),
+                forward: Vector.zero(),
+                playerIndex: -1,
+            });
+
+            // Initialize player forward vector
+            controller.pressKey(KeyCode.Up);
+            gameContext.players.getItem(0).update(1 / 60, gameContext);
+
+            // Handle colisions
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(gameContext.players.getSize()).to.equal(0);
+            const fwd = gameContext.obstacles.getItem(0).getForward();
+            expect(fwd.x, "Obstacle forward.x has changed").to.be.approximately(
+                (settings.PLAYER_FORWARD_SPEED * settings.PLAYER_MASS) /
+                    settings.OBSTACLE_MASS,
+                0.001,
+            );
+            expect(fwd.y, "Obstacle forward.y has not changed").to.equal(0);
         });
     });
 
     describe("obstacle <-> obstacle collisions", () => {
+        const INIT_FWD1 = new Vector(10, 10);
+        const INIT_FWD2 = new Vector(-10, -10);
+
         beforeEach(() => {
             gameContext.obstacles.grow();
             gameContext.obstacles.grow();
         });
 
         it("does nothing if there are no collisions", () => {
-            // TODO: this
+            gameContext.obstacles.getItem(0).spawn({
+                position: Vector.zero(),
+                forward: INIT_FWD1,
+                playerIndex: -1,
+            });
+
+            gameContext.obstacles.getItem(1).spawn({
+                position: new Vector(100, 100),
+                forward: INIT_FWD2,
+                playerIndex: -1,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(
+                gameContext.obstacles.getItem(0).getForward().toString(),
+                "Obstacle 1 keeps its forward",
+            ).to.equal("[10, 10]");
+
+            expect(
+                gameContext.obstacles.getItem(1).getForward().toString(),
+                "Obstacle 2 keeps its forward",
+            ).to.equal("[-10, -10]");
         });
 
         it("bounces obstacles from each other on collision", () => {
-            // TODO: this
-            // TODO: test they are not still colliding
+            // Forward vectors go against each other
+            gameContext.obstacles.getItem(0).spawn({
+                position: new Vector(0, 0),
+                forward: INIT_FWD1,
+                playerIndex: -1,
+            });
+
+            gameContext.obstacles.getItem(1).spawn({
+                position: new Vector(10, 10),
+                forward: INIT_FWD2,
+                playerIndex: -1,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            const fwd1 = gameContext.obstacles.getItem(0).getForward();
+            const fwd2 = gameContext.obstacles.getItem(1).getForward();
+            expect(fwd1.x, "Obstacle1 gains forward.x of obstacle2").to.equal(
+                INIT_FWD2.x * settings.OBSTACLE_BOUNCE_SLOW_FACTOR,
+            );
+            expect(fwd1.x, "Obstacle1 gains forward.y of obstacle2").to.equal(
+                INIT_FWD2.y * settings.OBSTACLE_BOUNCE_SLOW_FACTOR,
+            );
+            expect(fwd2.x, "Obstacle2 gains forward.x of obstacle1").to.equal(
+                INIT_FWD1.x * settings.OBSTACLE_BOUNCE_SLOW_FACTOR,
+            );
+            expect(fwd2.x, "Obstacle2 gains forward.y of obstacle1").to.equal(
+                INIT_FWD1.y * settings.OBSTACLE_BOUNCE_SLOW_FACTOR,
+            );
+            expect(
+                gameContext.obstacles
+                    .getItem(0)
+                    .getCollider()
+                    .collidesWith(
+                        gameContext.obstacles.getItem(1).getCollider(),
+                    ),
+            ).to.be.false;
         });
     });
 });

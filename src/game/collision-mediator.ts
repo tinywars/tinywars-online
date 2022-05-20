@@ -123,6 +123,10 @@ export class CollisionMediator {
         obstacle2: Obstacle,
         context: GameContext,
     ) {
+        console.log(context.settings.OBSTACLE_BOUNCE_SLOW_FACTOR);
+        console.log(obstacle1.getForward().toString());
+        console.log(obstacle2.getForward().toString());
+
         // Exchange their movement vectors
         const tmpForward = obstacle1
             .getForward()
@@ -134,14 +138,25 @@ export class CollisionMediator {
         );
         obstacle2.setForward(tmpForward);
 
+        console.log(obstacle1.getForward().toString());
+        console.log(obstacle2.getForward().toString());
+
         // nudge them apart from each other so they won't become stuck
         const diff = Vector.diff(
             obstacle1.getCollider().getPosition(),
             obstacle2.getCollider().getPosition(),
-        ).getUnit(); // TODO: remove getUnit
-        // TODO: targetSize = radius * 2 - |diff|
-        // TODO: diff = diff.getScaled(radius * 2 / targetSize);
-        obstacle1.getCollider().move(diff);
-        obstacle2.getCollider().move(diff.getInverted());
+        );
+
+        // This is magic constant that says the following:
+        // |diff| + k * |diff| = radius1 + radius2
+        // so if we multiply diff with k, we can vector that has to
+        // be used to nudge obstacles far enough to not be colliding anymore
+        const k =
+            (obstacle1.getCollider().radius +
+                obstacle2.getCollider().radius -
+                diff.getSize()) /
+            diff.getSize();
+        obstacle1.getCollider().move(diff.getScaled(k));
+        obstacle2.getCollider().move(diff.getScaled(k).getInverted());
     }
 }
