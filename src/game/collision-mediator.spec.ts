@@ -218,13 +218,13 @@ describe("CollisionMediator", () => {
         it("does nothing if there are no collisions", () => {
             gameContext.obstacles.getItem(0).spawn({
                 position: Vector.zero(),
-                forward: INIT_FWD1,
+                forward: INIT_FWD1.copy(),
                 playerIndex: -1,
             });
 
             gameContext.obstacles.getItem(1).spawn({
                 position: new Vector(100, 100),
-                forward: INIT_FWD2,
+                forward: INIT_FWD2.copy(),
                 playerIndex: -1,
             });
 
@@ -246,13 +246,13 @@ describe("CollisionMediator", () => {
             // Forward vectors go against each other
             gameContext.obstacles.getItem(0).spawn({
                 position: new Vector(0, 0),
-                forward: INIT_FWD1,
+                forward: INIT_FWD1.copy(),
                 playerIndex: -1,
             });
 
             gameContext.obstacles.getItem(1).spawn({
                 position: new Vector(10, 10),
-                forward: INIT_FWD2,
+                forward: INIT_FWD2.copy(),
                 playerIndex: -1,
             });
 

@@ -17,7 +17,7 @@ export class CollisionMediator {
         context.projectiles.forEach((projectile) => {
             context.players.forEach((player) => {
                 if (projectile.getCollider().collidesWith(player.getCollider()))
-                    this.resolveProjectilePlayerCollision(
+                    this.resolveProjectileWithPlayerCollision(
                         projectile,
                         player,
                         context,
@@ -36,7 +36,7 @@ export class CollisionMediator {
                         .getCollider()
                         .collidesWith(obstacle.getCollider())
                 )
-                    this.resolveProjectileObstacleCollision(
+                    this.resolveProjectileWithObstacleCollision(
                         projectile,
                         obstacle,
                         context,
@@ -49,7 +49,7 @@ export class CollisionMediator {
         context.players.forEach((player) => {
             context.obstacles.forEach((obstacle) => {
                 if (player.getCollider().collidesWith(obstacle.getCollider()))
-                    this.resolvePlayerObstacleCollision(
+                    this.resolvePlayerWithObstacleCollision(
                         player,
                         obstacle,
                         context,
@@ -68,7 +68,7 @@ export class CollisionMediator {
                         .getCollider()
                         .collidesWith(obstacle2.getCollider())
                 )
-                    this.resolveObstacleObstacleCollision(
+                    this.resolveObstacleWithObstacleCollision(
                         obstacle1,
                         obstacle2,
                         context,
@@ -77,7 +77,7 @@ export class CollisionMediator {
         });
     }
 
-    private static resolveProjectilePlayerCollision(
+    private static resolveProjectileWithPlayerCollision(
         projectile: Projectile,
         player: Player,
         context: GameContext,
@@ -86,7 +86,7 @@ export class CollisionMediator {
         context.eventQueue.add(eventDestroyProjectile(projectile.id));
     }
 
-    private static resolveProjectileObstacleCollision(
+    private static resolveProjectileWithObstacleCollision(
         projectile: Projectile,
         obstacle: Obstacle,
         context: GameContext,
@@ -102,7 +102,7 @@ export class CollisionMediator {
         context.eventQueue.add(eventDestroyProjectile(projectile.id));
     }
 
-    private static resolvePlayerObstacleCollision(
+    private static resolvePlayerWithObstacleCollision(
         player: Player,
         obstacle: Obstacle,
         context: GameContext,
@@ -118,15 +118,11 @@ export class CollisionMediator {
         );
     }
 
-    private static resolveObstacleObstacleCollision(
+    private static resolveObstacleWithObstacleCollision(
         obstacle1: Obstacle,
         obstacle2: Obstacle,
         context: GameContext,
     ) {
-        console.log(context.settings.OBSTACLE_BOUNCE_SLOW_FACTOR);
-        console.log(obstacle1.getForward().toString());
-        console.log(obstacle2.getForward().toString());
-
         // Exchange their movement vectors
         const tmpForward = obstacle1
             .getForward()
@@ -137,9 +133,6 @@ export class CollisionMediator {
                 .getScaled(context.settings.OBSTACLE_BOUNCE_SLOW_FACTOR),
         );
         obstacle2.setForward(tmpForward);
-
-        console.log(obstacle1.getForward().toString());
-        console.log(obstacle2.getForward().toString());
 
         // nudge them apart from each other so they won't become stuck
         const diff = Vector.diff(
