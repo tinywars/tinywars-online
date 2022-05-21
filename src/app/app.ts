@@ -14,6 +14,7 @@ import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
 import { PRNG } from "../utility/prng";
+import { PlayerInputBinding } from "../game/player-settings";
 
 export class App {
     private gameContext: GameContext;
@@ -187,22 +188,16 @@ export class App {
     ): PhysicalController {
         const controls = this.settings.PLAYER_SETTINGS[index].controls;
         const result = new PhysicalController(keyboardState);
-        const controlNames = [
-            "forward",
-            "backward",
-            "steerLeft",
-            "steerRight",
-            "shoot",
-            "action",
-        ];
 
-        for (const key of controlNames) {
-            result.bindDigitalInput(
-                (controls as any)[key].key,
-                (controls as any)[key].button,
-                (controls as any)[key].code,
-            );
-        }
+        Object.values(controls).forEach((binding) => {
+            if (
+                binding.key === undefined ||
+                binding.button === undefined ||
+                binding.code === undefined
+            )
+                return;
+            result.bindDigitalInput(binding.key, binding.button, binding.code);
+        });
 
         result.bindAnalogInput(controls.steerAxis, KeyCode.Rotation);
         result.setGamepadIndex(index);
