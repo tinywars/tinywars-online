@@ -5,8 +5,9 @@ import { Vector } from "../utility/vector";
 import { Player } from "./player";
 import { KeyCode } from "./key-codes";
 import { GameContext } from "./game-context";
-import { GameSettings, getDefaultSettings } from "./game-settings";
-import { getMockGameContext } from "../utility/mocks";
+import { GameSettings } from "./game-settings";
+import { getMockSettings } from "../test/game-settings";
+import { getMockGameContext } from "../test/game-context";
 
 describe("Player", () => {
     let controller: AiPoweredController;
@@ -27,7 +28,7 @@ describe("Player", () => {
 
         eventQueue = new EventQueue();
 
-        settings = getDefaultSettings();
+        settings = getMockSettings();
 
         gameContext = getMockGameContext({
             numPlayers: 1,
