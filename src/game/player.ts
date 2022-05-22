@@ -153,7 +153,9 @@ export class Player extends GameObject {
                     // you turbo and fire, then your own projectile will damage you, unless the +1
                     // is in the expression below.
                     this.direction.getScaled(
-                        Player.RADIUS + this.forward.getScaled(dt).getSize(),
+                        Player.RADIUS +
+                            1 +
+                            this.forward.getScaled(dt).getSize(),
                     ),
                 ),
                 direction: this.direction,
