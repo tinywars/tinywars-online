@@ -36,5 +36,6 @@ export function getMockSettings(): GameSettings {
         OBSTACLE_MAX_SPEED: 375,
         OBSTACLE_HIT_DAMAGE: 10,
         OBSTACLE_MASS: 15,
+        OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
     };
 }

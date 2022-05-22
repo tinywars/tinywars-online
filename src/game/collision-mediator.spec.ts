@@ -1,11 +1,12 @@
 import { expect } from "chai";
 import { AiPoweredController } from "../ai/ai-controller";
 import { EventQueue } from "../events/event-queue";
-import { getMockGameContext } from "../utility/mocks";
+import { getMockGameContext } from "../test/game-context";
+import { getMockSettings } from "../test/game-settings";
 import { Vector } from "../utility/vector";
 import { CollisionMediator } from "./collision-mediator";
 import { GameContext } from "./game-context";
-import { GameSettings, getDefaultSettings } from "./game-settings";
+import { GameSettings } from "./game-settings";
 import { KeyCode } from "./key-codes";
 
 describe("CollisionMediator", () => {
@@ -17,7 +18,7 @@ describe("CollisionMediator", () => {
     beforeEach(() => {
         controller = new AiPoweredController();
         eventQueue = new EventQueue();
-        settings = getDefaultSettings();
+        settings = getMockSettings();
         gameContext = getMockGameContext({
             numPlayers: 1,
             numProjectiles: 64,
