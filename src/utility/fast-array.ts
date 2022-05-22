@@ -89,3 +89,15 @@ export class FastArray<T> implements Iterable<T> {
         return result;
     }
 }
+
+export function forEachPairOf<T1, T2>(
+    arr1: FastArray<T1>,
+    arr2: FastArray<T2>,
+    fn: (e1: T1, e2: T2) => void,
+) {
+    arr1.forEach((e1) => {
+        arr2.forEach((e2) => {
+            fn(e1, e2);
+        });
+    });
+}

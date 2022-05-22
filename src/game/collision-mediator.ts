@@ -1,4 +1,5 @@
 import { eventDestroyProjectile } from "../events/game-event";
+import { forEachPairOf } from "../utility/fast-array";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { Obstacle } from "./obstacle";
@@ -14,23 +15,27 @@ export class CollisionMediator {
     }
 
     private static handleProjectileCollisionsWithPlayers(context: GameContext) {
-        context.projectiles.forEach((projectile) => {
-            context.players.forEach((player) => {
+        forEachPairOf(
+            context.projectiles,
+            context.players,
+            (projectile, player) => {
                 if (projectile.getCollider().collidesWith(player.getCollider()))
                     this.resolveProjectileWithPlayerCollision(
                         projectile,
                         player,
                         context,
                     );
-            });
-        });
+            },
+        );
     }
 
     private static handleProjectileCollisionsWithObstacles(
         context: GameContext,
     ) {
-        context.projectiles.forEach((projectile) => {
-            context.obstacles.forEach((obstacle) => {
+        forEachPairOf(
+            context.projectiles,
+            context.obstacles,
+            (projectile, obstacle) => {
                 if (
                     projectile
                         .getCollider()
@@ -41,26 +46,30 @@ export class CollisionMediator {
                         obstacle,
                         context,
                     );
-            });
-        });
+            },
+        );
     }
 
     private static handlePlayerCollisionsWithObstacles(context: GameContext) {
-        context.players.forEach((player) => {
-            context.obstacles.forEach((obstacle) => {
+        forEachPairOf(
+            context.players,
+            context.obstacles,
+            (player, obstacle) => {
                 if (player.getCollider().collidesWith(obstacle.getCollider()))
                     this.resolvePlayerWithObstacleCollision(
                         player,
                         obstacle,
                         context,
                     );
-            });
-        });
+            },
+        );
     }
 
     private static handleObstacleCollisionsWithObstacles(context: GameContext) {
-        context.obstacles.forEach((obstacle1) => {
-            context.obstacles.forEach((obstacle2) => {
+        forEachPairOf(
+            context.obstacles,
+            context.obstacles,
+            (obstacle1, obstacle2) => {
                 if (obstacle1.id === obstacle2.id) return;
 
                 if (
@@ -73,8 +82,8 @@ export class CollisionMediator {
                         obstacle2,
                         context,
                     );
-            });
-        });
+            },
+        );
     }
 
     private static resolveProjectileWithPlayerCollision(
