@@ -63,6 +63,7 @@ export class Player extends GameObject {
         throttle *= context.settings.PLAYER_FORWARD_SPEED;
         steer *= context.settings.PLAYER_ROTATION_SPEED;
 
+        this.handleAction(context);
         this.handleShooting(dt);
         this.updateRotation(steer, dt);
         this.moveForward(throttle, dt, context);
@@ -135,14 +136,36 @@ export class Player extends GameObject {
             eventSpawnProjectile({
                 position: this.collider.getPosition().getSum(
                     // Spawn projectile right in front of the player so it doesn't collide with them
+                    // There is some rounding error that I cannot reproduce in unit tests, but when
+                    // you turbo and fire, then your own projectile will damage you, unless the +1
+                    // is in the expression below.
                     this.direction.getScaled(
-                        Player.RADIUS + this.forward.getScaled(dt).getSize(),
+                        Player.RADIUS +
+                            1 +
+                            this.forward.getScaled(dt).getSize(),
                     ),
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,
             }),
         );
+        this.energy--;
+    }
+
+    private handleAction(context: GameContext) {
+        if (!this.controller.readActionToggled()) return;
+        if (this.energy < 1) return;
+
+        /*
+        NOTE: Once we have implemeted powerups, we can give player
+        a new property to hold currently equipped powerup, a setter
+        for it and then this method would select between behaviours
+        based on active power.
+        */
+
+        this.forward = this.forward
+            .getUnit()
+            .getScaled(context.settings.PLAYER_TURBO_FORWARD_SPEED);
         this.energy--;
     }
 }

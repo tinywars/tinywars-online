@@ -22,6 +22,7 @@ export interface GameSettings {
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: number;
+    PLAYER_TURBO_FORWARD_SPEED: number;
     PLAYER_ROTATION_SPEED: number;
     PLAYER_ENERGY_RECHARGE_SPEED: number;
     PLAYER_MASS: number;
@@ -65,6 +66,7 @@ export function getDefaultSettings(): GameSettings {
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 250,
+        PLAYER_TURBO_FORWARD_SPEED: 400,
         PLAYER_ROTATION_SPEED: 250,
         PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
         PLAYER_MASS: 10,
