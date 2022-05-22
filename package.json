@@ -1,7 +1,7 @@
 {
   "name": "tinywars-online",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && cp ./RELEASE.md ./dist/README.md",
@@ -32,7 +32,9 @@
     "vite": "^2.9.0"
   },
   "mocha": {
-    "watch-files": ["**/*.ts"]
+    "watch-files": [
+      "**/*.ts"
+    ]
   },
   "nyc": {
     "exclude": "**/*.spec.ts",
