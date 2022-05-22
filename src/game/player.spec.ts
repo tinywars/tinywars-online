@@ -156,12 +156,7 @@ describe("Player", () => {
             });
 
             it("Does not shoot if it doesn't have enough energy", () => {
-                player.spawn({
-                    position: new Vector(42, 69),
-                    initialHealth: 1,
-                    initialEnergy: 0,
-                    maxEnergy: 3,
-                });
+                (player as any).energy = 0;
 
                 controller.pressKey(KeyCode.Shoot);
                 player.update(0, gameContext);
@@ -195,6 +190,59 @@ describe("Player", () => {
                 expect(player.getHealth()).to.equal(0);
                 expect(player.getCoords().frame.x).to.equal(5);
                 expect(player.getCoords().frame.y).to.equal(6);
+            });
+        });
+
+        describe("Turbo", () => {
+            const INITIAL_ENERGY = 2;
+            const INITIAL_HEALTH = 1;
+
+            beforeEach(() => {
+                player.spawn({
+                    position: new Vector(42, 69),
+                    initialHealth: INITIAL_HEALTH,
+                    initialEnergy: INITIAL_ENERGY,
+                    maxEnergy: 3,
+                });
+
+                // Simulate first frame where the player moves forward
+                controller.pressKey(KeyCode.Up);
+                player.update(0, gameContext);
+                controller.releaseKey(KeyCode.Up);
+            });
+
+            it("Triggers on boost input when there is enough energy", () => {
+                controller.pressKey(KeyCode.Action);
+                player.update(0, gameContext);
+                expect(player.getForward().getSize()).to.equal(
+                    settings.PLAYER_TURBO_FORWARD_SPEED,
+                );
+                expect(player.getEnergy()).to.equal(INITIAL_ENERGY - 1);
+            });
+
+            it("Does not trigger when there's not enough energy", () => {
+                (player as any).energy = 0;
+
+                controller.pressKey(KeyCode.Action);
+                player.update(0, gameContext);
+                expect(player.getForward().getSize()).to.equal(
+                    settings.PLAYER_FORWARD_SPEED,
+                );
+                expect(player.getEnergy()).to.equal(0);
+            });
+
+            it("Turbo is cancelled on player thrust", () => {
+                controller.pressKey(KeyCode.Action);
+                player.update(0, gameContext);
+                expect(player.getForward().getSize()).to.equal(
+                    settings.PLAYER_TURBO_FORWARD_SPEED,
+                );
+
+                controller.pressKey(KeyCode.Up);
+                player.update(0, gameContext);
+                expect(player.getForward().getSize()).to.equal(
+                    settings.PLAYER_FORWARD_SPEED,
+                );
             });
         });
     });
