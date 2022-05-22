@@ -36,4 +36,5 @@ export interface GameSettings {
     OBSTACLE_MAX_SPEED: number;
     OBSTACLE_HIT_DAMAGE: number;
     OBSTACLE_MASS: number;
+    OBSTACLE_BOUNCE_SLOW_FACTOR: number; // how much of the obstacle forward vector is preserved after bounce
 }

@@ -14,7 +14,7 @@ import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
 import { PRNG } from "../utility/prng";
-import { PlayerInputBinding } from "../game/player-settings";
+import { CollisionMediator } from "../game/collision-mediator";
 
 export class App {
     private gameContext: GameContext;
@@ -143,6 +143,8 @@ export class App {
         this.gameContext.obstacles.forEach((p) =>
             p.update(dt, this.gameContext),
         );
+
+        CollisionMediator.processCollisions(this.gameContext);
 
         this.gameContext.eventQueue.process(this.gameContext);
     }

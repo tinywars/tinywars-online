@@ -68,19 +68,6 @@ export class Player extends GameObject {
         this.updateRotation(steer, dt);
         this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
-
-        context.obstacles.forEach((obstacle) => {
-            if (this.collider.collidesWith(obstacle.getCollider())) {
-                this.hit(context.settings.OBSTACLE_HIT_DAMAGE);
-                obstacle.hit(
-                    this.forward.getScaled(
-                        context.settings.PLAYER_MASS /
-                            context.settings.OBSTACLE_MASS,
-                    ),
-                );
-                this.forward = this.forward.getScaled(0.1);
-            }
-        });
     }
 
     getCoords(): Coords {
