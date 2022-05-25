@@ -8,8 +8,12 @@ import { Coords } from "../utility/coords";
 
 export class Projectile extends GameObject {
     private damage = 0;
+    private selfDestructTimeout = 0;
 
-    constructor(readonly id: number, private animationEngine: AnimationEngine) {
+    constructor(
+        readonly id: number,
+        private animationEngine: AnimationEngine<any>,
+    ) {
         super();
         this.collider = new CircleCollider(Vector.outOfView(), 2);
         this.animationEngine.setState("idle", true);
@@ -18,31 +22,9 @@ export class Projectile extends GameObject {
     update(dt: number, context: GameContext) {
         this.collider.move(this.forward.getScaled(dt));
 
-        let destroyThis = false;
-        context.players.forEach((player) => {
-            if (this.collider.collidesWith(player.getCollider())) {
-                player.hit(this.damage);
-                destroyThis = true;
-            }
-        });
-
-        context.obstacles.forEach((obstacle) => {
-            if (this.collider.collidesWith(obstacle.getCollider())) {
-                // transferred forward momentum is small because projectiles have
-                // almost no mass
-                obstacle.hit(
-                    this.forward.getScaled(
-                        context.settings.PROJECTILE_MASS /
-                            context.settings.OBSTACLE_MASS,
-                    ),
-                );
-                destroyThis = true;
-            }
-        });
-
-        if (destroyThis) {
+        this.selfDestructTimeout -= dt;
+        if (this.selfDestructTimeout <= 0)
             context.eventQueue.add(eventDestroyProjectile(this.id));
-        }
 
         if (context.settings.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
@@ -51,11 +33,17 @@ export class Projectile extends GameObject {
         }
     }
 
-    spawn(options: { position: Vector; forward: Vector; damage: number }) {
+    spawn(options: {
+        position: Vector;
+        forward: Vector;
+        damage: number;
+        selfDestructTimeout: number;
+    }) {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
         this.damage = options.damage;
         this.rotation = this.forward.toAngle();
+        this.selfDestructTimeout = options.selfDestructTimeout;
     }
 
     despawn() {
@@ -68,6 +56,9 @@ export class Projectile extends GameObject {
             angle: this.rotation,
             frame: this.animationEngine.getCurrentFrame(),
         };
+    }
+    getDamage(): number {
+        return this.damage;
     }
 
     private handleLeavingScreen(context: GameContext) {

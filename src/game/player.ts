@@ -7,7 +7,6 @@ import {
     eventDestroyPlayer,
     eventSpawnWreck,
 } from "../events/game-event";
-import { KeyCode } from "../game/key-codes";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 import { AnimationEngine } from "../utility/animation";
@@ -17,7 +16,6 @@ import { EventQueue } from "../events/event-queue";
 export class Player extends GameObject {
     protected static RADIUS = 10;
     protected direction: Vector = Vector.zero();
-    protected speed = 0;
     protected health = 0;
     protected energy = 0;
     protected maxEnergy = 0;
@@ -25,7 +23,8 @@ export class Player extends GameObject {
     constructor(
         readonly id: number,
         private controller: Controller,
-        private animationEngine: AnimationEngine,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        private animationEngine: AnimationEngine<any>,
         private eventQueue: EventQueue,
     ) {
         super();
@@ -60,37 +59,15 @@ export class Player extends GameObject {
             this.animationEngine.setState("idle", true);
         }
 
-        let updateFwd = true;
-        let rotation = 0;
-        if (this.controller.isKeyPressed(KeyCode.Up)) {
-            this.speed = context.settings.PLAYER_FORWARD_SPEED;
-        } else if (this.controller.isKeyPressed(KeyCode.Down)) {
-            this.speed = -context.settings.PLAYER_FORWARD_SPEED;
-        } else updateFwd = false;
+        let { throttle, steer } = this.controller.getThrottleAndSteer();
+        throttle *= context.settings.PLAYER_FORWARD_SPEED;
+        steer *= context.settings.PLAYER_ROTATION_SPEED;
 
-        if (this.controller.isKeyPressed(KeyCode.Left)) {
-            rotation = -context.settings.PLAYER_ROTATION_SPEED;
-        } else if (this.controller.isKeyPressed(KeyCode.Right)) {
-            rotation = context.settings.PLAYER_ROTATION_SPEED;
-        }
-
+        this.handleAction(context);
         this.handleShooting(dt);
-        this.updateRotation(rotation, dt);
-        this.moveForward(updateFwd, dt, context);
+        this.updateRotation(steer, dt);
+        this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
-
-        context.obstacles.forEach((obstacle) => {
-            if (this.collider.collidesWith(obstacle.getCollider())) {
-                this.hit(context.settings.OBSTACLE_HIT_DAMAGE);
-                obstacle.hit(
-                    this.forward.getScaled(
-                        context.settings.PLAYER_MASS /
-                            context.settings.OBSTACLE_MASS,
-                    ),
-                );
-                this.forward = this.forward.getScaled(0.1);
-            }
-        });
     }
 
     getCoords(): Coords {
@@ -131,12 +108,8 @@ export class Player extends GameObject {
         this.direction.setRotation(this.rotation);
     }
 
-    private moveForward(
-        updateForward: boolean,
-        dt: number,
-        context: GameContext,
-    ) {
-        if (updateForward) this.forward = this.direction.getScaled(this.speed);
+    private moveForward(throttle: number, dt: number, context: GameContext) {
+        if (throttle != 0) this.forward = this.direction.getScaled(throttle);
 
         this.collider.move(this.forward.getScaled(dt));
         this.handleLeavingScreenByWrappingAround(context);
@@ -155,9 +128,7 @@ export class Player extends GameObject {
     }
 
     private handleShooting(dt: number) {
-        if (!this.controller.isKeyPressed(KeyCode.Shoot)) return;
-
-        this.controller.releaseKey(KeyCode.Shoot);
+        if (!this.controller.readAttackToggled()) return;
 
         if (this.energy < 1) return;
 
@@ -165,14 +136,36 @@ export class Player extends GameObject {
             eventSpawnProjectile({
                 position: this.collider.getPosition().getSum(
                     // Spawn projectile right in front of the player so it doesn't collide with them
+                    // There is some rounding error that I cannot reproduce in unit tests, but when
+                    // you turbo and fire, then your own projectile will damage you, unless the +1
+                    // is in the expression below.
                     this.direction.getScaled(
-                        Player.RADIUS + this.forward.getScaled(dt).getSize(),
+                        Player.RADIUS +
+                            1 +
+                            this.forward.getScaled(dt).getSize(),
                     ),
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,
             }),
         );
+        this.energy--;
+    }
+
+    private handleAction(context: GameContext) {
+        if (!this.controller.readActionToggled()) return;
+        if (this.energy < 1) return;
+
+        /*
+        NOTE: Once we have implemeted powerups, we can give player
+        a new property to hold currently equipped powerup, a setter
+        for it and then this method would select between behaviours
+        based on active power.
+        */
+
+        this.forward = this.forward
+            .getUnit()
+            .getScaled(context.settings.PLAYER_TURBO_FORWARD_SPEED);
         this.energy--;
     }
 }

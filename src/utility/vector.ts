@@ -30,6 +30,11 @@ export class Vector {
         return new Vector(-100, -100);
     }
 
+    static fromPolar(angle: number, size: number) {
+        const rad = (angle * Math.PI) / 180;
+        return new Vector(Math.cos(rad) * size, Math.sin(rad) * size);
+    }
+
     copy(): Vector {
         return new Vector(this.x, this.y);
     }

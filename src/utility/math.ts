@@ -81,3 +81,47 @@ export function sanitizeAngle(angle: number): number {
     const rem = angle % 360;
     return rem < 0 ? rem + 360 : rem;
 }
+
+export function radialDifference(alfa: number, beta: number): number {
+    return Math.min(
+        Math.abs(alfa - beta),
+        Math.min(alfa, beta) + 360 - Math.max(alfa, beta),
+    );
+}
+
+/**
+ * This method basically computes "where should I aim to hit a target moving at given speed when
+ * projectiles have that speed".
+ * @param pointOrigin Where target currently sits at
+ * @param pointForward Target forward vector
+ * @param circleOrigin Player position
+ * @param circleGrowSpeed Speed of the projectile
+ * @returns Vector if such point exists (from the game standpoint that should be always) or null
+ * if there is none.
+ */
+export function getIntersectionBetweenMovingPointAndGrowingCircle(
+    pointOrigin: Vector,
+    pointForward: Vector,
+    circleOrigin: Vector,
+    circleGrowSpeed: number,
+): Vector | null {
+    const X = pointOrigin.x - circleOrigin.x;
+    const Y = pointOrigin.y - circleOrigin.y;
+    const A =
+        pointForward.x * pointForward.x +
+        pointForward.y * pointForward.y -
+        circleGrowSpeed * circleGrowSpeed;
+    const B = 2 * (X * pointForward.x + Y * pointForward.y);
+    const C = X * X + Y * Y;
+    const D = B * B - 4 * A * C;
+
+    // If point is moving perpendicular to circle and at a higher speed
+    if (D < 0) return null;
+
+    const t = (-B - Math.sqrt(D)) / (2 * A);
+
+    // If point is moving from circle at a higher speed
+    if (t < 0) return null;
+
+    return pointOrigin.getSum(pointForward.getScaled(t));
+}

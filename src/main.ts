@@ -5,6 +5,10 @@ import "./style.css";
 import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
 import { AnimationFrame } from "./utility/animation";
+import { PlayerControls, PlayerSettings } from "./game/player-settings";
+import { GameSettings } from "./game/game-settings";
+import { KeyCode } from "./game/key-codes";
+import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
 
 const FPS = 60;
 const USE_NATIVE_RENDERER = true;
@@ -18,15 +22,6 @@ document.onkeyup = (e) => {
     console.log("OnKeyUp: " + e.code);
     keyboardState[e.code] = false;
 };
-window.addEventListener("gamepadconnected", function (e) {
-    console.log(
-        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
-        e.gamepad.index,
-        e.gamepad.id,
-        e.gamepad.buttons.length,
-        e.gamepad.axes.length,
-    );
-});
 
 console.log("App init");
 
@@ -60,35 +55,201 @@ const animations = {
     },
 };
 
-const gameSettings = {
+const player1controls: PlayerControls = {
+    forward: {
+        code: KeyCode.Up,
+        key: "KeyW",
+        button: GamepadButton.RTrigger,
+    },
+    backward: {
+        code: KeyCode.Down,
+        key: "KeyS",
+        button: GamepadButton.LTrigger,
+    },
+    steerLeft: {
+        code: KeyCode.Left,
+        key: "KeyA",
+        button: GamepadButton.DpadLeft,
+    },
+    steerRight: {
+        code: KeyCode.Right,
+        key: "KeyD",
+        button: GamepadButton.DpadRight,
+    },
+    shoot: {
+        code: KeyCode.Shoot,
+        key: "KeyR",
+        button: GamepadButton.X,
+    },
+    action: {
+        code: KeyCode.Action,
+        key: "KeyT",
+        button: GamepadButton.A,
+    },
+    steerAxis: GamepadAxis.LHorizontal,
+};
+
+const player2controls: PlayerControls = {
+    forward: {
+        code: KeyCode.Up,
+        key: "KeyI",
+        button: GamepadButton.A,
+    },
+    backward: {
+        code: KeyCode.Down,
+        key: "KeyK",
+        button: GamepadButton.B,
+    },
+    steerLeft: {
+        code: KeyCode.Left,
+        key: "KeyJ",
+        button: GamepadButton.DpadLeft,
+    },
+    steerRight: {
+        code: KeyCode.Right,
+        key: "KeyL",
+        button: GamepadButton.DpadRight,
+    },
+    shoot: {
+        code: KeyCode.Shoot,
+        key: "KeyP",
+        button: GamepadButton.RTrigger,
+    },
+    action: {
+        code: KeyCode.Action,
+        key: "KeyO",
+        button: GamepadButton.LTrigger,
+    },
+    steerAxis: GamepadAxis.LHorizontal,
+};
+
+const player3controls: PlayerControls = {
+    forward: {
+        code: KeyCode.Up,
+        key: "Numpad5",
+        button: GamepadButton.RTrigger,
+    },
+    backward: {
+        code: KeyCode.Down,
+        key: "Numpad2",
+        button: GamepadButton.LTrigger,
+    },
+    steerLeft: {
+        code: KeyCode.Left,
+        key: "Numpad1",
+        button: GamepadButton.DpadLeft,
+    },
+    steerRight: {
+        code: KeyCode.Right,
+        key: "Numpad3",
+        button: GamepadButton.DpadRight,
+    },
+    shoot: {
+        code: KeyCode.Shoot,
+        key: "Numpad9",
+        button: GamepadButton.X,
+    },
+    action: {
+        code: KeyCode.Action,
+        key: "Numpad6",
+        button: GamepadButton.A,
+    },
+    steerAxis: GamepadAxis.LHorizontal,
+};
+
+const player4controls: PlayerControls = {
+    forward: {
+        code: KeyCode.Up,
+        key: "KeyG",
+        button: GamepadButton.RTrigger,
+    },
+    backward: {
+        code: KeyCode.Down,
+        key: "KeyB",
+        button: GamepadButton.LTrigger,
+    },
+    steerLeft: {
+        code: KeyCode.Left,
+        key: "KeyV",
+        button: GamepadButton.DpadLeft,
+    },
+    steerRight: {
+        code: KeyCode.Right,
+        key: "KeyN",
+        button: GamepadButton.DpadRight,
+    },
+    shoot: {
+        code: KeyCode.Shoot,
+        key: "Space",
+        button: GamepadButton.X,
+    },
+    action: {
+        code: KeyCode.Action,
+        key: "KeyH",
+        button: GamepadButton.A,
+    },
+    steerAxis: GamepadAxis.LHorizontal,
+};
+
+const playerSettings: PlayerSettings[] = [
+    {
+        name: "red",
+        invertSteeringOnReverse: true,
+        controls: player1controls,
+    },
+    {
+        name: "green",
+        invertSteeringOnReverse: false,
+        controls: player2controls,
+    },
+    {
+        name: "blue",
+        invertSteeringOnReverse: false,
+        controls: player3controls,
+    },
+    {
+        name: "yellow",
+        invertSteeringOnReverse: false,
+        controls: player4controls,
+    },
+];
+
+const gameSettings: GameSettings = {
     SCREEN_WIDTH: 1280,
     SCREEN_HEIGHT: (1280 / 4) * 3,
     ANIMATION_FPS: 2,
     TIME_TILL_RESTART: 3,
-    PLAYER_NAMES: ["red", "green", "blue", "yellow"],
+    PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
+    PRNG_SEED: Date.now(),
     // Spawn settings
-    PLAYER_COUNT: 2,
-    NPC_COUNT: 0,
+    PLAYER_COUNT: 3,
+    NPC_COUNT: 1,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
+    // AI Settings
+    AI_MAX_SHOOT_DELAY: 1.5,
+    AI_MIN_SHOOT_DELAY: 0.5,
     // Simulation settings
     //   Player
-    PLAYER_FORWARD_SPEED: 500,
-    PLAYER_ROTATION_SPEED: 250,
+    PLAYER_FORWARD_SPEED: 250,
+    PLAYER_TURBO_FORWARD_SPEED: 400,
+    PLAYER_ROTATION_SPEED: 200,
     PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
     PLAYER_MASS: 10,
     //   Projectile
-    PROJECTILE_SPEED: 1000,
+    PROJECTILE_SPEED: 500,
     PROJECTILE_DAMAGE: 1,
-    PROJECTILE_ENABLE_TELEPORT: false,
-    PROJECTILE_MASS: 1.5,
+    PROJECTILE_ENABLE_TELEPORT: true,
+    PROJECTILE_MASS: 5,
+    PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
     //   Obstacle
-    OBSTACLE_MAX_SPEED: 750,
+    OBSTACLE_MAX_SPEED: 375,
     OBSTACLE_HIT_DAMAGE: 10,
     OBSTACLE_MASS: 15,
+    OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
 };
 
 const hudFrames = {
@@ -111,3 +272,6 @@ appView.scale();
 window.onresize = debounce(() => {
     appView.scale();
 }, 200);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).app = app;

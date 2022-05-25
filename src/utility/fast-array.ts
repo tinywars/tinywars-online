@@ -39,9 +39,6 @@ export class FastArray<T> implements Iterable<T> {
 
         this.size--;
 
-        // No need to swap anything if there was only 1 item
-        if (this.size === 0) return;
-
         // Swap last item with the removed one
         const tmp = this.items[index];
         this.items[index] = this.items[this.size];
@@ -70,7 +67,7 @@ export class FastArray<T> implements Iterable<T> {
     }
 
     // Implementing Iterable<T>
-    [Symbol.iterator](): Iterator<T, any, undefined> {
+    [Symbol.iterator](): Iterator<T, T, undefined> {
         let index = 0;
         return {
             next: () => ({
@@ -83,4 +80,24 @@ export class FastArray<T> implements Iterable<T> {
     forEach(cb: (item: T, index: number) => void) {
         for (let i = 0; i < this.size; i++) cb(this.items[i], i);
     }
+
+    filter(condition: (a: T) => boolean): T[] {
+        const result: T[] = [];
+        this.forEach((item: T) => {
+            if (condition(item)) result.push(item);
+        });
+        return result;
+    }
+}
+
+export function forEachPairOf<T1, T2>(
+    arr1: FastArray<T1>,
+    arr2: FastArray<T2>,
+    fn: (e1: T1, e2: T2) => void,
+) {
+    arr1.forEach((e1) => {
+        arr2.forEach((e2) => {
+            fn(e1, e2);
+        });
+    });
 }

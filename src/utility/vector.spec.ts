@@ -26,6 +26,12 @@ describe("Vector", () => {
             expect(v1.toString()).to.equal("[-10, -55]");
             expect(zeroV.toString()).to.equal("[0, 0]");
         });
+
+        it("Correctly produces out of view vector", () => {
+            const v = Vector.outOfView();
+            expect(v.x).to.be.lessThan(0);
+            expect(v.y).to.be.lessThan(0);
+        });
     });
 
     describe("Rotations and angles", () => {
@@ -33,12 +39,16 @@ describe("Vector", () => {
         const v2 = new Vector(1, 1);
         const v3 = new Vector(1, 0);
         const v4 = new Vector(-1, 1);
+        const v5 = new Vector(0, 1);
+        const v6 = new Vector(-1, 0);
 
         it("correctly computes angle", () => {
             expect(v1.toAngle()).to.equal(270);
             expect(v2.toAngle()).to.equal(45);
             expect(v3.toAngle()).to.equal(0);
             expect(v4.toAngle()).to.equal(135);
+            expect(v5.toAngle()).to.equal(90);
+            expect(v6.toAngle()).to.equal(180);
         });
 
         it("correctly sets rotation", () => {
@@ -83,8 +93,26 @@ describe("Vector", () => {
         });
 
         it("can be limited to maximum size", () => {
-            v1.limit(10);
-            expect(v1.getSize()).to.be.approximately(10, 0.001);
+            const vcopy = v1.copy();
+            vcopy.limit(10);
+            expect(vcopy.getSize()).to.be.approximately(10, 0.001);
+        });
+
+        it("does not limit if not necessary", () => {
+            const vcopy = v1.copy();
+            vcopy.limit(1000);
+            expect(vcopy.x).to.equal(-10);
+            expect(vcopy.y).to.equal(-55);
         });
     });
+
+    [new Vector(-266, 583), new Vector(1, 1), new Vector(0, -10)].forEach(
+        (v) => {
+            it(`Correctly constructs from polar coordinates |${v.toString()}| = ${v.getSize()}, alfa = ${v.toAngle()}`, () => {
+                const v2 = Vector.fromPolar(v.toAngle(), v.getSize());
+                expect(v2.x).to.be.approximately(v.x, 0.001);
+                expect(v2.y).to.be.approximately(v.y, 0.001);
+            });
+        },
+    );
 });
