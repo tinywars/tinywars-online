@@ -110,7 +110,9 @@ export class CollisionMediator {
                 ),
         );
         context.eventQueue.add(eventDestroyProjectile(projectile.id));
-        context.eventEmitter.emit("RockWasHit");
+        context.eventEmitter.emit(
+            obstacle.isWreck() ? "WreckWasHit" : "RockWasHit",
+        );
     }
 
     private static resolvePlayerWithObstacleCollision(
@@ -162,5 +164,7 @@ export class CollisionMediator {
             diff.getSize();
         obstacle1.getCollider().move(diff.getScaled(k));
         obstacle2.getCollider().move(diff.getScaled(k).getInverted());
+
+        context.eventEmitter.emit("ObstacleBounced");
     }
 }

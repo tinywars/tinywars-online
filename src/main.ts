@@ -16,6 +16,8 @@ import soundLaser1Url from "../assets/sounds/laser1.wav";
 import soundLaser2Url from "../assets/sounds/laser3.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundRockHitUrl from "../assets/sounds/rockhit.wav";
+import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
+import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
 import soundExplosionUrl from "../assets/sounds/explosion.wav";
 import soundTurboUrl from "../assets/sounds/boost1.wav";
 import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
@@ -38,13 +40,15 @@ const jukebox = new Jukebox([
 jukebox.setVolume(0.5);
 
 enum Sounds {
-    Laser1 = 0,
-    Laser2,
-    ShipHit,
-    RockHit,
-    Explosion,
-    Powerup,
-    Turbo,
+    Laser1 = "Laser1",
+    Laser2 = "Laser2",
+    ShipHit = "ShipHit",
+    RockHit = "RockHit",
+    WreckHit = "WreckHit",
+    ObstacleBounce = "ObstacleBounce",
+    Explosion = "4",
+    Powerup = "5",
+    Turbo = "6",
 }
 
 const soundPlayer = new SoundPlayer({
@@ -52,6 +56,8 @@ const soundPlayer = new SoundPlayer({
     [Sounds.Laser2]: soundLaser2Url,
     [Sounds.ShipHit]: soundShipHitUrl,
     [Sounds.RockHit]: soundRockHitUrl,
+    [Sounds.WreckHit]: soundWreckHitUrl,
+    [Sounds.ObstacleBounce]: soundRockHit2Url,
     [Sounds.Explosion]: soundExplosionUrl,
     [Sounds.Powerup]: soundTurboUrl,
     [Sounds.Turbo]: soundPowerupPickedUrl,
@@ -79,8 +85,14 @@ gameEventEmitter
     .addListener("PlayerUsedTurbo", () => {
         soundPlayer.playSound(Sounds.Turbo);
     })
+    .addListener("WreckWasHit", () => {
+        soundPlayer.playSound(Sounds.WreckHit);
+    })
+    .addListener("ObstacleBounced", () => {
+        soundPlayer.playSound(Sounds.ObstacleBounce);
+    })
     .addListener("GameStarted", () => {
-        //jukebox.playNextSong();
+        jukebox.playNextSong();
     })
     .addListener("GameStopped", () => {
         jukebox.stop();

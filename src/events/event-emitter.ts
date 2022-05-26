@@ -13,6 +13,7 @@ export type GameEvent =
     | "PlayerWasDestroyed"
     | "RockWasHit"
     | "WreckWasHit"
+    | "ObstacleBounced"
     | "PowerupPickedUp";
 
 export class GameEventEmitter extends EventEmitter {

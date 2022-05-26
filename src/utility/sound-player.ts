@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { Howl, Howler } from "howler";
 
-export class SoundPlayer<T extends number> {
+export class SoundPlayer<T extends string> {
     private sounds: Map<T, Howl>;
 
     constructor(private configuration: Record<T, string>) {
@@ -13,10 +13,13 @@ export class SoundPlayer<T extends number> {
                     src: this.configuration[key],
                 }),
             );
+            console.log(key + " set");
         }
     }
 
     playSound(id: T) {
+        console.log(this.sounds);
+        console.log(id);
         this.sounds.get(id).play();
     }
 

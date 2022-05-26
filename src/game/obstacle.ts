@@ -8,6 +8,7 @@ import { sanitizeAngle } from "../utility/math";
 
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
+    private wreck = false;
 
     constructor(
         readonly id: number,
@@ -34,7 +35,8 @@ export class Obstacle extends GameObject {
         this.collider.setPosition(options.position);
         this.forward = options.forward;
 
-        if (options.playerIndex > -1) {
+        this.wreck = options.playerIndex > -1;
+        if (this.isWreck()) {
             this.animationEngine.setState("wreck" + options.playerIndex);
         }
     }
@@ -54,5 +56,9 @@ export class Obstacle extends GameObject {
             angle: this.rotation,
             frame: this.animationEngine.getCurrentFrame(),
         };
+    }
+
+    isWreck(): boolean {
+        return this.wreck;
     }
 }
