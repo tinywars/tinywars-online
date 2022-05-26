@@ -1,4 +1,4 @@
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 
 export class Jukebox {
     private songs: Howl[] = [];
