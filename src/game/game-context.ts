@@ -4,6 +4,7 @@ import { FastArray } from "../utility/fast-array";
 import { Projectile } from "./projectile";
 import { Obstacle } from "./obstacle";
 import { GameSettings } from "./game-settings";
+import { GameEventEmitter } from "../events/event-emitter";
 
 export interface GameContext {
     settings: GameSettings;
@@ -13,5 +14,6 @@ export interface GameContext {
     obstacles: FastArray<Obstacle>;
 
     eventQueue: EventQueue;
+    eventEmitter: GameEventEmitter;
     log: (msg: string) => void;
 }

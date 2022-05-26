@@ -13,9 +13,9 @@ import { Obstacle } from "../game/obstacle";
 import { Projectile } from "../game/projectile";
 import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
-import { Jukebox } from "../utility/jukebox";
 import { PRNG } from "../utility/prng";
 import { CollisionMediator } from "../game/collision-mediator";
+import { GameEventEmitter } from "../events/event-emitter";
 
 export class App {
     private gameContext: GameContext;
@@ -25,9 +25,9 @@ export class App {
     private endgame = false;
     private timeTillRestart = 0;
     private winnerName = "";
-    private jukebox: Jukebox;
 
     constructor(
+        private eventEmitter: GameEventEmitter,
         private keyboardState: Record<string, boolean>,
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
@@ -39,16 +39,6 @@ export class App {
 
         this.controllers = [];
         this.aiBrains = [];
-
-        this.jukebox = new Jukebox([
-            "../src/assets/track1.ogg",
-            "src/assets/track2.ogg",
-            "src/assets/track3.ogg",
-            "src/assets/track4.ogg",
-            "src/assets/track5.ogg",
-        ]);
-        this.jukebox.setVolume(0.5);
-        this.jukebox.playNextSong();
 
         for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
             this.controllers.push(
@@ -98,6 +88,7 @@ export class App {
                     ),
             ),
             eventQueue: eventQueue,
+            eventEmitter: this.eventEmitter,
 
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -118,6 +109,7 @@ export class App {
         }
 
         this.reset();
+        this.eventEmitter.emit("GameStarted");
     }
 
     start(fps: number) {

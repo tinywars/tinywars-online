@@ -32,12 +32,14 @@ export function eventSpawnProjectile(options: {
     position: Vector;
     direction: Vector;
     damageMultiplier: number;
+    playerId: number;
 }) {
     const e: GameEvent = {
         name: "SpawnProjectileEvent",
         process: (context: GameContext): void => {
             if (!context.projectiles.grow()) return;
 
+            context.eventEmitter.emit("ProjectileSpawned", options.playerId);
             context.projectiles.getLastItem().spawn({
                 position: options.position,
                 forward: options.direction.getScaled(
@@ -81,6 +83,7 @@ export function eventDestroyPlayer(index: number) {
                 context.players.getItem(i).despawn();
                 context.players.popItem(i);
             });
+            context.eventEmitter.emit("PlayerWasDestroyed");
         },
     };
     return e;

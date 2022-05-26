@@ -147,6 +147,7 @@ export class Player extends GameObject {
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,
+                playerId: this.id,
             }),
         );
         this.energy--;
@@ -167,5 +168,6 @@ export class Player extends GameObject {
             .getUnit()
             .getScaled(context.settings.PLAYER_TURBO_FORWARD_SPEED);
         this.energy--;
+        context.eventEmitter.emit("PlayerUsedTurbo");
     }
 }
