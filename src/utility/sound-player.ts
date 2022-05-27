@@ -1,3 +1,4 @@
+import { assert } from "chai";
 import { Howl } from "howler";
 
 export class SoundPlayer<T extends string> {
@@ -12,11 +13,21 @@ export class SoundPlayer<T extends string> {
                     src: this.configuration[key],
                 }),
             );
-            console.log(key + " set");
         }
     }
 
     playSound(id: T) {
         this.sounds.get(id)?.play();
+    }
+
+    setVolume(level: number) {
+        assert(
+            0 <= level && level <= 1,
+            "Volume level is outside of <0, 1> interval",
+        );
+
+        for (const key of this.sounds.keys()) {
+            this.sounds.get(key)?.volume(level);
+        }
     }
 }
