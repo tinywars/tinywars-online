@@ -53,6 +53,15 @@ const animations = {
         wreck2: [new AnimationFrame(42, 83, 40, 40)],
         wreck3: [new AnimationFrame(42, 124, 40, 40)],
     },
+    powerup: {
+        idle0: [new AnimationFrame(1, 247, 20, 20)],
+        idle1: [new AnimationFrame(42, 247, 20, 20)],
+        idle2: [new AnimationFrame(83, 247, 20, 20)],
+        idle3: [new AnimationFrame(124, 247, 20, 20)],
+        idle4: [new AnimationFrame(165, 247, 20, 20)],
+        idle5: [new AnimationFrame(206, 247, 20, 20)],
+        idle6: [new AnimationFrame(247, 247, 20, 20)],
+    },
 };
 
 const player1controls: PlayerControls = {
@@ -250,6 +259,12 @@ const gameSettings: GameSettings = {
     OBSTACLE_HIT_DAMAGE: 10,
     OBSTACLE_MASS: 15,
     OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
+    //   Powerup
+    POWERUP_MIN_SPAWN_DELAY: 5,
+    POWERUP_MAX_SPAWN_DELAY: 10,
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
+    POWERUP_ROTATION_SPEED: 64,
 };
 
 const hudFrames = {

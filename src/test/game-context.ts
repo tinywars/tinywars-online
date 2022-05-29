@@ -4,6 +4,7 @@ import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
 import { Obstacle } from "../game/obstacle";
 import { Player } from "../game/player";
+import { Powerup } from "../game/powerup";
 import { Projectile } from "../game/projectile";
 import { AnimationEngine } from "../utility/animation";
 import { Controller } from "../utility/controller";
@@ -11,6 +12,7 @@ import { FastArray } from "../utility/fast-array";
 import {
     obstacleAnimationMock,
     playerAnimationMock,
+    powerupAnimationMock,
     projectileAnimationMock,
 } from "./animation-frame";
 
@@ -18,6 +20,7 @@ export function getMockGameContext(options: {
     numPlayers: number;
     numProjectiles: number;
     numObstacles: number;
+    numPowerups: number;
     controllers: Controller[];
     settings: GameSettings;
     eventQueue: EventQueue;
@@ -53,6 +56,14 @@ export function getMockGameContext(options: {
                 new Obstacle(
                     index,
                     new AnimationEngine(obstacleAnimationMock, 2),
+                ),
+        ),
+        powerups: new FastArray<Powerup>(
+            options.numPowerups,
+            (index) =>
+                new Powerup(
+                    index,
+                    new AnimationEngine(powerupAnimationMock, 2),
                 ),
         ),
         eventQueue: options.eventQueue,

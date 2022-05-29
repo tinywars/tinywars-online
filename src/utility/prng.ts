@@ -29,4 +29,8 @@ export class PRNG {
     static randomRangedInt(min: number, max: number): number {
         return (PRNG.randomInt() % (max - min)) + min;
     }
+
+    static randomRangedFloat(min: number, max: number): number {
+        return PRNG.randomFloat() * (max - min) + min;
+    }
 }

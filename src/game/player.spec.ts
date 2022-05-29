@@ -34,6 +34,7 @@ describe("Player", () => {
             numPlayers: 1,
             numProjectiles: 64,
             numObstacles: 8,
+            numPowerups: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,
@@ -199,6 +200,20 @@ describe("Player", () => {
                     settings.PLAYER_FORWARD_SPEED,
                 );
             });
+        });
+    });
+
+    describe("#give", () => {
+        it("adds life on PowerupType.Heal", () => {
+            expect(true).to.be.false;
+        });
+
+        it("adds two energy on PowerupType.Energy", () => {
+            expect(true).to.be.false;
+        });
+
+        it("adds four energy on PowerupType.DoubleEnergy", () => {
+            expect(true).to.be.false;
         });
     });
 });

@@ -23,6 +23,7 @@ describe("CollisionMediator", () => {
             numPlayers: 1,
             numProjectiles: 64,
             numObstacles: 8,
+            numPowerups: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,
@@ -282,6 +283,16 @@ describe("CollisionMediator", () => {
                         gameContext.obstacles.getItem(1).getCollider(),
                     ),
             ).to.be.false;
+        });
+    });
+
+    describe("player <-> powerup collisions", () => {
+        it("does nothing if there are no collisions", () => {
+            expect(true).to.be.false;
+        });
+
+        it("destroys powerup and applies it to player", () => {
+            expect(true).to.be.false;
         });
     });
 });
