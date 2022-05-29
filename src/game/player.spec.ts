@@ -8,6 +8,7 @@ import { GameContext } from "./game-context";
 import { GameSettings } from "./game-settings";
 import { getMockSettings } from "../test/game-settings";
 import { getMockGameContext } from "../test/game-context";
+import { PowerupType } from "./powerup";
 
 describe("Player", () => {
     let controller: AiPoweredController;
@@ -204,16 +205,31 @@ describe("Player", () => {
     });
 
     describe("#give", () => {
+        const INITIAL_ENERGY = 2;
+        const INITIAL_HEALTH = 1;
+
+        beforeEach(() => {
+            player.spawn({
+                position: new Vector(42, 69),
+                initialHealth: INITIAL_HEALTH,
+                initialEnergy: INITIAL_ENERGY,
+                maxEnergy: 3,
+            });
+        });
+
         it("adds life on PowerupType.Heal", () => {
-            expect(true).to.be.false;
+            player.give(PowerupType.Heal);
+            expect(player.getHealth()).to.equal(INITIAL_HEALTH + 1);
         });
 
         it("adds two energy on PowerupType.Energy", () => {
-            expect(true).to.be.false;
+            player.give(PowerupType.Energy);
+            expect(player.getEnergy()).to.equal(INITIAL_ENERGY + 2);
         });
 
         it("adds four energy on PowerupType.DoubleEnergy", () => {
-            expect(true).to.be.false;
+            player.give(PowerupType.DoubleEnergy);
+            expect(player.getEnergy()).to.equal(INITIAL_ENERGY + 4);
         });
     });
 });
