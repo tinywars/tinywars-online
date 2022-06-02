@@ -19,6 +19,8 @@ export interface GameSettings {
     // AI Settings
     AI_MAX_SHOOT_DELAY: number;
     AI_MIN_SHOOT_DELAY: number;
+    AI_POWERUP_ACTIONABLE_RADIUS: number;
+    AI_POWERUP_IGNORE_DELAY: number;
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: number;

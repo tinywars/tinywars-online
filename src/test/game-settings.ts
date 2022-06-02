@@ -19,6 +19,8 @@ export function getMockSettings(): GameSettings {
         // AI Settings
         AI_MAX_SHOOT_DELAY: 1.5,
         AI_MIN_SHOOT_DELAY: 0.5,
+        AI_POWERUP_ACTIONABLE_RADIUS: 400,
+        AI_POWERUP_IGNORE_DELAY: 0.5,
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 250,

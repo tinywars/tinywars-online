@@ -123,7 +123,6 @@ export function eventSpawnPowerup() {
                         return r < value;
                     },
                 );
-            console.log(`${r} -> ${type}`);
 
             context.powerups.getLastItem().spawn({
                 position: new Vector(

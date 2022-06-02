@@ -109,10 +109,7 @@ export class App {
                 new AiBrain(
                     this.controllers[i] as AiPoweredController,
                     this.gameContext.players.getItem(i),
-                    {
-                        MIN_SHOOT_DELAY: this.settings.AI_MIN_SHOOT_DELAY,
-                        MAX_SHOOT_DELAY: this.settings.AI_MAX_SHOOT_DELAY,
-                    },
+                    this.gameContext,
                 ),
             );
         }

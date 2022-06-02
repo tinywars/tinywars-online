@@ -13,10 +13,11 @@ import { If, Do, DoNothing } from "./fsm-builder";
 import { Timer } from "../utility/timer";
 import { CircleCollider } from "../utility/circle-collider";
 import { PRNG } from "../utility/prng";
+import { Powerup, PowerupType } from "../game/powerup";
 
 export enum State {
     Start,
-    EndgameCheck,
+    //EndgameCheck,
     PickingTarget,
     TrackingAndShooting,
     StartEvasion,
@@ -24,6 +25,10 @@ export enum State {
     FinishEvasion,
     Drifting,
     Shoot,
+    PickTargetPowerup,
+    GoingAfterPowerup,
+    PowerupUnattainable,
+    TurboForward,
 }
 
 enum TargetingStrategy {
@@ -35,6 +40,7 @@ enum ETimer {
     Fire,
     GoForward,
     Log,
+    IgnorePowerups,
 }
 
 export function not(condition: FsmTransitionCondition): FsmTransitionCondition {
@@ -66,51 +72,59 @@ export class AiBrain {
     private fsm: Fsm;
     private targetingStrategy: TargetingStrategy = TargetingStrategy.Closest;
     private targetPlayer: Player;
+    private targetPowerup: Powerup;
     private ANGLE_DIFF_THRESHOLD = 5;
 
     constructor(
         private controller: AiPoweredController,
         private myPlayer: Player,
-        options: {
-            MIN_SHOOT_DELAY: number;
-            MAX_SHOOT_DELAY: number;
-        },
+        private context: GameContext,
     ) {
         const states = {
             /* eslint-disable */
             [State.Start]:
-                 Do(this.goForward)
-                .thenGoTo(State.PickingTarget),
-            [State.EndgameCheck]:
-                 If(this.isEverybodyElseDead).goTo(State.Drifting)
-                .otherwiseDo(nothing).thenGoTo(State.PickingTarget),
+                Do(this.goForward).thenGoTo(State.PickingTarget),
             [State.PickingTarget]:
                 If(this.isEverybodyElseDead).goTo(State.Drifting)
                 .otherwiseDo(this.pickTargetPlayer).thenGoTo(State.TrackingAndShooting),
             [State.TrackingAndShooting]: 
-                 If(this.isCollisionImminent).goTo(State.StartEvasion)
+                If(this.isCollisionImminent).goTo(State.StartEvasion)
                 .orIf(this.isEverybodyElseDead).goTo(State.Drifting)
-                .orIf(this.isTargetDead).goTo(State.EndgameCheck) // then to PickingTarget
+                .orIf(and(this.isPowerupInVicinity, this.timerEnded(ETimer.IgnorePowerups))).goTo(State.PickTargetPowerup)
+                .orIf(this.isTargetDead).goTo(State.PickingTarget) // then to PickingTarget
                 .orIf(and(this.timerEnded(ETimer.Fire),this.isCloseEnoughToTarget)).goTo(State.Shoot)
                 .orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
                 .otherwiseDo(this.trackTarget).andLoop(),
             [State.Shoot]:
                 Do(this.shoot).thenGoTo(State.TrackingAndShooting),
             [State.StartEvasion]:
-                 Do(this.pickEvasionAngle)
-                .thenGoTo(State.Evading),
+                Do(this.pickEvasionAngle).thenGoTo(State.Evading),
             [State.Evading]: 
-                 If(this.isEvasionAngleAchieved).goTo(State.FinishEvasion)
+                If(this.isEvasionAngleAchieved).goTo(State.FinishEvasion)
                 .otherwiseDo(this.rotateTowardsTarget).andLoop(),
             [State.FinishEvasion]:
-                 Do(this.performEvasion)
-                .thenGoTo(State.TrackingAndShooting),
+                Do(this.performEvasion).thenGoTo(State.TrackingAndShooting),
+            [State.PickTargetPowerup]:
+                Do(this.pickTargetPowerup).thenGoTo(State.GoingAfterPowerup),
+            [State.GoingAfterPowerup]:
+                // TODO: isCollisionImminentBeforeReachingPowerup
+                If(this.isCollisionImminent).goTo(State.PowerupUnattainable)
+                .orIf(not(this.isTargetPowerupAvailable)).goTo(State.PickingTarget)
+                //.orIf(this.isTargetAngleAchieved).goTo(State.TurboForward)
+                .otherwiseDo(this.trackTargetPowerup).andLoop(),
+            [State.PowerupUnattainable]:
+                Do(this.handleBlockedPowerup).thenGoTo(State.StartEvasion),
+            // TODO: no collision in look dir
+            [State.TurboForward]:
+                Do(this.goForward).thenGoTo(State.GoingAfterPowerup),
             [State.Drifting]: DoNothing(),
             /* eslint-enable */
         };
         this.fsm = new Fsm(states, State.Start);
         this.targetPlayer = this.myPlayer; // just to satisfy linter
+        this.targetPowerup = this.context.powerups.getItem(0); // just to satisfy linter
 
+        // TODO: read fire delays from context settings
         if (this.myPlayer.id % 2 === 1) {
             this.targetingStrategy = TargetingStrategy.Weakest;
         }
@@ -119,11 +133,15 @@ export class AiBrain {
             [ETimer.Fire]: new Timer(
                 () =>
                     PRNG.randomFloat() *
-                        (options.MAX_SHOOT_DELAY - options.MIN_SHOOT_DELAY) +
-                    options.MIN_SHOOT_DELAY,
+                        (this.context.settings.AI_MAX_SHOOT_DELAY -
+                            this.context.settings.AI_MIN_SHOOT_DELAY) +
+                    this.context.settings.AI_MIN_SHOOT_DELAY,
             ),
             [ETimer.GoForward]: new Timer(() => PRNG.randomFloat() * 3 + 1.5),
             [ETimer.Log]: new Timer(() => 1),
+            [ETimer.IgnorePowerups]: new Timer(
+                () => this.context.settings.AI_POWERUP_IGNORE_DELAY,
+            ),
         };
     }
 
@@ -248,6 +266,12 @@ export class AiBrain {
         return this.targetPlayer.getHealth() <= 0;
     };
 
+    private isTargetPowerupAvailable = (context: GameContext): boolean => {
+        for (const p of context.powerups)
+            if (p.id == this.targetPowerup.id) return true;
+        return false;
+    };
+
     private isCloseEnoughToTarget = (): boolean => {
         return (
             Vector.diff(
@@ -275,7 +299,15 @@ export class AiBrain {
     };
 
     private isTargetAngleAchieved = (): boolean => {
-        return this.getDiffFromTargetAngle() < this.ANGLE_DIFF_THRESHOLD;
+        return (
+            GameMath.radialDifference(
+                Vector.diff(
+                    this.targetPlayer.getCoords().position,
+                    this.myPlayer.getCoords().position,
+                ).toAngle(),
+                this.myPlayer.getCoords().angle,
+            ) < this.ANGLE_DIFF_THRESHOLD
+        );
     };
 
     private isEvasionAngleAchieved = (): boolean => {
@@ -301,6 +333,31 @@ export class AiBrain {
 
         if (result) console.log(this.myPlayer.id + ": Collision imminent");
         return result;
+    };
+
+    private isPowerupInVicinity = (context: GameContext) => {
+        for (const p of context.powerups) {
+            const distance = Vector.diff(
+                this.myPlayer.getCoords().position,
+                p.getCoords().position,
+            ).getSize();
+
+            if (p.getType() === PowerupType.Heal) return true; // always go after healing
+            if (distance < context.settings.AI_POWERUP_ACTIONABLE_RADIUS)
+                return true;
+        }
+
+        return false;
+    };
+
+    private canShoot = () => {
+        // NOTE: There should be call to isTargetAngleAchieved
+        // but it doesn not work as expected, dunno why
+        return (
+            this.timerEnded(ETimer.Fire) &&
+            this.isTargetAngleAchieved() &&
+            this.isCloseEnoughToTarget()
+        );
     };
 
     /* FSM LOGIC */
@@ -333,6 +390,22 @@ export class AiBrain {
         this.rotateTowardsTarget();
     };
 
+    private trackTargetPowerup = () => {
+        this.targetObject(this.myPlayer, this.targetPowerup);
+        this.rotateTowardsTarget();
+
+        // TODO: if angle hasn't changed, don't press Up, but rather turbo (for just one frame)
+        this.controller.pressKey(KeyCode.Up);
+    };
+
+    private handleBlockedPowerup = () => {
+        // Shoot in the direction we're facing
+        // Maybe it'll scare other players from taking it, maybe it'll
+        // move the obstacle in our way
+        this.controller.pressKey(KeyCode.Shoot);
+        this.timers[ETimer.IgnorePowerups].reset();
+    };
+
     private pickTargetPlayer = (context: GameContext) => {
         const otherPlayers = this.getOtherPlayers(context.players);
         assert(
@@ -348,6 +421,25 @@ export class AiBrain {
                 this.targetPlayer = this.getWeakestPlayer(otherPlayers);
                 break;
         }
+    };
+
+    private pickTargetPowerup = (context: GameContext) => {
+        let bestDistance = Infinity;
+        context.powerups.forEach((p) => {
+            const distance = Vector.diff(
+                this.myPlayer.getCoords().position,
+                p.getCoords().position,
+            ).getSize();
+
+            if (
+                distance < bestDistance ||
+                (p.getType() == PowerupType.Heal &&
+                    this.targetPowerup.getType() != PowerupType.Heal)
+            ) {
+                this.targetPowerup = p;
+                bestDistance = distance;
+            }
+        });
     };
 
     private pickEvasionAngle = () => {
