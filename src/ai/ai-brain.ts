@@ -17,7 +17,6 @@ import { Powerup, PowerupType } from "../game/powerup";
 
 export enum State {
     Start,
-    //EndgameCheck,
     PickingTarget,
     TrackingAndShooting,
     StartEvasion,
@@ -28,7 +27,6 @@ export enum State {
     PickTargetPowerup,
     GoingAfterPowerup,
     PowerupUnattainable,
-    TurboForward,
 }
 
 enum TargetingStrategy {
@@ -114,9 +112,6 @@ export class AiBrain {
                 .otherwiseDo(this.trackTargetPowerup).andLoop(),
             [State.PowerupUnattainable]:
                 Do(this.handleBlockedPowerup).thenGoTo(State.StartEvasion),
-            // TODO: no collision in look dir
-            [State.TurboForward]:
-                Do(this.goForward).thenGoTo(State.GoingAfterPowerup),
             [State.Drifting]: DoNothing(),
             /* eslint-enable */
         };
