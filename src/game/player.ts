@@ -12,6 +12,7 @@ import { GameObject } from "./game-object";
 import { AnimationEngine } from "../utility/animation";
 import { Coords } from "../utility/coords";
 import { EventQueue } from "../events/event-queue";
+import { PowerupType } from "./powerup";
 
 export class Player extends GameObject {
     protected static RADIUS = 10;
@@ -92,6 +93,22 @@ export class Player extends GameObject {
                     index: this.id,
                 }),
             );
+        }
+    }
+
+    give(powerup: PowerupType) {
+        switch (powerup) {
+            case PowerupType.Heal:
+                this.health++;
+                break;
+            case PowerupType.Energy:
+                this.energy = Math.floor(this.energy + 2);
+                break;
+            case PowerupType.DoubleEnergy:
+                this.energy = Math.floor(this.energy + 4);
+                break;
+            default:
+                break;
         }
     }
 

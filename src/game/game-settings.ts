@@ -37,4 +37,10 @@ export interface GameSettings {
     OBSTACLE_HIT_DAMAGE: number;
     OBSTACLE_MASS: number;
     OBSTACLE_BOUNCE_SLOW_FACTOR: number; // how much of the obstacle forward vector is preserved after bounce
+    //   Powerups
+    POWERUP_MIN_SPAWN_DELAY: number;
+    POWERUP_MAX_SPAWN_DELAY: number;
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: number;
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION: number[];
+    POWERUP_ROTATION_SPEED: number;
 }

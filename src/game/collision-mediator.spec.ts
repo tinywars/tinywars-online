@@ -8,6 +8,7 @@ import { CollisionMediator } from "./collision-mediator";
 import { GameContext } from "./game-context";
 import { GameSettings } from "./game-settings";
 import { KeyCode } from "./key-codes";
+import { PowerupType } from "../game/powerup";
 
 describe("CollisionMediator", () => {
     let controller: AiPoweredController;
@@ -23,6 +24,7 @@ describe("CollisionMediator", () => {
             numPlayers: 1,
             numProjectiles: 64,
             numObstacles: 8,
+            numPowerups: 1,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,
@@ -282,6 +284,59 @@ describe("CollisionMediator", () => {
                         gameContext.obstacles.getItem(1).getCollider(),
                     ),
             ).to.be.false;
+        });
+    });
+
+    describe("player <-> powerup collisions", () => {
+        const INITIAL_HEALTH = 1;
+
+        beforeEach(() => {
+            gameContext.players.grow();
+            gameContext.powerups.grow();
+        });
+
+        it("does nothing if there are no collisions", () => {
+            gameContext.players.getItem(0).spawn({
+                position: Vector.zero(),
+                maxEnergy: 1,
+                initialEnergy: 1,
+                initialHealth: INITIAL_HEALTH,
+            });
+
+            gameContext.powerups.getItem(0).spawn({
+                position: Vector.outOfView(),
+                type: PowerupType.Heal,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(gameContext.players.getItem(0).getHealth()).to.equal(
+                INITIAL_HEALTH,
+            );
+            expect(gameContext.powerups.getSize()).to.equal(1);
+        });
+
+        it("destroys powerup and applies it to player", () => {
+            gameContext.players.getItem(0).spawn({
+                position: Vector.zero(),
+                maxEnergy: 1,
+                initialEnergy: 1,
+                initialHealth: INITIAL_HEALTH,
+            });
+
+            gameContext.powerups.getItem(0).spawn({
+                position: Vector.zero(),
+                type: PowerupType.Heal,
+            });
+
+            CollisionMediator.processCollisions(gameContext);
+            eventQueue.process(gameContext);
+
+            expect(gameContext.players.getItem(0).getHealth()).to.equal(
+                INITIAL_HEALTH + 1,
+            );
+            expect(gameContext.powerups.getSize()).to.equal(0);
         });
     });
 });

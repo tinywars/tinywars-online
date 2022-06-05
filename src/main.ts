@@ -2,7 +2,6 @@
 import { debounce } from "lodash";
 import { App } from "./app/app";
 import "./style.css";
-import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
 import { AnimationFrame } from "./utility/animation";
 import { PlayerControls, PlayerSettings } from "./game/player-settings";
@@ -28,7 +27,6 @@ import musicTrack4 from "../assets/music/track4.ogg";
 import musicTrack5 from "../assets/music/track5.ogg";
 
 const FPS = 60;
-const USE_NATIVE_RENDERER = true;
 
 const jukebox = new Jukebox([
     musicTrack1,
@@ -137,6 +135,15 @@ const animations = {
         wreck1: [new AnimationFrame(42, 42, 40, 40)],
         wreck2: [new AnimationFrame(42, 83, 40, 40)],
         wreck3: [new AnimationFrame(42, 124, 40, 40)],
+    },
+    powerup: {
+        idle0: [new AnimationFrame(1, 247, 20, 20)],
+        idle1: [new AnimationFrame(42, 247, 20, 20)],
+        idle2: [new AnimationFrame(83, 247, 20, 20)],
+        idle3: [new AnimationFrame(124, 247, 20, 20)],
+        idle4: [new AnimationFrame(165, 247, 20, 20)],
+        idle5: [new AnimationFrame(206, 247, 20, 20)],
+        idle6: [new AnimationFrame(247, 247, 20, 20)],
     },
 };
 
@@ -335,6 +342,12 @@ const gameSettings: GameSettings = {
     OBSTACLE_HIT_DAMAGE: 10,
     OBSTACLE_MASS: 15,
     OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
+    //   Powerup
+    POWERUP_MIN_SPAWN_DELAY: 5,
+    POWERUP_MAX_SPAWN_DELAY: 10,
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
+    POWERUP_ROTATION_SPEED: 64,
 };
 
 const hudFrames = {
@@ -345,13 +358,11 @@ const hudFrames = {
 const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
 app.start(FPS);
 
-const appView = USE_NATIVE_RENDERER
-    ? new AppViewCanvas(
-          app,
-          document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-          hudFrames,
-      )
-    : new AppView(app, document.body.querySelector("#app")!);
+const appView = new AppViewCanvas(
+    app,
+    document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+    hudFrames,
+);
 appView.scale();
 
 window.onresize = debounce(() => {

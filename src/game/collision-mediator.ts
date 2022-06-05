@@ -1,9 +1,13 @@
-import { eventDestroyProjectile } from "../events/game-event";
+import {
+    eventDestroyPowerup,
+    eventDestroyProjectile,
+} from "../events/game-event";
 import { forEachPairOf } from "../utility/fast-array";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { Obstacle } from "./obstacle";
 import { Player } from "./player";
+import { Powerup } from "./powerup";
 import { Projectile } from "./projectile";
 
 export class CollisionMediator {
@@ -12,6 +16,7 @@ export class CollisionMediator {
         this.handleProjectileCollisionsWithObstacles(context);
         this.handlePlayerCollisionsWithObstacles(context);
         this.handleObstacleCollisionsWithObstacles(context);
+        this.handlePlayerCollisionsWithPowerups(context);
     }
 
     private static handleProjectileCollisionsWithPlayers(context: GameContext) {
@@ -84,6 +89,18 @@ export class CollisionMediator {
                     );
             },
         );
+    }
+
+    private static handlePlayerCollisionsWithPowerups(context: GameContext) {
+        forEachPairOf(context.players, context.powerups, (player, powerup) => {
+            if (player.getCollider().collidesWith(powerup.getCollider())) {
+                this.resolvePlayerWithPowerupCollision(
+                    player,
+                    powerup,
+                    context,
+                );
+            }
+        });
     }
 
     private static resolveProjectileWithPlayerCollision(
@@ -166,5 +183,14 @@ export class CollisionMediator {
         obstacle2.getCollider().move(diff.getScaled(k).getInverted());
 
         context.eventEmitter.emit("ObstacleBounced");
+    }
+
+    private static resolvePlayerWithPowerupCollision(
+        player: Player,
+        powerup: Powerup,
+        context: GameContext,
+    ) {
+        player.give(powerup.getType());
+        context.eventQueue.add(eventDestroyPowerup(powerup.id));
     }
 }

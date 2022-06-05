@@ -5,6 +5,7 @@ import { Projectile } from "./projectile";
 import { Obstacle } from "./obstacle";
 import { GameSettings } from "./game-settings";
 import { GameEventEmitter } from "../events/event-emitter";
+import { Powerup } from "./powerup";
 
 export interface GameContext {
     settings: GameSettings;
@@ -12,6 +13,7 @@ export interface GameContext {
     players: FastArray<Player>;
     projectiles: FastArray<Projectile>;
     obstacles: FastArray<Obstacle>;
+    powerups: FastArray<Powerup>;
 
     eventQueue: EventQueue;
     eventEmitter: GameEventEmitter;

@@ -1,4 +1,6 @@
 import { GameContext } from "../game/game-context";
+import { PowerupType } from "../game/powerup";
+import { PRNG } from "../utility/prng";
 import { Vector } from "../utility/vector";
 
 export interface GameEvent {
@@ -103,6 +105,50 @@ export function eventSpawnWreck(options: {
                 position: options.position,
                 forward: options.forward,
                 playerIndex: options.index,
+            });
+        },
+    };
+    return e;
+}
+
+export function eventSpawnPowerup() {
+    const e: GameEvent = {
+        name: "SpawnPowerupEvent",
+        process: (context: GameContext): void => {
+            if (!context.powerups.grow()) return;
+
+            const r =
+                PRNG.randomInt() %
+                context.settings.POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM;
+            const type =
+                context.settings.POWERUP_SPAWN_CHANCE_DISTRIBUTION.findIndex(
+                    (value): boolean => {
+                        return r < value;
+                    },
+                );
+            console.log(`${r} -> ${type}`);
+
+            context.powerups.getLastItem().spawn({
+                position: new Vector(
+                    PRNG.randomInt() % context.settings.SCREEN_WIDTH,
+                    PRNG.randomInt() % context.settings.SCREEN_HEIGHT,
+                ),
+                type: type as PowerupType,
+            });
+        },
+    };
+    return e;
+}
+
+export function eventDestroyPowerup(index: number) {
+    const e: GameEvent = {
+        name: "DestroyPowerupEvent",
+        process: (context: GameContext): void => {
+            context.powerups.forEach((p, i) => {
+                if (p.id !== index) return;
+
+                context.powerups.getItem(i).despawn();
+                context.powerups.popItem(i);
             });
         },
     };

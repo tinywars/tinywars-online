@@ -131,6 +131,9 @@ export class AppViewCanvas {
         context.obstacles.forEach((o) => {
             this.drawEntity(o.getCoords());
         });
+        context.powerups.forEach((p) => {
+            this.drawEntity(p.getCoords());
+        });
 
         const endgameStatus = this.app.getEndgameStatus();
         if (endgameStatus.endgameTriggered) {
