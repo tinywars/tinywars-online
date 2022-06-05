@@ -2,7 +2,6 @@
 import { debounce } from "lodash";
 import { App } from "./app/app";
 import "./style.css";
-import { AppView } from "./view/app-view";
 import { AppViewCanvas } from "./view-canvas/app-view";
 import { AnimationFrame } from "./utility/animation";
 import { PlayerControls, PlayerSettings } from "./game/player-settings";
@@ -11,7 +10,6 @@ import { KeyCode } from "./game/key-codes";
 import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
 
 const FPS = 60;
-const USE_NATIVE_RENDERER = true;
 
 const keyboardState: Record<string, boolean> = {};
 document.onkeydown = (e) => {
@@ -275,13 +273,11 @@ const hudFrames = {
 const app = new App(keyboardState, animations, gameSettings);
 app.start(FPS);
 
-const appView = USE_NATIVE_RENDERER
-    ? new AppViewCanvas(
-          app,
-          document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-          hudFrames,
-      )
-    : new AppView(app, document.body.querySelector("#app")!);
+const appView = new AppViewCanvas(
+    app,
+    document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+    hudFrames,
+);
 appView.scale();
 
 window.onresize = debounce(() => {
