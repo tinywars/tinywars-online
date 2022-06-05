@@ -5,6 +5,7 @@ import {
 import { forEachPairOf } from "../utility/fast-array";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
+import { GameObject } from "./game-object";
 import { Obstacle } from "./obstacle";
 import { Player } from "./player";
 import { Powerup } from "./powerup";
@@ -142,6 +143,8 @@ export class CollisionMediator {
                         context.settings.OBSTACLE_MASS,
                 ),
         );
+
+        this.nudgeTwoObjectsApartFromEachOther(player, obstacle);
     }
 
     private static resolveObstacleWithObstacleCollision(
@@ -160,23 +163,7 @@ export class CollisionMediator {
         );
         obstacle2.setForward(tmpForward);
 
-        // nudge them apart from each other so they won't become stuck
-        const diff = Vector.diff(
-            obstacle1.getCollider().getPosition(),
-            obstacle2.getCollider().getPosition(),
-        );
-
-        // This is magic constant that says the following:
-        // |diff| + k * |diff| = radius1 + radius2
-        // so if we multiply diff with k, we can vector that has to
-        // be used to nudge obstacles far enough to not be colliding anymore
-        const k =
-            (obstacle1.getCollider().radius +
-                obstacle2.getCollider().radius -
-                diff.getSize()) /
-            diff.getSize();
-        obstacle1.getCollider().move(diff.getScaled(k));
-        obstacle2.getCollider().move(diff.getScaled(k).getInverted());
+        this.nudgeTwoObjectsApartFromEachOther(obstacle1, obstacle2);
     }
 
     private static resolvePlayerWithPowerupCollision(
@@ -186,5 +173,27 @@ export class CollisionMediator {
     ) {
         player.give(powerup.getType());
         context.eventQueue.add(eventDestroyPowerup(powerup.id));
+    }
+
+    private static nudgeTwoObjectsApartFromEachOther(
+        obj1: GameObject,
+        obj2: GameObject,
+    ) {
+        const diff = Vector.diff(
+            obj1.getCollider().getPosition(),
+            obj2.getCollider().getPosition(),
+        );
+
+        // This is magic constant that says the following:
+        // |diff| + k * |diff| = radius1 + radius2
+        // so if we multiply diff with k, we can vector that has to
+        // be used to nudge obstacles far enough to not be colliding anymore
+        const k =
+            (obj1.getCollider().radius +
+                obj2.getCollider().radius -
+                diff.getSize()) /
+            diff.getSize();
+        obj1.getCollider().move(diff.getScaled(k));
+        obj2.getCollider().move(diff.getScaled(k).getInverted());
     }
 }

@@ -232,8 +232,8 @@ const gameSettings: GameSettings = {
     DISPLAY_PLAYER_NAMES: true,
     PRNG_SEED: Date.now(),
     // Spawn settings
-    PLAYER_COUNT: 3,
-    NPC_COUNT: 1,
+    PLAYER_COUNT: 4,
+    NPC_COUNT: 3,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -253,12 +253,12 @@ const gameSettings: GameSettings = {
     //   Projectile
     PROJECTILE_SPEED: 500,
     PROJECTILE_DAMAGE: 1,
-    PROJECTILE_ENABLE_TELEPORT: true,
+    PROJECTILE_ENABLE_TELEPORT: false,
     PROJECTILE_MASS: 5,
     PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
     //   Obstacle
     OBSTACLE_MAX_SPEED: 375,
-    OBSTACLE_HIT_DAMAGE: 10,
+    OBSTACLE_HIT_DAMAGE: 1,
     OBSTACLE_MASS: 15,
     OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
     //   Powerup
