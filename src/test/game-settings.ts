@@ -37,5 +37,11 @@ export function getMockSettings(): GameSettings {
         OBSTACLE_HIT_DAMAGE: 10,
         OBSTACLE_MASS: 15,
         OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
+        //   Powerup
+        POWERUP_MIN_SPAWN_DELAY: 5,
+        POWERUP_MAX_SPAWN_DELAY: 10,
+        POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7],
+        POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7,
+        POWERUP_ROTATION_SPEED: 64,
     };
 }

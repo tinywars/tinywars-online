@@ -15,6 +15,9 @@ import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
 import { PRNG } from "../utility/prng";
 import { CollisionMediator } from "../game/collision-mediator";
+import { Powerup } from "../game/powerup";
+import { Timer } from "../utility/timer";
+import { eventSpawnPowerup } from "../events/game-event";
 
 export class App {
     private gameContext: GameContext;
@@ -24,6 +27,7 @@ export class App {
     private endgame = false;
     private timeTillRestart = 0;
     private winnerName = "";
+    private powerupSpawnTimer: Timer;
 
     constructor(
         private keyboardState: Record<string, boolean>,
@@ -85,6 +89,14 @@ export class App {
                         createAnimationEngine("rock"),
                     ),
             ),
+            powerups: new FastArray<Powerup>(
+                4,
+                () =>
+                    new Powerup(
+                        this.uniqueId++,
+                        createAnimationEngine("powerup"),
+                    ),
+            ),
             eventQueue: eventQueue,
 
             log: (msg: string): void => {
@@ -104,6 +116,13 @@ export class App {
                 ),
             );
         }
+
+        this.powerupSpawnTimer = new Timer(() => {
+            return PRNG.randomRangedFloat(
+                settings.POWERUP_MIN_SPAWN_DELAY,
+                settings.POWERUP_MAX_SPAWN_DELAY,
+            );
+        });
 
         this.reset();
     }
@@ -134,6 +153,8 @@ export class App {
             }
         }
 
+        this.powerupSpawnTimer.update(dt);
+
         this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
@@ -143,6 +164,14 @@ export class App {
         this.gameContext.obstacles.forEach((p) =>
             p.update(dt, this.gameContext),
         );
+        this.gameContext.powerups.forEach((p) => {
+            p.update(dt, this.gameContext);
+        });
+
+        if (this.powerupSpawnTimer.ended()) {
+            this.gameContext.eventQueue.add(eventSpawnPowerup());
+            this.powerupSpawnTimer.reset();
+        }
 
         CollisionMediator.processCollisions(this.gameContext);
 
@@ -172,6 +201,7 @@ export class App {
         this.gameContext.players.clear();
         this.gameContext.projectiles.clear();
         this.gameContext.obstacles.clear();
+        this.gameContext.powerups.clear();
 
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");
