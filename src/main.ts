@@ -63,7 +63,7 @@ const soundPlayer = new SoundPlayer({
 
 const gameEventEmitter = new GameEventEmitter();
 gameEventEmitter
-    .addListener("ProjectileSpawned", (playerId) => {
+    .addListener("ProjectileSpawned", (playerId: number) => {
         soundPlayer.playSound(
             playerId % 2 == 0 ? Sounds.Laser1 : Sounds.Laser2,
         );
