@@ -113,6 +113,7 @@ describe("Player", () => {
             });
 
             it("Does not shoot if it doesn't have enough energy", () => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (player as any).energy = 0;
 
                 controller.pressKey(KeyCode.Shoot);
@@ -178,6 +179,7 @@ describe("Player", () => {
             });
 
             it("Does not trigger when there's not enough energy", () => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (player as any).energy = 0;
 
                 controller.pressKey(KeyCode.Action);
