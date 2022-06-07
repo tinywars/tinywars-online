@@ -313,18 +313,18 @@ const gameSettings: GameSettings = {
     TIME_TILL_RESTART: 3,
     PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
-    PRNG_SEED: Date.now(),
+    PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
     PLAYER_COUNT: 4,
-    NPC_COUNT: 3,
+    NPC_COUNT: 4,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
     // AI Settings
     AI_MAX_SHOOT_DELAY: 1.5,
-    AI_MIN_SHOOT_DELAY: 0.5,
+    AI_MIN_SHOOT_DELAY: 0.2,
     AI_POWERUP_ACTIONABLE_RADIUS: 400,
     AI_POWERUP_IGNORE_DELAY: 0.85,
     // Simulation settings

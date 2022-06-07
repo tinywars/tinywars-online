@@ -91,7 +91,7 @@ export class AiBrain {
                 .orIf(this.isEverybodyElseDead).goTo(State.Drifting)
                 .orIf(and(this.isPowerupInVicinity, this.timerEnded(ETimer.IgnorePowerups))).goTo(State.PickTargetPowerup)
                 .orIf(this.isTargetDead).goTo(State.PickingTarget) // then to PickingTarget
-                .orIf(and(this.timerEnded(ETimer.Fire),this.isCloseEnoughToTarget)).goTo(State.Shoot)
+                .orIf(this.canShoot).goTo(State.Shoot)
                 .orIf(and(this.timerEnded(ETimer.GoForward),this.noCollisionInLookDirection)).goTo(State.Start)
                 .otherwiseDo(this.trackTarget).andLoop(),
             [State.Shoot]:
@@ -119,19 +119,20 @@ export class AiBrain {
         this.targetPlayer = this.myPlayer; // just to satisfy linter
         this.targetPowerup = this.context.powerups.getItem(0); // just to satisfy linter
 
-        // TODO: read fire delays from context settings
         if (this.myPlayer.id % 2 === 1) {
             this.targetingStrategy = TargetingStrategy.Weakest;
         }
 
         this.timers = {
-            [ETimer.Fire]: new Timer(
+            // TODO: remove this and associated settings
+            /*[ETimer.Fire]: new Timer(
                 () =>
                     PRNG.randomFloat() *
                         (this.context.settings.AI_MAX_SHOOT_DELAY -
                             this.context.settings.AI_MIN_SHOOT_DELAY) +
                     this.context.settings.AI_MIN_SHOOT_DELAY,
-            ),
+            ),*/
+            [ETimer.Fire]: new Timer(() => context.settings.AI_MIN_SHOOT_DELAY),
             [ETimer.GoForward]: new Timer(() => PRNG.randomFloat() * 3 + 1.5),
             [ETimer.Log]: new Timer(() => 1),
             [ETimer.IgnorePowerups]: new Timer(
@@ -356,13 +357,16 @@ export class AiBrain {
     };
 
     private canShoot = () => {
-        // NOTE: There should be call to isTargetAngleAchieved
-        // but it doesn not work as expected, dunno why
-        return (
-            this.timerEnded(ETimer.Fire) &&
-            this.isTargetAngleAchieved() &&
-            this.isCloseEnoughToTarget()
-        );
+        if (!this.timers[ETimer.Fire].ended()) {
+            //this.timers[ETimer.Fire].reset();
+            return false;
+        }
+
+        if (this.myPlayer.getEnergy() > 3 && this.isTargetAngleAchieved()) {
+            return true;
+        }
+
+        return this.isTargetAngleAchieved() && this.isCloseEnoughToTarget();
     };
 
     /* FSM LOGIC */
