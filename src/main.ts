@@ -8,8 +8,93 @@ import { PlayerControls, PlayerSettings } from "./game/player-settings";
 import { GameSettings } from "./game/game-settings";
 import { KeyCode } from "./game/key-codes";
 import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
+import { GameEventEmitter } from "./events/event-emitter";
+import { Jukebox } from "./utility/jukebox";
+import { SoundPlayer } from "./utility/sound-player";
+import soundLaser1Url from "../assets/sounds/laser1.wav";
+import soundLaser2Url from "../assets/sounds/laser3.wav";
+import soundShipHitUrl from "../assets/sounds/shiphit.wav";
+import soundRockHitUrl from "../assets/sounds/rockhit.wav";
+import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
+import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
+import soundExplosionUrl from "../assets/sounds/explosion.wav";
+import soundTurboUrl from "../assets/sounds/boost1.wav";
+import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
+import musicTrack1 from "../assets/music/track1.ogg";
+import musicTrack2 from "../assets/music/track2.ogg";
+import musicTrack3 from "../assets/music/track3.ogg";
+import musicTrack4 from "../assets/music/track4.ogg";
+import musicTrack5 from "../assets/music/track5.ogg";
 
 const FPS = 60;
+
+const jukebox = new Jukebox([
+    musicTrack1,
+    musicTrack2,
+    musicTrack3,
+    musicTrack4,
+    musicTrack5,
+]);
+jukebox.setVolume(0.5);
+
+enum Sounds {
+    Laser1 = "Laser1",
+    Laser2 = "Laser2",
+    ShipHit = "ShipHit",
+    RockHit = "RockHit",
+    WreckHit = "WreckHit",
+    ObstacleBounce = "ObstacleBounce",
+    Explosion = "4",
+    Powerup = "5",
+    Turbo = "6",
+}
+
+const soundPlayer = new SoundPlayer({
+    [Sounds.Laser1]: soundLaser1Url,
+    [Sounds.Laser2]: soundLaser2Url,
+    [Sounds.ShipHit]: soundShipHitUrl,
+    [Sounds.RockHit]: soundRockHitUrl,
+    [Sounds.WreckHit]: soundWreckHitUrl,
+    [Sounds.ObstacleBounce]: soundRockHit2Url,
+    [Sounds.Explosion]: soundExplosionUrl,
+    [Sounds.Powerup]: soundTurboUrl,
+    [Sounds.Turbo]: soundPowerupPickedUrl,
+});
+
+const gameEventEmitter = new GameEventEmitter();
+gameEventEmitter
+    .addListener("ProjectileSpawned", (playerId) => {
+        soundPlayer.playSound(
+            playerId % 2 == 0 ? Sounds.Laser1 : Sounds.Laser2,
+        );
+    })
+    .addListener("PlayerWasHit", () => {
+        soundPlayer.playSound(Sounds.ShipHit);
+    })
+    .addListener("RockWasHit", () => {
+        soundPlayer.playSound(Sounds.RockHit);
+    })
+    .addListener("PlayerWasDestroyed", () => {
+        soundPlayer.playSound(Sounds.Explosion);
+    })
+    .addListener("PowerupPickedUp", () => {
+        soundPlayer.playSound(Sounds.Powerup);
+    })
+    .addListener("PlayerUsedTurbo", () => {
+        soundPlayer.playSound(Sounds.Turbo);
+    })
+    .addListener("WreckWasHit", () => {
+        soundPlayer.playSound(Sounds.WreckHit);
+    })
+    .addListener("ObstacleBounced", () => {
+        soundPlayer.playSound(Sounds.ObstacleBounce);
+    })
+    .addListener("GameStarted", () => {
+        jukebox.playNextSong();
+    })
+    .addListener("GameStopped", () => {
+        jukebox.stop();
+    });
 
 const keyboardState: Record<string, boolean> = {};
 document.onkeydown = (e) => {
@@ -270,7 +355,7 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const app = new App(keyboardState, animations, gameSettings);
+const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
 app.start(FPS);
 
 const appView = new AppViewCanvas(

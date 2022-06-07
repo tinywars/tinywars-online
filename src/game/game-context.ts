@@ -4,6 +4,7 @@ import { FastArray } from "../utility/fast-array";
 import { Projectile } from "./projectile";
 import { Obstacle } from "./obstacle";
 import { GameSettings } from "./game-settings";
+import { GameEventEmitter } from "../events/event-emitter";
 import { Powerup } from "./powerup";
 
 export interface GameContext {
@@ -15,5 +16,6 @@ export interface GameContext {
     powerups: FastArray<Powerup>;
 
     eventQueue: EventQueue;
+    eventEmitter: GameEventEmitter;
     log: (msg: string) => void;
 }

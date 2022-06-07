@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
@@ -67,6 +68,7 @@ export function getMockGameContext(options: {
                 ),
         ),
         eventQueue: options.eventQueue,
+        eventEmitter: new GameEventEmitter(),
         log: (msg: string) => {
             console.log(msg);
         },

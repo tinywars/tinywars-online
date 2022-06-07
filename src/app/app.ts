@@ -15,6 +15,7 @@ import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
 import { PRNG } from "../utility/prng";
 import { CollisionMediator } from "../game/collision-mediator";
+import { GameEventEmitter } from "../events/event-emitter";
 import { Powerup } from "../game/powerup";
 import { Timer } from "../utility/timer";
 import { eventSpawnPowerup } from "../events/game-event";
@@ -30,6 +31,7 @@ export class App {
     private powerupSpawnTimer: Timer;
 
     constructor(
+        private eventEmitter: GameEventEmitter,
         private keyboardState: Record<string, boolean>,
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
@@ -98,6 +100,7 @@ export class App {
                     ),
             ),
             eventQueue: eventQueue,
+            eventEmitter: this.eventEmitter,
 
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -125,6 +128,7 @@ export class App {
         });
 
         this.reset();
+        this.eventEmitter.emit("GameStarted");
     }
 
     start(fps: number) {
