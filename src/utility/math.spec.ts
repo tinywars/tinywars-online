@@ -149,6 +149,7 @@ describe("GameMath", () => {
                     pointForward,
                     circleOrigin,
                     circleGrowSpeed,
+                    0,
                 ),
             ).to.be.null;
         });
@@ -165,6 +166,7 @@ describe("GameMath", () => {
                     pointForward,
                     circleOrigin,
                     circleGrowSpeed,
+                    0,
                 ),
             ).to.be.null;
         });
@@ -181,6 +183,7 @@ describe("GameMath", () => {
                     pointForward,
                     circleOrigin,
                     circleGrowSpeed,
+                    0,
                 );
 
             expect(result).not.be.null;
@@ -203,6 +206,7 @@ describe("GameMath", () => {
                     pointForward,
                     circleOrigin,
                     circleGrowSpeed,
+                    0,
                 );
 
             expect(result).not.be.null;
@@ -225,6 +229,7 @@ describe("GameMath", () => {
                     pointForward,
                     circleOrigin,
                     circleGrowSpeed,
+                    0,
                 );
 
             expect(result).not.be.null;
@@ -232,6 +237,30 @@ describe("GameMath", () => {
             if (result !== null) {
                 expect(result.x).to.be.approximately(4.14, 0.0001);
                 expect(result.y).to.be.approximately(5.57, 0.0001);
+            }
+        });
+
+        it("Correctly computes vector under normal circumstances with initial offset defined", () => {
+            const pointOrigin = new Vector(0, 5);
+            const pointForward = new Vector(2, 0);
+            const circleOrigin = new Vector(6, 0);
+            const circleGrowSpeed = 1;
+            const initialCircleRadius = 2;
+
+            const result =
+                GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
+                    pointOrigin,
+                    pointForward,
+                    circleOrigin,
+                    circleGrowSpeed,
+                    initialCircleRadius,
+                );
+
+            expect(result).not.be.null;
+
+            if (result !== null) {
+                expect(result.x).to.be.approximately(6, 0.0001);
+                expect(result.y).to.be.approximately(5, 0.0001);
             }
         });
     });

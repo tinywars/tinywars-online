@@ -314,6 +314,7 @@ const gameSettings: GameSettings = {
     PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
     PRNG_SEED: Date.now(),
+    FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
     PLAYER_COUNT: 4,
     NPC_COUNT: 3,
@@ -341,7 +342,7 @@ const gameSettings: GameSettings = {
     PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
     //   Obstacle
     OBSTACLE_MAX_SPEED: 375,
-    OBSTACLE_HIT_DAMAGE: 1,
+    OBSTACLE_HIT_DAMAGE: 100,
     OBSTACLE_MASS: 15,
     OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
     //   Powerup
@@ -358,7 +359,7 @@ const hudFrames = {
 };
 
 const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
-app.start(FPS);
+app.start();
 
 const appView = new AppViewCanvas(
     app,

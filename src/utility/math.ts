@@ -96,6 +96,7 @@ export function radialDifference(alfa: number, beta: number): number {
  * @param pointForward Target forward vector
  * @param circleOrigin Player position
  * @param circleGrowSpeed Speed of the projectile
+ * @param initialCircleRadius Projectiles are spawned at offset from player center to prevent imminent collisions
  * @returns Vector if such point exists (from the game standpoint that should be always) or null
  * if there is none.
  */
@@ -104,6 +105,7 @@ export function getIntersectionBetweenMovingPointAndGrowingCircle(
     pointForward: Vector,
     circleOrigin: Vector,
     circleGrowSpeed: number,
+    initialCircleRadius: number,
 ): Vector | null {
     const X = pointOrigin.x - circleOrigin.x;
     const Y = pointOrigin.y - circleOrigin.y;
@@ -111,8 +113,12 @@ export function getIntersectionBetweenMovingPointAndGrowingCircle(
         pointForward.x * pointForward.x +
         pointForward.y * pointForward.y -
         circleGrowSpeed * circleGrowSpeed;
-    const B = 2 * (X * pointForward.x + Y * pointForward.y);
-    const C = X * X + Y * Y;
+    const B =
+        2 *
+        (X * pointForward.x +
+            Y * pointForward.y -
+            initialCircleRadius * circleGrowSpeed);
+    const C = X * X + Y * Y - initialCircleRadius * initialCircleRadius;
     const D = B * B - 4 * A * C;
 
     // If point is moving perpendicular to circle and at a higher speed

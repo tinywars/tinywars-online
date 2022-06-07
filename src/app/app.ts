@@ -128,12 +128,10 @@ export class App {
         this.eventEmitter.emit("GameStarted");
     }
 
-    start(fps: number) {
-        const frameTime = 1 / fps;
-
+    start() {
         setInterval(() => {
-            this.updateLogic(frameTime);
-        }, Math.floor(frameTime * 1000));
+            this.updateLogic(this.settings.FIXED_FRAME_TIME);
+        }, Math.floor(this.settings.FIXED_FRAME_TIME * 1000));
     }
 
     updateLogic(dt: number): void {

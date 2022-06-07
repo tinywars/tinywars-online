@@ -71,7 +71,8 @@ export class AiBrain {
     private targetingStrategy: TargetingStrategy = TargetingStrategy.Closest;
     private targetPlayer: Player;
     private targetPowerup: Powerup;
-    private ANGLE_DIFF_THRESHOLD = 5;
+    private ANGLE_DIFF_THRESHOLD = 1;
+    // fuzziness
 
     constructor(
         private controller: AiPoweredController,
@@ -108,7 +109,6 @@ export class AiBrain {
                 // TODO: isCollisionImminentBeforeReachingPowerup
                 If(this.isCollisionImminent).goTo(State.PowerupUnattainable)
                 .orIf(not(this.isTargetPowerupAvailable)).goTo(State.PickingTarget)
-                //.orIf(this.isTargetAngleAchieved).goTo(State.TurboForward)
                 .otherwiseDo(this.trackTargetPowerup).andLoop(),
             [State.PowerupUnattainable]:
                 Do(this.handleBlockedPowerup).thenGoTo(State.StartEvasion),
@@ -206,13 +206,23 @@ export class AiBrain {
         });
     }
 
-    private targetObject(myPlayer: Player, object: GameObject) {
+    private targetObject(
+        myPlayer: Player,
+        object: GameObject,
+        projectileAiming: boolean,
+        context: GameContext,
+    ) {
         const targetPoint =
             GameMath.getIntersectionBetweenMovingPointAndGrowingCircle(
                 object.getCollider().getPosition(),
                 object.getForward(),
                 myPlayer.getCollider().getPosition(),
-                1000,
+                projectileAiming
+                    ? context.settings.PROJECTILE_SPEED
+                    : context.settings.PLAYER_FORWARD_SPEED,
+                this.myPlayer.getProjectileSpawnOffset(
+                    projectileAiming ? context.settings.FIXED_FRAME_TIME : 0,
+                ),
             );
         if (targetPoint === null) return;
 
@@ -380,13 +390,15 @@ export class AiBrain {
         else if (diffAngle > 180) this.controller.pressKey(KeyCode.Right);
     };
 
-    private trackTarget = () => {
-        this.targetObject(this.myPlayer, this.targetPlayer);
+    private trackTarget = (context: GameContext) => {
+        this.targetObject(this.myPlayer, this.targetPlayer, true, context);
         this.rotateTowardsTarget();
     };
 
-    private trackTargetPowerup = () => {
-        this.targetObject(this.myPlayer, this.targetPowerup);
+    private trackTargetPowerup = (context: GameContext) => {
+        // Passing 0 here because here we're aiming at static object
+        // no n
+        this.targetObject(this.myPlayer, this.targetPowerup, false, context);
         this.rotateTowardsTarget();
 
         // TODO: if angle hasn't changed, don't press Up, but rather turbo (for just one frame)

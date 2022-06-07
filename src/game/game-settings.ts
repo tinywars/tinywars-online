@@ -9,6 +9,7 @@ export interface GameSettings {
     PLAYER_SETTINGS: PlayerSettings[];
     DISPLAY_PLAYER_NAMES: boolean; // whether to display player names during gameplay
     PRNG_SEED: number;
+    FIXED_FRAME_TIME: number;
     // Spawn settings
     PLAYER_COUNT: number; // total number of ships, including NPCs
     NPC_COUNT: number;

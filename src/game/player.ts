@@ -120,6 +120,10 @@ export class Player extends GameObject {
         return this.health;
     }
 
+    getProjectileSpawnOffset(dt: number): number {
+        return Player.RADIUS + 1 + this.forward.getScaled(dt).getSize();
+    }
+
     private updateRotation(frameRotation: number, dt: number) {
         this.rotation = sanitizeAngle(this.rotation + frameRotation * dt);
         this.direction.setRotation(this.rotation);
@@ -156,11 +160,7 @@ export class Player extends GameObject {
                     // There is some rounding error that I cannot reproduce in unit tests, but when
                     // you turbo and fire, then your own projectile will damage you, unless the +1
                     // is in the expression below.
-                    this.direction.getScaled(
-                        Player.RADIUS +
-                            1 +
-                            this.forward.getScaled(dt).getSize(),
-                    ),
+                    this.direction.getScaled(this.getProjectileSpawnOffset(dt)),
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,
