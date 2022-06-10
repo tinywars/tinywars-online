@@ -29,6 +29,7 @@ export class App {
     private timeTillRestart = 0;
     private winnerName = "";
     private powerupSpawnTimer: Timer;
+    private scores = [0, 0, 0, 0];
 
     constructor(
         private eventEmitter: GameEventEmitter,
@@ -101,6 +102,7 @@ export class App {
             ),
             eventQueue: eventQueue,
             eventEmitter: this.eventEmitter,
+            scores: [0, 0, 0, 0],
 
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -144,6 +146,10 @@ export class App {
                           this.gameContext.players.getItem(0).id
                       ].name
                     : "nobody";
+            if (this.gameContext.players.getSize() === 1) {
+                //this.scores[this.gameContext.players.getItem(0).id]++;
+                console.log(this.gameContext.scores);
+            }
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
 
@@ -212,7 +218,7 @@ export class App {
         }
 
         this.aiBrains.forEach((brain) => {
-            brain.reset();
+            brain.reset(this.gameContext);
         });
 
         this.spawnPlayersAndRocks();
@@ -268,7 +274,6 @@ export class App {
         };
 
         randomShuffleArray(distribution);
-        console.log(distribution);
 
         let i = 0;
         for (let y = 0; y < 4; y++) {

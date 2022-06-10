@@ -68,11 +68,14 @@ export class AiBrain {
     private timers: Record<ETimer, Timer>;
     private targetAngle = 0;
     private fsm: Fsm;
-    private targetingStrategy: TargetingStrategy = TargetingStrategy.Closest;
     private targetPlayer: Player;
     private targetPowerup: Powerup;
-    private ANGLE_DIFF_THRESHOLD = 1;
+    private ANGLE_DIFF_THRESHOLD = 2;
     // fuzziness
+    private collisionPanicRadius: number;
+    private aimError = 0;
+    private dodgeReactionTimeError = 0;
+    private difficulty: number;
 
     constructor(
         private controller: AiPoweredController,
@@ -100,7 +103,7 @@ export class AiBrain {
                 Do(this.pickEvasionAngle).thenGoTo(State.Evading),
             [State.Evading]: 
                 If(this.isEvasionAngleAchieved).goTo(State.FinishEvasion)
-                .otherwiseDo(this.rotateTowardsTarget).andLoop(),
+                .otherwiseDo(this.rotateTowardsEvasionTarget).andLoop(),
             [State.FinishEvasion]:
                 Do(this.performEvasion).thenGoTo(State.TrackingAndShooting),
             [State.PickTargetPowerup]:
@@ -119,19 +122,7 @@ export class AiBrain {
         this.targetPlayer = this.myPlayer; // just to satisfy linter
         this.targetPowerup = this.context.powerups.getItem(0); // just to satisfy linter
 
-        if (this.myPlayer.id % 2 === 1) {
-            this.targetingStrategy = TargetingStrategy.Weakest;
-        }
-
         this.timers = {
-            // TODO: remove this and associated settings
-            /*[ETimer.Fire]: new Timer(
-                () =>
-                    PRNG.randomFloat() *
-                        (this.context.settings.AI_MAX_SHOOT_DELAY -
-                            this.context.settings.AI_MIN_SHOOT_DELAY) +
-                    this.context.settings.AI_MIN_SHOOT_DELAY,
-            ),*/
             [ETimer.Fire]: new Timer(() => context.settings.AI_MIN_SHOOT_DELAY),
             [ETimer.GoForward]: new Timer(() => PRNG.randomFloat() * 3 + 1.5),
             [ETimer.Log]: new Timer(() => 1),
@@ -139,25 +130,63 @@ export class AiBrain {
                 () => this.context.settings.AI_POWERUP_IGNORE_DELAY,
             ),
         };
+
+        this.difficulty = ((id: number) => {
+            if (id === 0) return 0;
+            else if (id === 1) return 0.33;
+            else if (id === 2) return 0.66;
+            return 1;
+        })(this.myPlayer.id);
+        this.collisionPanicRadius =
+            context.settings.AI_MAX_COLLISION_PANIC_RADIUS * this.difficulty;
+        this.resetAimError(context);
+        this.resetDodgeError(context);
     }
 
     update(dt: number, context: GameContext) {
         this.releaseInputs();
         this.updateTimers(dt);
 
+        this.aimError = GameMath.clamp(
+            this.aimError -
+                context.settings.AI_AIM_ERROR_DECREASE_SPEED *
+                    dt *
+                    context.settings.AI_MAX_AIM_ERROR,
+            0,
+            Infinity,
+        );
+        this.dodgeReactionTimeError = GameMath.clamp(
+            this.dodgeReactionTimeError -
+                context.settings.AI_MAX_COLLISION_DODGE_ERROR *
+                    dt *
+                    context.settings.AI_COLLISION_DODGE_ERROR_DECREASE_SPEED,
+            0,
+            Infinity,
+        );
+
         this.fsm.update(context);
 
-        if (this.myPlayer.id === 0 && this.timers[ETimer.Log].ended()) {
-            console.log(State[this.fsm.getState()]);
+        //this.debugLog(`FSM State: ${State[this.fsm.getState()]}`, true);
+
+        if (this.myPlayer.id === 3 && this.timers[ETimer.Log].ended()) {
             this.timers[ETimer.Log].reset();
         }
     }
 
-    reset() {
+    reset(context: GameContext) {
         this.fsm.setState(State.Start);
+        this.resetAimError(context);
+        this.resetDodgeError(context);
     }
 
     /* NON FSM METHODS */
+    private debugLog = (text: string, overrideTimer = false) => {
+        if (this.myPlayer.id !== 0) return;
+        if (this.myPlayer.getHealth() < 1) return;
+        if (!(this.timers[ETimer.Log].ended() || overrideTimer)) return;
+        console.log(text);
+    };
+
     private releaseInputs() {
         this.controller.releaseKey(KeyCode.Up);
         this.controller.releaseKey(KeyCode.Down);
@@ -171,34 +200,13 @@ export class AiBrain {
         Object.values(this.timers).forEach((t) => t.update(dt));
     }
 
-    private getClosestPlayer(players: Player[]): Player {
-        let result: Player = players[0];
-        let smallestDistance = Infinity;
-
-        for (let i = 1; i < players.length; i++) {
-            const distance = Vector.diff(
-                players[i].getCollider().getPosition(),
-                this.myPlayer.getCollider().getPosition(),
-            ).getSize();
-
-            if (distance < smallestDistance) {
-                result = players[i];
-                smallestDistance = distance;
-            }
-        }
-
-        return result;
+    private resetAimError(context: GameContext) {
+        this.aimError = this.difficulty * context.settings.AI_MAX_AIM_ERROR;
     }
 
-    private getWeakestPlayer(players: Player[]): Player {
-        let result: Player = players[0];
-
-        for (let i = 1; i < players.length; i++) {
-            if (result.getHealth() > players[i].getHealth())
-                result = players[i];
-        }
-
-        return result;
+    private resetDodgeError(context: GameContext) {
+        this.dodgeReactionTimeError =
+            this.difficulty * context.settings.AI_MAX_COLLISION_DODGE_ERROR;
     }
 
     private getOtherPlayers(players: FastArray<Player>): Player[] {
@@ -231,7 +239,16 @@ export class AiBrain {
             targetPoint,
             myPlayer.getCollider().getPosition(),
         );
-        this.targetAngle = direction.toAngle();
+
+        if (projectileAiming) {
+            // use aim error
+            this.targetAngle =
+                direction.toAngle() +
+                PRNG.randomRangedFloat(-this.aimError, this.aimError);
+        } else {
+            // navigating towards powerup
+            this.targetAngle = direction.toAngle();
+        }
     }
 
     private isCollisionImminentForGivenFastArray(
@@ -242,15 +259,22 @@ export class AiBrain {
         let result = false;
         const COLLISION_CRITICAL_TIME = 1;
 
+        const myColliderCopy = new CircleCollider(
+            myCollider.getPosition(),
+            myCollider.radius + this.collisionPanicRadius,
+        );
         objects.forEach((o) => {
             const t = getTimeBeforeCollision(
-                myCollider,
+                myColliderCopy,
                 o.getCollider(),
                 myForward,
                 o.getForward(),
             );
 
-            if (t !== null) result = result || t < COLLISION_CRITICAL_TIME;
+            if (t !== null)
+                result =
+                    result ||
+                    t < COLLISION_CRITICAL_TIME - this.dodgeReactionTimeError;
         });
 
         return result;
@@ -317,10 +341,15 @@ export class AiBrain {
     };
 
     private isEvasionAngleAchieved = (): boolean => {
-        const diff = this.getDiffFromTargetAngle();
+        const myAngle = this.myPlayer.getCoords().angle;
+        const diff = GameMath.radialDifference(myAngle, this.targetAngle);
+        const inverseDiff = GameMath.radialDifference(
+            GameMath.sanitizeAngle(myAngle + 180),
+            this.targetAngle,
+        );
         return (
             diff < this.ANGLE_DIFF_THRESHOLD ||
-            diff - 180 < this.ANGLE_DIFF_THRESHOLD
+            inverseDiff < this.ANGLE_DIFF_THRESHOLD
         );
     };
 
@@ -337,7 +366,6 @@ export class AiBrain {
                 context.projectiles,
             );
 
-        if (result) console.log(this.myPlayer.id + ": Collision imminent");
         return result;
     };
 
@@ -348,7 +376,11 @@ export class AiBrain {
                 p.getCoords().position,
             ).getSize();
 
-            if (p.getType() === PowerupType.Heal) return true; // always go after healing
+            if (
+                p.getType() === PowerupType.Heal &&
+                distance < context.settings.AI_POWERUP_ACTIONABLE_RADIUS
+            )
+                return true; // always go after healing
             if (distance < context.settings.AI_POWERUP_ACTIONABLE_RADIUS)
                 return true;
         }
@@ -358,7 +390,6 @@ export class AiBrain {
 
     private canShoot = () => {
         if (!this.timers[ETimer.Fire].ended()) {
-            //this.timers[ETimer.Fire].reset();
             return false;
         }
 
@@ -380,11 +411,21 @@ export class AiBrain {
         this.timers[ETimer.Fire].reset();
     };
 
-    private performEvasion = () => {
+    private performEvasion = (context: GameContext) => {
         const diff = this.getDiffFromTargetAngle();
         if (diff < this.ANGLE_DIFF_THRESHOLD)
             this.controller.pressKey(KeyCode.Up);
-        else this.controller.pressKey(KeyCode.Down);
+        else this.controller.pressKey(KeyCode.Up);
+
+        /*this.debugLog(
+            `performEvasion: myAngle(${this.myPlayer
+                .getForward()
+                .toAngle()}); diff(${diff})`,
+            true,
+        );*/
+        // Dodging impaires ability to properly aim and dodge for a while
+        this.resetAimError(context);
+        this.resetDodgeError(context);
     };
 
     private rotateTowardsTarget = () => {
@@ -392,6 +433,34 @@ export class AiBrain {
         const diffAngle = sanitizeAngle(myAngle - this.targetAngle);
         if (diffAngle <= 180) this.controller.pressKey(KeyCode.Left);
         else if (diffAngle > 180) this.controller.pressKey(KeyCode.Right);
+    };
+
+    private rotateTowardsEvasionTarget = () => {
+        const myAngle = this.myPlayer.getCoords().angle;
+
+        const radialDiff1 = GameMath.radialDifference(
+            myAngle,
+            this.targetAngle,
+        );
+        const radialDiff2 = GameMath.radialDifference(
+            myAngle,
+            this.targetAngle + 180,
+        );
+
+        // If myAngle is closer to this.targetAngle + 180 than this.targetAngle,
+        // rotate towards it and evasion will be done by going backwards
+        const targetAngle =
+            radialDiff1 < radialDiff2
+                ? this.targetAngle
+                : this.targetAngle + 180;
+        const diff = sanitizeAngle(myAngle - targetAngle);
+        if (diff <= 180) this.controller.pressKey(KeyCode.Left);
+        else this.controller.pressKey(KeyCode.Right);
+
+        /*this.debugLog(
+            `Rotating towards evasion, current angle ${myAngle}, target angle ${this.targetAngle}, diff angle: ${diff}`,
+            true,
+        );*/
     };
 
     private trackTarget = (context: GameContext) => {
@@ -424,31 +493,42 @@ export class AiBrain {
             "Programmatic error: This function should never be called if there are no other players",
         );
 
-        switch (this.targetingStrategy) {
-            case TargetingStrategy.Closest:
-                this.targetPlayer = this.getClosestPlayer(otherPlayers);
-                break;
-            case TargetingStrategy.Weakest:
-                this.targetPlayer = this.getWeakestPlayer(otherPlayers);
-                break;
+        this.targetPlayer = otherPlayers[0];
+        // The closer and weaker is a player, the lower score they get
+        let lowestScore = Infinity;
+
+        for (let i = 1; i < otherPlayers.length; i++) {
+            const otherPlayer = otherPlayers[i];
+            const score =
+                Vector.diff(
+                    otherPlayer.getCollider().getPosition(),
+                    this.myPlayer.getCollider().getPosition(),
+                ).getSize() +
+                otherPlayer.getHealth() *
+                    context.settings.AI_HEALTH_SCORE_WEIGHT;
+
+            if (score < lowestScore) {
+                this.targetPlayer = otherPlayer;
+                lowestScore = score;
+            }
         }
     };
 
     private pickTargetPowerup = (context: GameContext) => {
-        let bestDistance = Infinity;
+        // lowest score - relative distance is the smalles
+        let lowestScore = Infinity;
         context.powerups.forEach((p) => {
-            const distance = Vector.diff(
+            let score = Vector.diff(
                 this.myPlayer.getCoords().position,
                 p.getCoords().position,
             ).getSize();
+            if (p.getType() == PowerupType.Heal) {
+                score -= context.settings.AI_HEALTH_POWERUP_SCORE_WEIGHT;
+            }
 
-            if (
-                distance < bestDistance ||
-                (p.getType() == PowerupType.Heal &&
-                    this.targetPowerup.getType() != PowerupType.Heal)
-            ) {
+            if (score < lowestScore) {
                 this.targetPowerup = p;
-                bestDistance = distance;
+                lowestScore = score;
             }
         });
     };
@@ -456,8 +536,14 @@ export class AiBrain {
     private pickEvasionAngle = () => {
         this.targetAngle = sanitizeAngle(
             this.myPlayer.getForward().toAngle() +
-                90 +
+                75 +
                 PRNG.randomRangedInt(0, 180),
         );
+        /*this.debugLog(
+            `pickEvasionAngle: currentAngle(${this.myPlayer
+                .getForward()
+                .toAngle()}) x targetAngle(${this.targetAngle})`,
+            true,
+        );*/
     };
 }

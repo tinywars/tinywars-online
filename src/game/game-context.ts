@@ -14,6 +14,7 @@ export interface GameContext {
     projectiles: FastArray<Projectile>;
     obstacles: FastArray<Obstacle>;
     powerups: FastArray<Powerup>;
+    scores: [0, 0, 0, 0];
 
     eventQueue: EventQueue;
     eventEmitter: GameEventEmitter;

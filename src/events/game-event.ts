@@ -86,6 +86,10 @@ export function eventDestroyPlayer(index: number) {
                 context.players.popItem(i);
             });
             context.eventEmitter.emit("PlayerWasDestroyed");
+
+            context.players.forEach((p) => {
+                context.scores[p.id]++;
+            });
         },
     };
     return e;
