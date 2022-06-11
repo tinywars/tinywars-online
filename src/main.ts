@@ -323,17 +323,17 @@ const gameSettings: GameSettings = {
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
     // AI Settings
+    AI_DUMBNESS: [0, 0.33, 0.66, 1],
+    AI_SHOOT_DELAY: 0.2,
     AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
     AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
-    AI_MAX_SHOOT_DELAY: 1.5,
-    AI_MIN_SHOOT_DELAY: 0.2,
     AI_POWERUP_ACTIONABLE_RADIUS: 400,
     AI_POWERUP_IGNORE_DELAY: 0.85,
+    AI_MAX_AIM_ERROR: 25, // degrees
     AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
-    AI_MAX_AIM_ERROR: 10, // degrees
-    AI_MAX_COLLISION_DODGE_ERROR: 0.8, // seconds
+    AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
     AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
-    AI_MAX_COLLISION_PANIC_RADIUS: 10, // px
+    AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: 250,

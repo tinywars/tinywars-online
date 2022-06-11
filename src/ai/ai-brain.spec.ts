@@ -1,6 +1,10 @@
 import { EventQueue } from "../events/event-queue";
+import { GameContext } from "../game/game-context";
+import { GameSettings } from "../game/game-settings";
 import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
+import { getMockGameContext } from "../test/game-context";
+import { getMockSettings } from "../test/game-settings";
 import { AnimationEngine, AnimationFrame } from "../utility/animation";
 import { Vector } from "../utility/vector";
 import { AiBrain } from "./ai-brain";
@@ -14,6 +18,9 @@ describe("AiBrain", () => {
     let controller: AiPoweredController;
     let brain: AiBrain;
     let player: Player;
+    let settings: GameSettings;
+    let gameContext: GameContext;
+    let eventQueue: EventQueue;
 
     // These must be the same as in gameSettings
     const PLAYER_ROTATION_SPEED = 200;
@@ -21,16 +28,22 @@ describe("AiBrain", () => {
 
     beforeEach(() => {
         controller = new AiPoweredController();
-        player = new Player(
-            0,
-            controller,
-            new AnimationEngine(animations, 1),
-            new EventQueue(),
-        );
-        brain = new AiBrain(controller, player, {
-            MIN_SHOOT_DELAY: 1,
-            MAX_SHOOT_DELAY: 1,
+        eventQueue = new EventQueue();
+        settings = getMockSettings();
+        gameContext = getMockGameContext({
+            numPlayers: 1,
+            numProjectiles: 64,
+            numObstacles: 8,
+            numPowerups: 0,
+            controllers: [controller],
+            settings: settings,
+            eventQueue: eventQueue,
         });
+
+        gameContext.players.grow();
+        player = gameContext.players.getItem(0);
+
+        brain = new AiBrain(controller, player, gameContext);
 
         player.spawn({
             position: Vector.zero(),
@@ -51,7 +64,11 @@ describe("AiBrain", () => {
                 (anyBrain.targetAngle as number) = targetAngle;
 
                 while (!anyBrain.isTargetAngleAchieved(brain)) {
-                    //console.log("Player angle: " + player.getCoords().angle);
+                    console.log(
+                        `Player angle: ${
+                            player.getCoords().angle
+                        }, target: ${targetAngle}`,
+                    );
                     controller.releaseKey(KeyCode.Left);
                     controller.releaseKey(KeyCode.Right);
 

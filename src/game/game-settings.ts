@@ -18,10 +18,10 @@ export interface GameSettings {
     PLAYER_INITIAL_ENERGY: number;
     PLAYER_MAX_ENERGY: number;
     // AI Settings
+    AI_DUMBNESS: number[]; // For each possible player, value from 0..1 where 0 is minimal dumbness and 1 is maximum dumbness
+    AI_SHOOT_DELAY: number;
     AI_HEALTH_SCORE_WEIGHT: number; // how much it is priority to target weak players
     AI_HEALTH_POWERUP_SCORE_WEIGHT: number; // how much it is priority to target healing powerups
-    AI_MAX_SHOOT_DELAY: number;
-    AI_MIN_SHOOT_DELAY: number;
     AI_POWERUP_ACTIONABLE_RADIUS: number;
     AI_POWERUP_IGNORE_DELAY: number;
     AI_MAX_AIM_ERROR: number; // Maximal radial difference from aim angle, decreases with growing delay between shots

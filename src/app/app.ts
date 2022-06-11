@@ -29,7 +29,6 @@ export class App {
     private timeTillRestart = 0;
     private winnerName = "";
     private powerupSpawnTimer: Timer;
-    private scores = [0, 0, 0, 0];
 
     constructor(
         private eventEmitter: GameEventEmitter,
@@ -103,6 +102,7 @@ export class App {
             eventQueue: eventQueue,
             eventEmitter: this.eventEmitter,
             scores: [0, 0, 0, 0],
+            wins: [0, 0, 0, 0],
 
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -147,8 +147,9 @@ export class App {
                       ].name
                     : "nobody";
             if (this.gameContext.players.getSize() === 1) {
-                //this.scores[this.gameContext.players.getItem(0).id]++;
-                console.log(this.gameContext.scores);
+                this.gameContext.wins[this.gameContext.players.getItem(0).id]++;
+                console.log(`Wins: ${this.gameContext.wins}`);
+                console.log(`Points: ${this.gameContext.scores}`);
             }
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
