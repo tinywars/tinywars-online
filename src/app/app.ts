@@ -161,7 +161,7 @@ export class App {
 
         this.powerupSpawnTimer.update(dt);
 
-        this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
+        this.aiBrains.forEach((b) => b.update(dt));
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
         this.gameContext.projectiles.forEach((p) =>
@@ -219,7 +219,7 @@ export class App {
         }
 
         this.aiBrains.forEach((brain) => {
-            brain.reset(this.gameContext);
+            brain.reset();
         });
 
         this.spawnPlayersAndRocks();

@@ -39,8 +39,8 @@ enum ETimer {
 }
 
 export function not(condition: FsmTransitionCondition): FsmTransitionCondition {
-    return (context: GameContext) => {
-        return !condition(context);
+    return () => {
+        return !condition();
     };
 }
 
@@ -48,8 +48,8 @@ export function and(
     cond1: FsmTransitionCondition,
     cond2: FsmTransitionCondition,
 ): FsmTransitionCondition {
-    return (context: GameContext) => {
-        return cond1(context) && cond2(context);
+    return () => {
+        return cond1() && cond2();
     };
 }
 
