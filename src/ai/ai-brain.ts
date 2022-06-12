@@ -510,7 +510,7 @@ export class AiBrain {
     private handleBlockedPowerup = () => {
         // Shoot in the direction we're facing
         // Maybe it'll scare other players from taking it, maybe it'll
-        // move the obstacle in our way
+        // move the obstacle out of our way
         this.controller.pressKey(KeyCode.Shoot);
         this.timers[ETimer.IgnorePowerups].reset();
     };
