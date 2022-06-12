@@ -5,14 +5,9 @@ import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
 import { getMockGameContext } from "../test/game-context";
 import { getMockSettings } from "../test/game-settings";
-import { AnimationEngine, AnimationFrame } from "../utility/animation";
 import { Vector } from "../utility/vector";
 import { AiBrain } from "./ai-brain";
 import { AiPoweredController } from "./ai-controller";
-
-const animations = {
-    idle: [new AnimationFrame(0, 0, 0, 0)],
-};
 
 describe("AiBrain", () => {
     let controller: AiPoweredController;
