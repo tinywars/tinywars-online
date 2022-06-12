@@ -36,8 +36,6 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
     ) {
-        // PRNG.setSeed(Date.now()); // TODO: this.settings.PRNG_SEED
-
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
 

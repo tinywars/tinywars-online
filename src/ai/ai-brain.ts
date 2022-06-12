@@ -498,8 +498,6 @@ export class AiBrain {
     };
 
     private trackTargetPowerup = () => {
-        // Passing 0 here because here we're aiming at static object
-        // no n
         this.targetObject(this.myPlayer, this.targetPowerup, false);
         this.rotateTowardsTarget();
 
