@@ -1,19 +1,47 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Identity } from "../ts/identity.type";
+import { KeyOfType } from "../ts/key-of-type.type";
 
-interface AnimationState<K extends string> {
+interface LoopingAnimationState {
     length: number;
-    loop?: boolean;
-    nextState?: K;
+    loop: true;
 }
+
+interface TransientAnimationState<K extends string> {
+    length: number;
+    loop?: false;
+    next: K;
+}
+
+type AnimationState<K extends string> =
+    | LoopingAnimationState
+    | TransientAnimationState<K>;
 
 type AnimationStates<
     TStates extends Record<string, any> = Record<string, any>,
 > = Record<string, AnimationState<Extract<keyof TStates, string>>>;
 
-export function createAnimationsStates<AS extends AnimationStates>(
-    states: AS & AnimationStates<AS>,
-): AS {
-    return states;
+const isLoopingState = <T extends string>(
+    state: AnimationState<T>,
+): state is LoopingAnimationState => !!state.loop;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export class AnimationStatesBuilder<TStates extends AnimationStates = {}> {
+    private states = {} as TStates;
+
+    addState<
+        N extends string,
+        AS extends AnimationState<Extract<keyof TStates, string>>,
+    >(
+        name: N,
+        state: AS,
+    ): AnimationStatesBuilder<TStates & { [key in N]: typeof state }> {
+        this.states[name] = state as any;
+        return this as any;
+    }
+
+    getStates(): Identity<TStates> {
+        return this.states as any;
+    }
 }
 
 export class AnimationEngine2<TStates extends AnimationStates> {
@@ -22,6 +50,7 @@ export class AnimationEngine2<TStates extends AnimationStates> {
     private frameTimer = 0;
     private frameTimeout = 0;
     private currentStateName: keyof TStates;
+    private onFinishedCallback: () => void = () => undefined;
 
     private constructor(public states: TStates, fps: number) {
         this.frameTimeout = 1 / fps;
@@ -41,9 +70,16 @@ export class AnimationEngine2<TStates extends AnimationStates> {
         this.frameTimer -= dt;
         if (this.frameTimer > 0) return true; // animation is still playing
 
-        if (this.states[this.currentStateName].length === this.frameIndex + 1) {
-            if (this.loop) this.frameIndex = 0;
-            else return false; // animation state just ended and is not looping
+        const state = this.states[this.currentStateName];
+        if (state.length === this.frameIndex + 1) {
+            if (isLoopingState(state)) this.frameIndex = 0;
+            else {
+                // animation state just ended and is not looping
+                this.onFinishedCallback();
+                this.onFinishedCallback = () => undefined;
+                this.setState(state.next as any);
+                return false;
+            }
         } else this.frameIndex++;
 
         // reset timer
@@ -52,8 +88,18 @@ export class AnimationEngine2<TStates extends AnimationStates> {
         return true;
     }
 
-    setState(name: keyof TStates) {
+    setState<K extends KeyOfType<TStates, LoopingAnimationState>>(
+        name: K,
+    ): void;
+    setState<K extends KeyOfType<TStates, TransientAnimationState<string>>>(
+        name: K,
+        onFinished?: () => void,
+    ): void;
+    setState(name: keyof TStates, onFinished?: () => void): void {
         // Repeated setting of the animation to the same values does nothing
+        if (onFinished) {
+            this.onFinishedCallback = onFinished ?? (() => undefined);
+        }
         if (this.currentStateName === name) return;
 
         const state = this.states[name];
@@ -63,34 +109,23 @@ export class AnimationEngine2<TStates extends AnimationStates> {
                     name,
             );
 
-        this.loop = !!state.loop;
         this.currentStateName = name;
         this.frameIndex = 0;
         this.frameTimer = this.frameTimeout;
     }
+
+    getCurrentState() {
+        return {
+            name: this.currentStateName,
+            frameIndex: this.frameIndex,
+        };
+    }
 }
 
-const ae = AnimationEngine2.fromStates({
-    idle: {
-        length: 4,
-        loop: true,
-    },
-    hit: {
-        length: 2,
-        nextState: "idle",
-    },
-}).withFPS(60);
-
-ae.setState("hit");
-
-const states = createAnimationsStates({
-    a: {
-        length: 1,
-    },
-    b: {
-        length: 3,
-    },
-});
+const states = new AnimationStatesBuilder()
+    .addState("idle", { length: 4, loop: true })
+    .addState("hit", { length: 2, next: "idle" })
+    .getStates();
 
 const ae2 = AnimationEngine2.fromStates(states).withFPS(4);
-ae2.setState("");
+ae2.setState("hit");
