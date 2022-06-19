@@ -15,10 +15,10 @@ import { Vector } from "../utility/vector";
 import { GameSettings } from "../game/game-settings";
 import { PRNG } from "../utility/prng";
 import { CollisionMediator } from "../game/collision-mediator";
-import { GameEventEmitter } from "../events/event-emitter";
 import { Powerup } from "../game/powerup";
 import { Timer } from "../utility/timer";
 import { eventSpawnPowerup } from "../events/game-event";
+import { GameEventEmitter } from "../events/event-emitter";
 
 export class App {
     private gameContext: GameContext;
@@ -36,8 +36,6 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
     ) {
-        PRNG.setSeed(Date.now()); // TODO: this.settings.PRNG_SEED
-
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
 
@@ -101,6 +99,8 @@ export class App {
             ),
             eventQueue: eventQueue,
             eventEmitter: this.eventEmitter,
+            scores: [0, 0, 0, 0],
+            wins: [0, 0, 0, 0],
 
             log: (msg: string): void => {
                 console.log("Debug: " + msg);
@@ -112,10 +112,7 @@ export class App {
                 new AiBrain(
                     this.controllers[i] as AiPoweredController,
                     this.gameContext.players.getItem(i),
-                    {
-                        MIN_SHOOT_DELAY: this.settings.AI_MIN_SHOOT_DELAY,
-                        MAX_SHOOT_DELAY: this.settings.AI_MAX_SHOOT_DELAY,
-                    },
+                    this.gameContext,
                 ),
             );
         }
@@ -131,12 +128,10 @@ export class App {
         this.eventEmitter.emit("GameStarted");
     }
 
-    start(fps: number) {
-        const frameTime = 1 / fps;
-
+    start() {
         setInterval(() => {
-            this.updateLogic(frameTime);
-        }, Math.floor(frameTime * 1000));
+            this.updateLogic(this.settings.FIXED_FRAME_TIME);
+        }, Math.floor(this.settings.FIXED_FRAME_TIME * 1000));
     }
 
     updateLogic(dt: number): void {
@@ -149,6 +144,11 @@ export class App {
                           this.gameContext.players.getItem(0).id
                       ].name
                     : "nobody";
+            if (this.gameContext.players.getSize() === 1) {
+                this.gameContext.wins[this.gameContext.players.getItem(0).id]++;
+                console.log(`Wins: ${this.gameContext.wins}`);
+                console.log(`Points: ${this.gameContext.scores}`);
+            }
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
 
@@ -159,7 +159,7 @@ export class App {
 
         this.powerupSpawnTimer.update(dt);
 
-        this.aiBrains.forEach((b) => b.update(dt, this.gameContext));
+        this.aiBrains.forEach((b) => b.update(dt));
 
         this.gameContext.players.forEach((p) => p.update(dt, this.gameContext));
         this.gameContext.projectiles.forEach((p) =>
@@ -199,6 +199,11 @@ export class App {
     }
 
     private reset() {
+        const seed =
+            this.settings.PRNG_SEED == 0 ? Date.now() : this.settings.PRNG_SEED;
+        PRNG.setSeed(seed);
+        console.log(`SEED: ${seed}`);
+
         this.endgame = false;
         this.timeTillRestart = 0;
 
@@ -268,7 +273,6 @@ export class App {
         };
 
         randomShuffleArray(distribution);
-        console.log(distribution);
 
         let i = 0;
         for (let y = 0; y < 4; y++) {

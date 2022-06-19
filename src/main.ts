@@ -1,30 +1,30 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { App } from "./app/app";
-import "./style.css";
-import { AppViewCanvas } from "./view-canvas/app-view";
-import { AnimationFrame } from "./utility/animation";
-import { PlayerControls, PlayerSettings } from "./game/player-settings";
-import { GameSettings } from "./game/game-settings";
-import { KeyCode } from "./game/key-codes";
-import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
-import { GameEventEmitter } from "./events/event-emitter";
-import { Jukebox } from "./utility/jukebox";
-import { SoundPlayer } from "./utility/sound-player";
-import soundLaser1Url from "../assets/sounds/laser1.wav";
-import soundLaser2Url from "../assets/sounds/laser3.wav";
-import soundShipHitUrl from "../assets/sounds/shiphit.wav";
-import soundRockHitUrl from "../assets/sounds/rockhit.wav";
-import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
-import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import soundExplosionUrl from "../assets/sounds/explosion.wav";
-import soundTurboUrl from "../assets/sounds/boost1.wav";
-import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
 import musicTrack4 from "../assets/music/track4.ogg";
 import musicTrack5 from "../assets/music/track5.ogg";
+import soundTurboUrl from "../assets/sounds/boost1.wav";
+import soundExplosionUrl from "../assets/sounds/explosion.wav";
+import soundLaser1Url from "../assets/sounds/laser1.wav";
+import soundLaser2Url from "../assets/sounds/laser3.wav";
+import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
+import soundRockHitUrl from "../assets/sounds/rockhit.wav";
+import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
+import soundShipHitUrl from "../assets/sounds/shiphit.wav";
+import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
+import { App } from "./app/app";
+import { GameEventEmitter } from "./events/event-emitter";
+import { GameSettings } from "./game/game-settings";
+import { KeyCode } from "./game/key-codes";
+import { PlayerControls, PlayerSettings } from "./game/player-settings";
+import "./style.css";
+import { AnimationFrame } from "./utility/animation";
+import { Jukebox } from "./utility/jukebox";
+import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
+import { SoundPlayer } from "./utility/sound-player";
+import { AppViewCanvas } from "./view-canvas/app-view";
 
 const FPS = 60;
 
@@ -313,17 +313,27 @@ const gameSettings: GameSettings = {
     TIME_TILL_RESTART: 3,
     PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
-    PRNG_SEED: Date.now(),
+    PRNG_SEED: 0,
+    FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 3,
-    NPC_COUNT: 1,
+    PLAYER_COUNT: 2,
+    NPC_COUNT: 0,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
     PLAYER_MAX_ENERGY: 4,
     // AI Settings
-    AI_MAX_SHOOT_DELAY: 1.5,
-    AI_MIN_SHOOT_DELAY: 0.5,
+    AI_DUMBNESS: [0, 0.33, 0.66, 1],
+    AI_SHOOT_DELAY: 0.2,
+    AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
+    AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
+    AI_POWERUP_ACTIONABLE_RADIUS: 400,
+    AI_POWERUP_IGNORE_DELAY: 0.85,
+    AI_MAX_AIM_ERROR: 25, // degrees
+    AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
+    AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
+    AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
+    AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: 250,
@@ -334,12 +344,12 @@ const gameSettings: GameSettings = {
     //   Projectile
     PROJECTILE_SPEED: 500,
     PROJECTILE_DAMAGE: 1,
-    PROJECTILE_ENABLE_TELEPORT: true,
+    PROJECTILE_ENABLE_TELEPORT: false,
     PROJECTILE_MASS: 5,
     PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
     //   Obstacle
     OBSTACLE_MAX_SPEED: 375,
-    OBSTACLE_HIT_DAMAGE: 10,
+    OBSTACLE_HIT_DAMAGE: 100,
     OBSTACLE_MASS: 15,
     OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
     //   Powerup
@@ -356,7 +366,7 @@ const hudFrames = {
 };
 
 const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
-app.start(FPS);
+app.start();
 
 const appView = new AppViewCanvas(
     app,

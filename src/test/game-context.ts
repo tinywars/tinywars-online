@@ -69,6 +69,8 @@ export function getMockGameContext(options: {
         ),
         eventQueue: options.eventQueue,
         eventEmitter: new GameEventEmitter(),
+        scores: [0, 0, 0, 0],
+        wins: [0, 0, 0, 0],
         log: (msg: string) => {
             console.log(msg);
         },

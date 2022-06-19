@@ -9,6 +9,7 @@ export function getMockSettings(): GameSettings {
         PLAYER_SETTINGS: [],
         DISPLAY_PLAYER_NAMES: true,
         PRNG_SEED: 0,
+        FIXED_FRAME_TIME: 1 / 60,
         // Spawn settings
         PLAYER_COUNT: 4,
         NPC_COUNT: 0,
@@ -17,8 +18,17 @@ export function getMockSettings(): GameSettings {
         PLAYER_INITIAL_ENERGY: 2,
         PLAYER_MAX_ENERGY: 4,
         // AI Settings
-        AI_MAX_SHOOT_DELAY: 1.5,
-        AI_MIN_SHOOT_DELAY: 0.5,
+        AI_DUMBNESS: [0, 0.33, 0.66, 1],
+        AI_SHOOT_DELAY: 0.2,
+        AI_HEALTH_SCORE_WEIGHT: 100,
+        AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
+        AI_POWERUP_ACTIONABLE_RADIUS: 400,
+        AI_POWERUP_IGNORE_DELAY: 0.85,
+        AI_MAX_AIM_ERROR: 25,
+        AI_AIM_ERROR_DECREASE_SPEED: 0.25,
+        AI_MAX_COLLISION_DODGE_ERROR: 0.75,
+        AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
+        AI_MAX_COLLISION_PANIC_RADIUS: 20,
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 250,

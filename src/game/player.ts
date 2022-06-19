@@ -1,21 +1,21 @@
-import { CircleCollider } from "../utility/circle-collider";
-import { Controller } from "../utility/controller";
-import { Vector } from "../utility/vector";
-import { clamp, sanitizeAngle } from "../utility/math";
+import { EventQueue } from "../events/event-queue";
 import {
-    eventSpawnProjectile,
     eventDestroyPlayer,
+    eventSpawnProjectile,
     eventSpawnWreck,
 } from "../events/game-event";
+import { AnimationEngine } from "../utility/animation";
+import { CircleCollider } from "../utility/circle-collider";
+import { Controller } from "../utility/controller";
+import { Coords } from "../utility/coords";
+import { clamp, sanitizeAngle } from "../utility/math";
+import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
-import { AnimationEngine } from "../utility/animation";
-import { Coords } from "../utility/coords";
-import { EventQueue } from "../events/event-queue";
 import { PowerupType } from "./powerup";
 
 export class Player extends GameObject {
-    protected static RADIUS = 10;
+    protected static RADIUS = 12;
     protected direction: Vector = Vector.zero();
     protected health = 0;
     protected energy = 0;
@@ -120,6 +120,10 @@ export class Player extends GameObject {
         return this.health;
     }
 
+    getProjectileSpawnOffset(dt: number): number {
+        return Player.RADIUS + 1 + this.forward.getScaled(dt).getSize();
+    }
+
     private updateRotation(frameRotation: number, dt: number) {
         this.rotation = sanitizeAngle(this.rotation + frameRotation * dt);
         this.direction.setRotation(this.rotation);
@@ -156,11 +160,7 @@ export class Player extends GameObject {
                     // There is some rounding error that I cannot reproduce in unit tests, but when
                     // you turbo and fire, then your own projectile will damage you, unless the +1
                     // is in the expression below.
-                    this.direction.getScaled(
-                        Player.RADIUS +
-                            1 +
-                            this.forward.getScaled(dt).getSize(),
-                    ),
+                    this.direction.getScaled(this.getProjectileSpawnOffset(dt)),
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,

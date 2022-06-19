@@ -1,5 +1,9 @@
 import { assert } from "chai";
 import { Howl } from "howler";
+// Howler.stop();
+// Howler.unload();
+// Howler.autoUnlock = true;
+// Howler.html5PoolSize = 1000;
 
 export class SoundPlayer<T extends string> {
     private sounds: Map<T, Howl>;
