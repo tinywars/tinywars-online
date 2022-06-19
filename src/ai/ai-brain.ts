@@ -1,20 +1,19 @@
+import { assert } from "chai";
 import { GameContext } from "../game/game-context";
+import { GameObject } from "../game/game-object";
 import { KeyCode } from "../game/key-codes";
 import { Player } from "../game/player";
+import { Powerup, PowerupType } from "../game/powerup";
+import { CircleCollider } from "../utility/circle-collider";
+import { FastArray } from "../utility/fast-array";
+import * as GameMath from "../utility/math";
+import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
+import { PRNG } from "../utility/prng";
+import { Timer } from "../utility/timer";
 import { Vector } from "../utility/vector";
 import { AiPoweredController } from "./ai-controller";
-import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
-import { GameObject } from "../game/game-object";
-import { FastArray } from "../utility/fast-array";
-import { assert } from "chai";
 import { Fsm, FsmTransitionCondition } from "./fsm";
-import * as GameMath from "../utility/math";
-import { If, Do, DoNothing } from "./fsm-builder";
-import { Timer } from "../utility/timer";
-import { CircleCollider } from "../utility/circle-collider";
-import { PRNG } from "../utility/prng";
-import { Powerup, PowerupType } from "../game/powerup";
-import { GameSettings } from "../game/game-settings";
+import { Do, DoNothing, If } from "./fsm-builder";
 
 export enum State {
     Start,
@@ -252,7 +251,6 @@ export class AiBrain {
         useScreenWrapTest = false,
     ) {
         const settings = this.context.settings;
-        let result = false;
         let worstTimeToCollision = Infinity;
         const COLLISION_CRITICAL_TIME = 1 - this.dodgeReactionTimeError;
 
@@ -287,14 +285,13 @@ export class AiBrain {
                     t < COLLISION_CRITICAL_TIME &&
                     t < worstTimeToCollision
                 ) {
-                    result = true;
                     worstTimeToCollision = t;
                 }
             });
         });
 
         return {
-            isCollisionImminent: result,
+            isCollisionImminent: Number.isFinite(worstTimeToCollision),
             timeToCollision: worstTimeToCollision,
         };
     }

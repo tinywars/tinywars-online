@@ -1,30 +1,30 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { App } from "./app/app";
-import "./style.css";
-import { AppViewCanvas } from "./view-canvas/app-view";
-import { AnimationFrame } from "./utility/animation";
-import { PlayerControls, PlayerSettings } from "./game/player-settings";
-import { GameSettings } from "./game/game-settings";
-import { KeyCode } from "./game/key-codes";
-import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
-import { GameEventEmitter } from "./events/event-emitter";
-import { Jukebox } from "./utility/jukebox";
-import { SoundPlayer } from "./utility/sound-player";
-import soundLaser1Url from "../assets/sounds/laser1.wav";
-import soundLaser2Url from "../assets/sounds/laser3.wav";
-import soundShipHitUrl from "../assets/sounds/shiphit.wav";
-import soundRockHitUrl from "../assets/sounds/rockhit.wav";
-import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
-import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import soundExplosionUrl from "../assets/sounds/explosion.wav";
-import soundTurboUrl from "../assets/sounds/boost1.wav";
-import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
 import musicTrack4 from "../assets/music/track4.ogg";
 import musicTrack5 from "../assets/music/track5.ogg";
+import soundTurboUrl from "../assets/sounds/boost1.wav";
+import soundExplosionUrl from "../assets/sounds/explosion.wav";
+import soundLaser1Url from "../assets/sounds/laser1.wav";
+import soundLaser2Url from "../assets/sounds/laser3.wav";
+import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
+import soundRockHitUrl from "../assets/sounds/rockhit.wav";
+import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
+import soundShipHitUrl from "../assets/sounds/shiphit.wav";
+import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
+import { App } from "./app/app";
+import { GameEventEmitter } from "./events/event-emitter";
+import { GameSettings } from "./game/game-settings";
+import { KeyCode } from "./game/key-codes";
+import { PlayerControls, PlayerSettings } from "./game/player-settings";
+import "./style.css";
+import { AnimationFrame } from "./utility/animation";
+import { Jukebox } from "./utility/jukebox";
+import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
+import { SoundPlayer } from "./utility/sound-player";
+import { AppViewCanvas } from "./view-canvas/app-view";
 
 const FPS = 60;
 
@@ -316,8 +316,8 @@ const gameSettings: GameSettings = {
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 4,
-    NPC_COUNT: 4,
+    PLAYER_COUNT: 2,
+    NPC_COUNT: 0,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,

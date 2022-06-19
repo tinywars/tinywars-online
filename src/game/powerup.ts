@@ -13,7 +13,7 @@ export enum PowerupType {
 }
 
 export class Powerup extends GameObject {
-    protected static RADIUS = 9;
+    protected static RADIUS = 12;
     private type: PowerupType;
 
     constructor(
