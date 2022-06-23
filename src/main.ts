@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
+import { io, Socket } from "socket.io-client";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
@@ -14,6 +15,7 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
+import { ClientEvents, ClientState, ServerEvents } from "../backend/src/events";
 import { App } from "./app/app";
 import { GameEventEmitter } from "./events/event-emitter";
 import { GameSettings } from "./game/game-settings";
@@ -23,8 +25,24 @@ import "./style.css";
 import { AnimationFrame } from "./utility/animation";
 import { Jukebox } from "./utility/jukebox";
 import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
+import { PRNG } from "./utility/prng";
 import { SoundPlayer } from "./utility/sound-player";
 import { AppViewCanvas } from "./view-canvas/app-view";
+
+const clientSettings: ClientState = {
+    id: PRNG.randomInt(),
+    name: "ReadyPlayerOne",
+};
+
+const socket: Socket<ServerEvents, ClientEvents> = io("http://localhost:10666");
+
+socket.on("connect", () => {
+    socket.emit("clientChanged", clientSettings);
+});
+
+socket.on("lobbyUpdated", (state) => {
+    console.log(state);
+});
 
 const FPS = 60;
 
