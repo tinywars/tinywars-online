@@ -1,10 +1,9 @@
 import { createServer, Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
-import { ClientEvents, LobbyState, ServerEvents } from "./events";
+import { ClientEvents, ClientState, LobbyState, ServerEvents } from "./events";
+import { BACKEND_PORT } from "./settings";
 
-const state: LobbyState = {
-    clients: [],
-};
+const games: Map<string, LobbyState> = new Map();
 
 const httpServer: HttpServer = createServer();
 const serverOptions: Partial<ServerOptions> = {
@@ -25,7 +24,7 @@ io.on("connection", (socket) => {
         console.log(`Error occured: ${e.name}: ${e.message}`);
     });
 
-    socket.on("clientChanged", (clientState) => {
+    /*socket.on("clientChanged", (clientState) => {
         let clientIndex = -1;
         state.clients.forEach((c, i) => {
             if (c.id === clientState.id) clientIndex = i;
@@ -42,11 +41,53 @@ io.on("connection", (socket) => {
         }
 
         socket.emit("lobbyUpdated", state);
+    });*/
+
+    socket.on("lobbyRequested", (clientState: ClientState) => {
+        const connectionCode = clientState.id + "";
+        games.set(connectionCode, {
+            hostCode: connectionCode,
+            clients: [clientState],
+        });
+        socket.join(connectionCode); // now we can broadcast within that room
+
+        socket.emit("lobbyCreated", connectionCode);
+    });
+
+    socket.on(
+        "lobbyEntered",
+        (connectionCode: string, clientState: ClientState) => {
+            console.log("Client entered lobby");
+            if (games.has(connectionCode)) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const lobby = games.get(connectionCode)!;
+                if (
+                    lobby.clients.find((cs) => cs === clientState) === undefined
+                ) {
+                    lobby.clients.push(clientState);
+                    socket.join(connectionCode); // now we can broadcast within that room
+                    io.to(connectionCode).emit("lobbyUpdated", lobby);
+                } else {
+                    socket.emit(
+                        "lobbyError",
+                        "You are already connected to this lobby.",
+                    );
+                }
+            } else {
+                socket.emit("lobbyError", "Lobby does not exist.");
+            }
+        },
+    );
+
+    socket.on("lobbyCommited", (clientState: ClientState) => {
+        const connectionCode = clientState.id + "";
+
+        // Broadcast to all peers in the lobby (room)
+        io.to(connectionCode).emit("gameStarted", games.get(connectionCode)!);
     });
 });
 
-const PORT = 10666;
 const HOST = "0.0.0.0";
 
-httpServer.listen(PORT);
-console.log(`Server listening on ${HOST}:${PORT}`);
+httpServer.listen(BACKEND_PORT);
+console.log(`Server listening on ${HOST}:${BACKEND_PORT}`);

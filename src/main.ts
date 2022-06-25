@@ -15,7 +15,13 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import { ClientEvents, ClientState, ServerEvents } from "../backend/src/events";
+import {
+    ClientEvents,
+    ClientState,
+    LobbyState,
+    ServerEvents
+} from "../backend/src/events";
+import { BACKEND_PORT } from "../backend/src/settings";
 import { App } from "./app/app";
 import { GameEventEmitter } from "./events/event-emitter";
 import { GameSettings } from "./game/game-settings";
@@ -29,20 +35,68 @@ import { PRNG } from "./utility/prng";
 import { SoundPlayer } from "./utility/sound-player";
 import { AppViewCanvas } from "./view-canvas/app-view";
 
-const clientSettings: ClientState = {
+PRNG.setSeed(Date.now());
+
+type TinywarsSocket = Socket<ServerEvents, ClientEvents>;
+
+function createLobby(socket: TinywarsSocket, clientState: ClientState) {
+    socket.emit("lobbyRequested", clientState);
+}
+
+function startNetGame(socket: TinywarsSocket, clientState: ClientState) {
+    socket.emit("lobbyCommited", clientState);
+}
+
+// Generate random player state
+// this will be customizable in menu
+const hardcodedRandomPlayerNames = [
+    "ReadyPlayerOne",
+    "doomista",
+    "rand'o",
+    "PapoochCZ",
+];
+const clientState: ClientState = {
     id: PRNG.randomInt(),
-    name: "ReadyPlayerOne",
+    name: hardcodedRandomPlayerNames[
+        PRNG.randomInt() % hardcodedRandomPlayerNames.length
+    ],
 };
 
-const socket: Socket<ServerEvents, ClientEvents> = io("http://localhost:10666");
+console.log(clientState);
+
+// Instantiate socket connection
+const socket: TinywarsSocket = io(`http://localhost:${BACKEND_PORT}`);
 
 socket.on("connect", () => {
-    socket.emit("clientChanged", clientSettings);
+    console.log("Connected to backend");
+});
+
+socket.on("connect_error", (err) => {
+    console.error(err);
+    //alert(`Error: ${err.name}:${err.message}`);
 });
 
 socket.on("lobbyUpdated", (state) => {
     console.log(state);
 });
+
+socket.on("lobbyCreated", (connectionCode: string) => {
+    console.log(`Lobby created. Connection code: ${connectionCode}`);
+});
+
+socket.on("gameStarted", (lobbyState: LobbyState) => {
+    console.log("Game started");
+});
+
+/*console.log(window.location);
+if (window.location.pathname.length > 0) {
+    console.log("Entering lobby");
+    // Slice away leading slash
+    const connectionCode = window.location.pathname.slice(1);
+    setTimeout(() => {
+        socket.emit("lobbyEntered", connectionCode, clientState);
+    }, 500);
+}*/
 
 const FPS = 60;
 
@@ -123,8 +177,6 @@ document.onkeyup = (e) => {
     console.log("OnKeyUp: " + e.code);
     keyboardState[e.code] = false;
 };
-
-console.log("App init");
 
 const animations = {
     player0: {
@@ -399,3 +451,12 @@ window.onresize = debounce(() => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).app = app;
+(window as any).createLobby = () => {
+    createLobby(socket, clientState);
+};
+(window as any).startNetGame = () => {
+    startNetGame(socket, clientState);
+};
+(window as any).connect = (code: number) => {
+    socket.emit("lobbyEntered", code + "", clientState);
+};
