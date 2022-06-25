@@ -12,7 +12,7 @@ const clientsToGames: Map<string, string> = new Map(); // maps clientIds to game
 const httpServer: HttpServer = createServer();
 const serverOptions: Partial<ServerOptions> = {
     cors: {
-        origin: [`http://localhost:${FRONTEND_PORT}`], // this is IP and port of frontend server
+        origin: [`http://${HOST_IP}:${FRONTEND_PORT}`], // this is IP and port of frontend server
     },
 };
 const io = new Server<ClientEvents, ServerEvents>(httpServer, serverOptions);
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
             return;
         }
 
-        console.log(`Got input from client ${clientId} for game ${gameId}`);
+        //console.log(`Got input from client ${clientId} for game ${gameId}`);
 
         game.clients.forEach((client, index) => {
             if (client.id !== clientId) return;
@@ -101,9 +101,9 @@ io.on("connection", (socket) => {
         });
 
         if (game.collectedInputCount === game.clients.length) {
-            console.log(
+            /*console.log(
                 "All inputs for this frame were received, sending then back",
-            );
+            );*/
             io.to(gameId).emit("gameInputsCollected", game.playerInputs);
             game.collectedInputCount = 0;
         }

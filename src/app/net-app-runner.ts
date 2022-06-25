@@ -27,7 +27,6 @@ export class NetAppRunner extends AppRunner {
     protected override runInternal(): void {
         setInterval(this.notifyNextUpdateAvailable, this.frameTimeMsec);
         this.socket.on("gameInputsCollected", (inputs: boolean[][]) => {
-            console.log(inputs);
             this.registerAllFrameInputs(inputs);
         });
         this.socket.emit(

@@ -15,7 +15,7 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import { BACKEND_PORT } from "../backend/src/settings";
+import { BACKEND_PORT, HOST_IP } from "../backend/src/settings";
 import { ClientState } from "../backend/src/types/client-state";
 import { NetGameState } from "../backend/src/types/game-state";
 import { App } from "./app/app";
@@ -60,14 +60,14 @@ const hardcodedRandomPlayerNames = [
     "PapoochCZ",
 ];
 const clientState: ClientState = {
-    id: PRNG.randomInt() + "",
+    id: (PRNG.randomInt() % 1000) + "",
     name: PRNG.randomItem(hardcodedRandomPlayerNames),
 };
 
 console.log(clientState);
 
 // Instantiate socket connection
-const socket: TinywarsSocket = io(`http://localhost:${BACKEND_PORT}`);
+const socket: TinywarsSocket = io(`http://${HOST_IP}:${BACKEND_PORT}`);
 
 socket.on("connect", () => {
     console.log("Connected to backend");
@@ -367,6 +367,7 @@ socket.on("gameStarted", (gameCode: string, gameState: NetGameState) => {
     gameSettings.PLAYER_COUNT = gameState.clients.length;
     gameSettings.NPC_COUNT = 0;
     gameSettings.PLAYER_SETTINGS = playerSettings;
+    gameSettings.PRNG_SEED = parseInt(gameCode);
 
     const controllers: SimpleController[] = [];
     for (let i = 0; i < gameState.clients.length; i++)
