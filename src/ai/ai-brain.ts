@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { SimpleController } from "../controllers/simple-controller";
 import { GameContext } from "../game/game-context";
 import { GameObject } from "../game/game-object";
 import { KeyCode } from "../game/key-codes";
@@ -11,7 +12,6 @@ import { getTimeBeforeCollision, sanitizeAngle } from "../utility/math";
 import { PRNG } from "../utility/prng";
 import { Timer } from "../utility/timer";
 import { Vector } from "../utility/vector";
-import { AiPoweredController } from "./ai-controller";
 import { Fsm, FsmTransitionCondition } from "./fsm";
 import { Do, DoNothing, If } from "./fsm-builder";
 
@@ -75,7 +75,7 @@ export class AiBrain {
     private timeToCollision = 0; // used in pickEvasionAngle
 
     constructor(
-        private controller: AiPoweredController,
+        private controller: SimpleController,
         private myPlayer: Player,
         private context: GameContext,
     ) {

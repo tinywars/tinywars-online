@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
@@ -15,29 +15,33 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import {
-    ClientEvents,
-    ClientState,
-    LobbyState,
-    ServerEvents
-} from "../backend/src/events";
 import { BACKEND_PORT } from "../backend/src/settings";
+import { ClientState } from "../backend/src/types/client-state";
+import { NetGameState } from "../backend/src/types/game-state";
 import { App } from "./app/app";
+import { LocalAppRunner } from "./app/local-app-runner";
+import { NetAppRunner } from "./app/net-app-runner";
+import { Controller } from "./controllers/controller";
+import { ControllerFactory } from "./controllers/controller-factory";
+import { SimpleController } from "./controllers/simple-controller";
 import { GameEventEmitter } from "./events/event-emitter";
 import { GameSettings } from "./game/game-settings";
-import { KeyCode } from "./game/key-codes";
-import { PlayerControls, PlayerSettings } from "./game/player-settings";
+import {
+    PLAYER1_DEFAULT_CONTROLS,
+    PLAYER2_DEFAULT_CONTROLS,
+    PLAYER3_DEFAULT_CONTROLS,
+    PLAYER4_DEFAULT_CONTROLS,
+    PlayerSettings
+} from "./game/player-settings";
+import { TinywarsSocket } from "./networking/types";
 import "./style.css";
 import { AnimationFrame } from "./utility/animation";
 import { Jukebox } from "./utility/jukebox";
-import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
 import { PRNG } from "./utility/prng";
 import { SoundPlayer } from "./utility/sound-player";
 import { AppViewCanvas } from "./view-canvas/app-view";
 
 PRNG.setSeed(Date.now());
-
-type TinywarsSocket = Socket<ServerEvents, ClientEvents>;
 
 function createLobby(socket: TinywarsSocket, clientState: ClientState) {
     socket.emit("lobbyRequested", clientState);
@@ -84,10 +88,11 @@ socket.on("lobbyCreated", (connectionCode: string) => {
     console.log(`Lobby created. Connection code: ${connectionCode}`);
 });
 
-socket.on("gameStarted", (lobbyState: LobbyState) => {
+socket.on("gameStarted", (lobbyState: NetGameState) => {
     console.log("Game started");
 });
 
+// TODO: run this after connecting to backend
 /*console.log(window.location);
 if (window.location.pathname.length > 0) {
     console.log("Entering lobby");
@@ -217,162 +222,26 @@ const animations = {
     },
 };
 
-const player1controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyW",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyS",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyA",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyD",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "KeyR",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyT",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player2controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyI",
-        button: GamepadButton.A,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyK",
-        button: GamepadButton.B,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyJ",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyL",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "KeyP",
-        button: GamepadButton.RTrigger,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyO",
-        button: GamepadButton.LTrigger,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player3controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "Numpad5",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "Numpad2",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "Numpad1",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "Numpad3",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "Numpad9",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "Numpad6",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player4controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyG",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyB",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyV",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyN",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "Space",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyH",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
 const playerSettings: PlayerSettings[] = [
     {
         name: "red",
         invertSteeringOnReverse: true,
-        controls: player1controls,
+        controls: PLAYER1_DEFAULT_CONTROLS,
     },
     {
         name: "green",
         invertSteeringOnReverse: false,
-        controls: player2controls,
+        controls: PLAYER2_DEFAULT_CONTROLS,
     },
     {
         name: "blue",
         invertSteeringOnReverse: false,
-        controls: player3controls,
+        controls: PLAYER3_DEFAULT_CONTROLS,
     },
     {
         name: "yellow",
         invertSteeringOnReverse: false,
-        controls: player4controls,
+        controls: PLAYER4_DEFAULT_CONTROLS,
     },
 ];
 
@@ -386,8 +255,8 @@ const gameSettings: GameSettings = {
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 2,
-    NPC_COUNT: 0,
+    PLAYER_COUNT: 3,
+    NPC_COUNT: 1,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -435,8 +304,33 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
-app.start();
+const shouldStartNetGame = false;
+const controllers: Controller[] = [];
+
+if (!shouldStartNetGame) {
+    const HUMAN_PLAYER_COUNT =
+        gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
+
+    for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
+        controllers.push(
+            ControllerFactory.createPhysicalController(
+                i,
+                playerSettings[i],
+                keyboardState,
+            ),
+        );
+
+    for (let i = HUMAN_PLAYER_COUNT; i < gameSettings.PLAYER_COUNT; i++) {
+        const aiController = new SimpleController();
+        controllers.push(aiController);
+    }
+}
+
+const app = new App(gameEventEmitter, animations, gameSettings, controllers);
+const runner = shouldStartNetGame
+    ? new NetAppRunner(app, socket)
+    : new LocalAppRunner(app);
+runner.run(FPS);
 
 const appView = new AppViewCanvas(
     app,

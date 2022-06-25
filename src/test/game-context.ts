@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { Controller } from "../controllers/controller";
 import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { GameContext } from "../game/game-context";
@@ -8,13 +9,12 @@ import { Player } from "../game/player";
 import { Powerup } from "../game/powerup";
 import { Projectile } from "../game/projectile";
 import { AnimationEngine } from "../utility/animation";
-import { Controller } from "../utility/controller";
 import { FastArray } from "../utility/fast-array";
 import {
     obstacleAnimationMock,
     playerAnimationMock,
     powerupAnimationMock,
-    projectileAnimationMock,
+    projectileAnimationMock
 } from "./animation-frame";
 
 export function getMockGameContext(options: {

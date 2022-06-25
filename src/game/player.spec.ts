@@ -1,24 +1,24 @@
 import { expect } from "chai";
-import { AiPoweredController } from "../ai/ai-controller";
+import { SimpleController } from "../controllers/simple-controller";
 import { EventQueue } from "../events/event-queue";
+import { getMockGameContext } from "../test/game-context";
+import { getMockSettings } from "../test/game-settings";
 import { Vector } from "../utility/vector";
-import { Player } from "./player";
-import { KeyCode } from "./key-codes";
 import { GameContext } from "./game-context";
 import { GameSettings } from "./game-settings";
-import { getMockSettings } from "../test/game-settings";
-import { getMockGameContext } from "../test/game-context";
+import { KeyCode } from "./key-codes";
+import { Player } from "./player";
 import { PowerupType } from "./powerup";
 
 describe("Player", () => {
-    let controller: AiPoweredController;
+    let controller: SimpleController;
     let eventQueue: EventQueue;
     let player: Player;
     let settings: GameSettings;
     let gameContext: GameContext;
 
     beforeEach(() => {
-        controller = new AiPoweredController();
+        controller = new SimpleController();
         controller.releaseKey(KeyCode.Up);
         controller.releaseKey(KeyCode.Down);
         controller.releaseKey(KeyCode.Left);

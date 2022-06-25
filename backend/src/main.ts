@@ -1,14 +1,17 @@
 import { createServer, Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
-import { ClientEvents, ClientState, LobbyState, ServerEvents } from "./events";
-import { BACKEND_PORT } from "./settings";
+import { ClientEvents } from "./events/client-events";
+import { ServerEvents } from "./events/server-events";
+import { BACKEND_PORT, FRONTEND_PORT, HOST_IP } from "./settings";
+import { ClientState } from "./types/client-state";
+import { NetGameState } from "./types/game-state";
 
-const games: Map<string, LobbyState> = new Map();
+const games: Map<string, NetGameState> = new Map();
 
 const httpServer: HttpServer = createServer();
 const serverOptions: Partial<ServerOptions> = {
     cors: {
-        origin: ["http://localhost:3000"], // this is IP and port of frontend server
+        origin: [`http://localhost:${FRONTEND_PORT}`], // this is IP and port of frontend server
     },
 };
 const io = new Server<ClientEvents, ServerEvents>(httpServer, serverOptions);
@@ -87,7 +90,5 @@ io.on("connection", (socket) => {
     });
 });
 
-const HOST = "0.0.0.0";
-
 httpServer.listen(BACKEND_PORT);
-console.log(`Server listening on ${HOST}:${BACKEND_PORT}`);
+console.log(`Server listening on ${HOST_IP}:${BACKEND_PORT}`);
