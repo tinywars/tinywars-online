@@ -1,3 +1,5 @@
+import { Controller } from "../controllers/controller";
+import { SimpleController } from "../controllers/simple-controller";
 import { TinywarsSocket } from "../networking/types";
 import { App } from "./app";
 import { AppRunner } from "./app-runner";
@@ -12,19 +14,37 @@ export class NetAppRunner extends AppRunner {
     private inputsReceived = false;
     private nextUpdateAvailable = false;
 
-    constructor(private app: App, private socket: TinywarsSocket) {
+    constructor(
+        private app: App,
+        private socket: TinywarsSocket,
+        private netControllers: SimpleController[],
+        private myController: Controller,
+        private clientId: string,
+    ) {
         super();
     }
 
-    protected runInternal(): void {
-        this.socket.on("inputsCollected", () => {
-            this.registerAllFrameInputs();
-        });
+    protected override runInternal(): void {
         setInterval(this.notifyNextUpdateAvailable, this.frameTimeMsec);
+        this.socket.on("gameInputsCollected", (inputs: boolean[][]) => {
+            console.log(inputs);
+            this.registerAllFrameInputs(inputs);
+        });
+        this.socket.emit(
+            "gameInputGathered",
+            this.clientId,
+            this.myController.getSnapshot(),
+        );
     }
 
-    private registerAllFrameInputs(/*...params...*/) {
-        // TODO: inputs
+    private registerAllFrameInputs(inputs: boolean[][]) {
+        for (let i = 0; i < this.netControllers.length; i++) {
+            inputs[i].forEach((pressed, code) => {
+                if (pressed) this.netControllers[i].pressKey(code);
+                else this.netControllers[i].releaseKey(code);
+            });
+        }
+        this.inputsReceived = true;
         this.updateLogic();
     }
 
@@ -35,9 +55,14 @@ export class NetAppRunner extends AppRunner {
 
     private updateLogic() {
         if (!this.inputsReceived || !this.nextUpdateAvailable) return;
-        this.app.updateLogic(this.frameTimeSec);
-
         this.inputsReceived = false;
         this.nextUpdateAvailable = false;
+
+        this.socket.emit(
+            "gameInputGathered",
+            this.clientId,
+            this.myController.getSnapshot(),
+        );
+        this.app.updateLogic(this.frameTimeSec);
     }
 }

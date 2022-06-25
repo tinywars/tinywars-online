@@ -29,6 +29,23 @@ export abstract class Controller {
         return result;
     }
 
+    getSnapshot(): boolean[] {
+        const result: boolean[] = new Array<boolean>(
+            KeyCode.BinaryInputDelimiter,
+        );
+
+        const throttleAndSteer = this.getThrottleAndSteer();
+
+        result[KeyCode.Up] = throttleAndSteer.throttle === 1;
+        result[KeyCode.Down] = throttleAndSteer.throttle === -1;
+        result[KeyCode.Left] = throttleAndSteer.steer === -1;
+        result[KeyCode.Right] = throttleAndSteer.steer === 1;
+        result[KeyCode.Shoot] = this.isInputPressed(KeyCode.Shoot) === true;
+        result[KeyCode.Action] = this.isInputPressed(KeyCode.Action) === true;
+
+        return result;
+    }
+
     protected getThrottle(): number {
         if (this.isInputPressed(KeyCode.Up)) return 1;
         else if (this.isInputPressed(KeyCode.Down)) return -1;

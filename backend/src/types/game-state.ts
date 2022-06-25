@@ -1,6 +1,9 @@
 import { ClientState } from "./client-state";
 
+type PlayerInput = boolean[];
+
 export interface NetGameState {
-    hostCode: string;
     clients: ClientState[];
+    collectedInputCount: number;
+    playerInputs: PlayerInput[];
 }

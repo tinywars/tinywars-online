@@ -5,7 +5,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "typecheck": "tsc",
-    "dev": "ts-node src/main.ts"
+    "dev": "nodemon src/main.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
@@ -15,6 +15,7 @@
     "chai": "^4.3.6",
     "eslint": "^8.13.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.18",
     "socket.io": "4.5",
     "ts-node": "^10.7.0",
     "typescript": "^4.5.4"

@@ -6,7 +6,7 @@ export class LocalAppRunner extends AppRunner {
         super();
     }
 
-    protected runInternal(): void {
+    protected override runInternal(): void {
         setInterval(() => {
             this.app.updateLogic(this.frameTimeSec);
         }, this.frameTimeMsec);

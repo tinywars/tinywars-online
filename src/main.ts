@@ -43,12 +43,12 @@ import { AppViewCanvas } from "./view-canvas/app-view";
 
 PRNG.setSeed(Date.now());
 
-function createLobby(socket: TinywarsSocket, clientState: ClientState) {
-    socket.emit("lobbyRequested", clientState);
+function createLobby(socket: TinywarsSocket, gameCode: string) {
+    socket.emit("lobbyRequested", gameCode);
 }
 
-function startNetGame(socket: TinywarsSocket, clientState: ClientState) {
-    socket.emit("lobbyCommited", clientState);
+function startNetGame(socket: TinywarsSocket, gameCode: string) {
+    socket.emit("lobbyCommited", gameCode);
 }
 
 // Generate random player state
@@ -60,10 +60,8 @@ const hardcodedRandomPlayerNames = [
     "PapoochCZ",
 ];
 const clientState: ClientState = {
-    id: PRNG.randomInt(),
-    name: hardcodedRandomPlayerNames[
-        PRNG.randomInt() % hardcodedRandomPlayerNames.length
-    ],
+    id: PRNG.randomInt() + "",
+    name: PRNG.randomItem(hardcodedRandomPlayerNames),
 };
 
 console.log(clientState);
@@ -80,16 +78,17 @@ socket.on("connect_error", (err) => {
     //alert(`Error: ${err.name}:${err.message}`);
 });
 
+socket.on("gameError", (message: string) => {
+    alert("GameError: " + message);
+});
+
 socket.on("lobbyUpdated", (state) => {
     console.log(state);
 });
 
-socket.on("lobbyCreated", (connectionCode: string) => {
-    console.log(`Lobby created. Connection code: ${connectionCode}`);
-});
-
-socket.on("gameStarted", (lobbyState: NetGameState) => {
-    console.log("Game started");
+socket.on("lobbyCreated", () => {
+    console.log(`Lobby created. Connection code: ${clientState.id}`);
+    socket.emit("lobbyEntered", clientState.id, clientState);
 });
 
 // TODO: run this after connecting to backend
@@ -304,12 +303,12 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const shouldStartNetGame = false;
-const controllers: Controller[] = [];
+const shouldStartNetGame = window.location.pathname === "/net";
 
 if (!shouldStartNetGame) {
     const HUMAN_PLAYER_COUNT =
         gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
+    const controllers: Controller[] = [];
 
     for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
         controllers.push(
@@ -324,32 +323,95 @@ if (!shouldStartNetGame) {
         const aiController = new SimpleController();
         controllers.push(aiController);
     }
+
+    const app = new App(
+        gameEventEmitter,
+        animations,
+        gameSettings,
+        controllers,
+    );
+    const runner = new LocalAppRunner(app);
+    runner.run(FPS);
+
+    const appView = new AppViewCanvas(
+        app,
+        document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+        hudFrames,
+    );
+    appView.scale();
+
+    window.onresize = debounce(() => {
+        appView.scale();
+    }, 200);
 }
 
-const app = new App(gameEventEmitter, animations, gameSettings, controllers);
-const runner = shouldStartNetGame
-    ? new NetAppRunner(app, socket)
-    : new LocalAppRunner(app);
-runner.run(FPS);
+socket.on("gameStarted", (gameCode: string, gameState: NetGameState) => {
+    console.log("Game starting...");
+    let myIndex = 0;
+    gameState.clients.forEach((c, i) => {
+        if (c.id === clientState.id) myIndex = i;
+    });
 
-const appView = new AppViewCanvas(
-    app,
-    document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-    hudFrames,
-);
-appView.scale();
+    const playerSettings: PlayerSettings[] = [];
+    gameState.clients.forEach((c, i) => {
+        playerSettings.push({
+            name: c.name,
+            invertSteeringOnReverse: false,
+            controls:
+                i === myIndex
+                    ? PLAYER1_DEFAULT_CONTROLS
+                    : PLAYER4_DEFAULT_CONTROLS, // this is just dummy value, won't be used
+        });
+    });
 
-window.onresize = debounce(() => {
+    gameSettings.PLAYER_COUNT = gameState.clients.length;
+    gameSettings.NPC_COUNT = 0;
+    gameSettings.PLAYER_SETTINGS = playerSettings;
+
+    const controllers: SimpleController[] = [];
+    for (let i = 0; i < gameState.clients.length; i++)
+        controllers.push(new SimpleController());
+
+    const myController = ControllerFactory.createPhysicalController(
+        1,
+        playerSettings[myIndex],
+        keyboardState,
+    );
+
+    const app = new App(
+        gameEventEmitter,
+        animations,
+        gameSettings,
+        controllers,
+    );
+    const runner = new NetAppRunner(
+        app,
+        socket,
+        controllers,
+        myController,
+        clientState.id,
+    );
+    runner.run(FPS);
+
+    const appView = new AppViewCanvas(
+        app,
+        document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+        hudFrames,
+    );
     appView.scale();
-}, 200);
+
+    window.onresize = debounce(() => {
+        appView.scale();
+    }, 200);
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).app = app;
+//(window as any).app = app;
 (window as any).createLobby = () => {
-    createLobby(socket, clientState);
+    createLobby(socket, clientState.id);
 };
 (window as any).startNetGame = () => {
-    startNetGame(socket, clientState);
+    startNetGame(socket, clientState.id);
 };
 (window as any).connect = (code: number) => {
     socket.emit("lobbyEntered", code + "", clientState);

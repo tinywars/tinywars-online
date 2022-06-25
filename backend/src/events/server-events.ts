@@ -1,11 +1,12 @@
 import { NetGameState } from "../types/game-state";
 
 export interface ServerEvents {
-    // Confirmation of lobbyRequested. Returns URL to which other peers can connect
-    lobbyCreated: (connectionCode: string) => void;
+    // Confirmation of lobbyRequested
+    // After this, host can emit lobbyEntered to register itself into the game
+    lobbyCreated: () => void;
     // Lobby state was updated somehow (player connected or player readied)
-    lobbyUpdated: (lobbyState: NetGameState) => void;
-    lobbyError: (errorMessage: string) => void;
-    gameStarted: (lobbyState: NetGameState) => void;
-    inputsCollected: (inputs: string[]) => void;
+    lobbyUpdated: (gameState: NetGameState) => void;
+    gameStarted: (gameCode: string, gameState: NetGameState) => void;
+    gameInputsCollected: (inputs: boolean[][]) => void;
+    gameError: (errorMessage: string) => void;
 }

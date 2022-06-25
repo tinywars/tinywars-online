@@ -7,6 +7,7 @@ import { ClientState } from "./types/client-state";
 import { NetGameState } from "./types/game-state";
 
 const games: Map<string, NetGameState> = new Map();
+const clientsToGames: Map<string, string> = new Map(); // maps clientIds to games they're in
 
 const httpServer: HttpServer = createServer();
 const serverOptions: Partial<ServerOptions> = {
@@ -27,66 +28,85 @@ io.on("connection", (socket) => {
         console.log(`Error occured: ${e.name}: ${e.message}`);
     });
 
-    /*socket.on("clientChanged", (clientState) => {
-        let clientIndex = -1;
-        state.clients.forEach((c, i) => {
-            if (c.id === clientState.id) clientIndex = i;
-        });
-
-        if (clientIndex === -1) {
-            console.log(`Player ${clientState.name} has connected`);
-            state.clients.push(clientState);
-        } else {
-            console.log(
-                `Player ${clientIndex} changed their name to ${clientState.name}`,
-            );
-            state.clients[clientIndex].name = clientState.name;
+    socket.on("lobbyRequested", (gameCode: string) => {
+        if (games.has(gameCode)) {
+            socket.emit("gameError", "Game with such code already exists.");
+            return;
         }
 
-        socket.emit("lobbyUpdated", state);
-    });*/
-
-    socket.on("lobbyRequested", (clientState: ClientState) => {
-        const connectionCode = clientState.id + "";
-        games.set(connectionCode, {
-            hostCode: connectionCode,
-            clients: [clientState],
+        games.set(gameCode, {
+            clients: [],
+            collectedInputCount: 0,
+            playerInputs: new Array(4),
         });
-        socket.join(connectionCode); // now we can broadcast within that room
 
-        socket.emit("lobbyCreated", connectionCode);
+        socket.emit("lobbyCreated");
     });
 
-    socket.on(
-        "lobbyEntered",
-        (connectionCode: string, clientState: ClientState) => {
-            console.log("Client entered lobby");
-            if (games.has(connectionCode)) {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                const lobby = games.get(connectionCode)!;
-                if (
-                    lobby.clients.find((cs) => cs === clientState) === undefined
-                ) {
-                    lobby.clients.push(clientState);
-                    socket.join(connectionCode); // now we can broadcast within that room
-                    io.to(connectionCode).emit("lobbyUpdated", lobby);
-                } else {
-                    socket.emit(
-                        "lobbyError",
-                        "You are already connected to this lobby.",
-                    );
-                }
-            } else {
-                socket.emit("lobbyError", "Lobby does not exist.");
-            }
-        },
-    );
+    socket.on("lobbyEntered", (gameCode: string, clientState: ClientState) => {
+        const game = games.get(gameCode);
+        if (game === undefined) {
+            socket.emit("gameError", "Lobby does not exist.");
+            return;
+        }
 
-    socket.on("lobbyCommited", (clientState: ClientState) => {
-        const connectionCode = clientState.id + "";
+        if (game.clients.find((cs) => cs === clientState) !== undefined) {
+            socket.emit(
+                "gameError",
+                "You are already connected to this lobby.",
+            );
+            return;
+        }
 
-        // Broadcast to all peers in the lobby (room)
-        io.to(connectionCode).emit("gameStarted", games.get(connectionCode)!);
+        console.log(
+            `Client ${clientState.id}@${clientState.name} entered lobby`,
+        );
+
+        game.clients.push(clientState);
+        clientsToGames.set(clientState.id, gameCode);
+
+        socket.join(gameCode); // join socket 'room' -> we can emit messages to whole room
+        io.to(gameCode).emit("lobbyUpdated", game); // emit message to whole room
+    });
+
+    socket.on("lobbyCommited", (gameCode: string) => {
+        const game = games.get(gameCode);
+        if (game === undefined) {
+            socket.emit("gameError", "Lobby does not exist.");
+            return;
+        }
+
+        io.to(gameCode).emit("gameStarted", gameCode, game);
+    });
+
+    socket.on("gameInputGathered", (clientId: string, inputs: boolean[]) => {
+        const gameId = clientsToGames.get(clientId);
+        if (gameId === undefined) {
+            socket.emit("gameError", "You are not connected in any game.");
+            return;
+        }
+
+        const game = games.get(gameId);
+        if (game === undefined) {
+            socket.emit("gameError", "Game no longer exists.");
+            return;
+        }
+
+        console.log(`Got input from client ${clientId} for game ${gameId}`);
+
+        game.clients.forEach((client, index) => {
+            if (client.id !== clientId) return;
+            game.playerInputs[index] = inputs;
+            game.collectedInputCount++;
+        });
+
+        if (game.collectedInputCount === game.clients.length) {
+            console.log(
+                "All inputs for this frame were received, sending then back",
+            );
+            io.to(gameId).emit("gameInputsCollected", game.playerInputs);
+            game.collectedInputCount = 0;
+        }
     });
 });
 
