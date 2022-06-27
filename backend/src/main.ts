@@ -2,7 +2,7 @@ import { createServer, Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
 import { ClientEvents } from "./events/client-events";
 import { ServerEvents } from "./events/server-events";
-import { BACKEND_PORT, FRONTEND_PORT, HOST_IP } from "./settings";
+import { BACKEND_PORT, HOST_IP } from "./settings";
 import { ClientState } from "./types/client-state";
 import { NetGameState } from "./types/game-state";
 
@@ -12,7 +12,7 @@ const clientsToGames: Map<string, string> = new Map(); // maps clientIds to game
 const httpServer: HttpServer = createServer();
 const serverOptions: Partial<ServerOptions> = {
     cors: {
-        origin: [`http://${HOST_IP}:${FRONTEND_PORT}`], // this is IP and port of frontend server
+        origin: true, // allow all origins for now
     },
 };
 const io = new Server<ClientEvents, ServerEvents>(httpServer, serverOptions);

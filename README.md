@@ -57,9 +57,9 @@ npm run coverage
 
 ## Networking
 
-First, make sure you've ran `npm install` in both root folder and `backend` folder. Then run `npm run dev -- --host` in root folder and note your public IP address. Change value of `HOST_IP` const in `backend/settings.ts`. Now you can run `npm run dev` in backend folder.
+First, make sure you've ran `npm install` in both root folder and `backend` folder. Then run `npm run dev -- --host` in root folder and note your public IP address. ~~Change value of `HOST_IP` const in `backend/settings.ts`~~ (Not necessary right now, all CORS are enabled and frontend assumes backend lives on the same IP). Now you can run `npm run dev` in backend folder.
 
-In all browsers that you want to connect to your game, go to `http://<your ip>:3000/net`. Don't use localhost, it would be blocked by CORS.
+In all browsers that you want to connect to your game, go to `http://<your ip>:3000/net`.
 Open a dev console. On host machine, type in `createLobby()`. On success you will get message: `Lobby created. Connection code: <code>`.
 
 On all peer machines, enter command `connect(<code>)` into the browser console.
