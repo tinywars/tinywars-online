@@ -112,12 +112,6 @@ export class App {
         this.eventEmitter.emit("GameStarted");
     }
 
-    /*start() {
-        setInterval(() => {
-            this.updateLogic(this.settings.FIXED_FRAME_TIME);
-        }, Math.floor(this.settings.FIXED_FRAME_TIME * 1000));
-    }*/
-
     updateLogic(dt: number): void {
         if (this.gameContext.players.getSize() <= 1 && !this.endgame) {
             this.endgame = true;
@@ -205,6 +199,7 @@ export class App {
         });
 
         this.spawnPlayersAndRocks();
+        this.powerupSpawnTimer.reset();
     }
 
     private spawnPlayersAndRocks() {
