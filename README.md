@@ -57,14 +57,14 @@ npm run coverage
 
 ## Networking
 
-First, make sure you've ran `npm install` in both root folder and `backend` folder. Then run `npm run dev -- --host` in root folder and note your public IP address. ~~Change value of `HOST_IP` const in `backend/settings.ts`~~ (Not necessary right now, all CORS are enabled and frontend assumes backend lives on the same IP). Now you can run `npm run dev` in backend folder.
+ 1) Run `npm install` in root folder, followed by `npm run dev -- --host`
+ 2) Run `npm install` in `backend` folder, followed by `npm run dev`
+ 3) On the PC that should host the game, go to `http://<public ip>:3000/net/host`
+	a) Open up a dev console
+	b) Find a message that says "Lobby created". It contains URL that can be used by other peers to connect
+ 4) Host machine will see each new client pop up in the console. When you are ready, type in `startNetGame()`
 
-In all browsers that you want to connect to your game, go to `http://<your ip>:3000/net`.
-Open a dev console. On host machine, type in `createLobby()`. On success you will get message: `Lobby created. Connection code: <code>`.
-
-On all peer machines, enter command `connect(<code>)` into the browser console.
-
-On host machine, type `startNetGame()`. The game will start. Each player in each of their browsers will have the controls of player 1 (WASD, R, T).
+> NOTE: Each player in each of their browsers will have the controls of player 1 (WASD, R, T).
 
 ## Known issues
 

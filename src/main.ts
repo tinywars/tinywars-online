@@ -43,10 +43,6 @@ import { AppViewCanvas } from "./view-canvas/app-view";
 
 PRNG.setSeed(Date.now());
 
-function createLobby(socket: TinywarsSocket, gameCode: string) {
-    socket.emit("lobbyRequested", gameCode);
-}
-
 function startNetGame(socket: TinywarsSocket, gameCode: string) {
     socket.emit("lobbyCommited", gameCode);
 }
@@ -70,10 +66,18 @@ console.log(clientState);
 // Dev: assume that backend lives on the same machine as frontend
 const socket: TinywarsSocket = io(
     `http://${window.location.hostname}:${BACKEND_PORT}`,
+    { transports: ["websocket"] },
 );
 
 socket.on("connect", () => {
     console.log("Connected to backend");
+    console.log(window.location.pathname);
+    if (window.location.pathname.startsWith("/net/connect/")) {
+        const gameCode = window.location.pathname.slice("/net/connect/".length);
+        socket.emit("lobbyEntered", gameCode, clientState);
+    } else if (window.location.pathname.startsWith("/net/host")) {
+        socket.emit("lobbyRequested", clientState.id);
+    }
 });
 
 socket.on("connect_error", (err) => {
@@ -90,20 +94,11 @@ socket.on("lobbyUpdated", (state) => {
 });
 
 socket.on("lobbyCreated", () => {
-    console.log(`Lobby created. Connection code: ${clientState.id}`);
+    console.log(
+        `Lobby created. Other peers can connect by going to this address: http://${window.location.hostname}:${window.location.port}/net/connect/${clientState.id}`,
+    );
     socket.emit("lobbyEntered", clientState.id, clientState);
 });
-
-// TODO: run this after connecting to backend
-/*console.log(window.location);
-if (window.location.pathname.length > 0) {
-    console.log("Entering lobby");
-    // Slice away leading slash
-    const connectionCode = window.location.pathname.slice(1);
-    setTimeout(() => {
-        socket.emit("lobbyEntered", connectionCode, clientState);
-    }, 500);
-}*/
 
 const FPS = 60;
 
@@ -306,7 +301,7 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const shouldStartNetGame = window.location.pathname === "/net";
+const shouldStartNetGame = window.location.pathname.startsWith("/net");
 
 if (!shouldStartNetGame) {
     const HUMAN_PLAYER_COUNT =
@@ -411,12 +406,6 @@ socket.on("gameStarted", (gameCode: string, gameState: NetGameState) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 //(window as any).app = app;
-(window as any).createLobby = () => {
-    createLobby(socket, clientState.id);
-};
 (window as any).startNetGame = () => {
     startNetGame(socket, clientState.id);
-};
-(window as any).connect = (code: number) => {
-    socket.emit("lobbyEntered", code + "", clientState);
 };
