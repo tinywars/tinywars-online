@@ -157,3 +157,13 @@ export function eventDestroyPowerup(index: number) {
     };
     return e;
 }
+
+export function eventCreateEffect(name: string, coords: Vector, angle: number) {
+    const e: GameEvent = {};
+    return e;
+}
+
+export function eventDestroyEffect(index: number) {
+    const e: GameEvent = {};
+    return e;
+}
