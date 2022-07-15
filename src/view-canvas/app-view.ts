@@ -1,9 +1,9 @@
-import { Coords } from "../utility/coords";
-import { App } from "../app/app";
-import { Vector } from "../utility/vector";
-import { AnimationFrame } from "../utility/animation";
-import { Player } from "../game/player";
 import spriteheetUrl from "../../assets/spritesheet_v2.png";
+import { App } from "../app/app";
+import { Player } from "../game/player";
+import { AnimationFrame } from "../utility/animation";
+import { Coords } from "../utility/coords";
+import { Vector } from "../utility/vector";
 
 export class Sprite {
     constructor(private texture: CanvasImageSource) {}
@@ -63,7 +63,6 @@ export class Sprite {
 export class AppViewCanvas {
     private context2d: CanvasRenderingContext2D;
     private texture: CanvasImageSource;
-    private ready = false;
     private sprite: Sprite;
 
     constructor(
@@ -114,7 +113,7 @@ export class AppViewCanvas {
             context.settings.SCREEN_HEIGHT,
         );
         context.players.forEach((p) => {
-            this.drawEntity(p.getCoords());
+            this.drawEntity(p.getCoords(), p.getCollider().radius);
             this.drawHudForPlayer(p);
 
             if (context.settings.DISPLAY_PLAYER_NAMES)
@@ -129,7 +128,7 @@ export class AppViewCanvas {
             this.drawEntity(p.getCoords());
         });
         context.obstacles.forEach((o) => {
-            this.drawEntity(o.getCoords());
+            this.drawEntity(o.getCoords(), o.getCollider().radius);
         });
         context.powerups.forEach((p) => {
             this.drawEntity(p.getCoords());
@@ -165,12 +164,57 @@ export class AppViewCanvas {
         this.context2d.fillStyle = "black";
     }
 
-    private drawEntity(coords: Coords) {
+    private drawEntity(coords: Coords, radius?: number) {
         this.sprite.draw(this.context2d, {
             position: coords.position,
             rotation: coords.angle,
             frame: coords.frame,
         });
+
+        if (radius) {
+            const WIDTH = this.app.getContext().settings.SCREEN_WIDTH;
+            const HEIGHT = this.app.getContext().settings.SCREEN_HEIGHT;
+
+            if (coords.position.x < radius) {
+                this.sprite.draw(this.context2d, {
+                    position: new Vector(
+                        coords.position.x + WIDTH,
+                        coords.position.y,
+                    ),
+                    rotation: coords.angle,
+                    frame: coords.frame,
+                });
+            } else if (WIDTH - coords.position.x < radius) {
+                this.sprite.draw(this.context2d, {
+                    position: new Vector(
+                        coords.position.x - WIDTH,
+                        coords.position.y,
+                    ),
+                    rotation: coords.angle,
+                    frame: coords.frame,
+                });
+            }
+
+            if (coords.position.y < radius) {
+                this.sprite.draw(this.context2d, {
+                    position: new Vector(
+                        coords.position.x,
+                        coords.position.y + HEIGHT,
+                    ),
+                    rotation: coords.angle,
+                    frame: coords.frame,
+                });
+            } else if (HEIGHT - coords.position.y < radius) {
+                this.sprite.draw(this.context2d, {
+                    position: new Vector(
+                        coords.position.x,
+                        coords.position.y - HEIGHT,
+                    ),
+                    rotation: coords.angle,
+                    frame: coords.frame,
+                });
+            }
+        }
     }
 
     private drawHudForPlayer(player: Player) {
