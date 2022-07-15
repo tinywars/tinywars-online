@@ -1,24 +1,24 @@
 import { AiBrain } from "../ai/ai-brain";
-import { GameContext } from "../game/game-context";
-import { Controller } from "../utility/controller";
-import { PhysicalController } from "../utility/physical-controller";
-import { KeyCode } from "../game/key-codes";
-import { AnimationFrame } from "../utility/animation";
 import { AiPoweredController } from "../ai/ai-controller";
-import { EventQueue } from "../events/event-queue";
-import { FastArray } from "../utility/fast-array";
-import { AnimationEngine } from "../utility/animation";
-import { Player } from "../game/player";
-import { Obstacle } from "../game/obstacle";
-import { Projectile } from "../game/projectile";
-import { Vector } from "../utility/vector";
-import { GameSettings } from "../game/game-settings";
-import { PRNG } from "../utility/prng";
-import { CollisionMediator } from "../game/collision-mediator";
-import { Powerup } from "../game/powerup";
-import { Timer } from "../utility/timer";
-import { eventSpawnPowerup } from "../events/game-event";
 import { GameEventEmitter } from "../events/event-emitter";
+import { EventQueue } from "../events/event-queue";
+import { eventSpawnPowerup } from "../events/game-event";
+import { CollisionMediator } from "../game/collision-mediator";
+import { Effect } from "../game/effect";
+import { GameContext } from "../game/game-context";
+import { GameSettings } from "../game/game-settings";
+import { KeyCode } from "../game/key-codes";
+import { Obstacle } from "../game/obstacle";
+import { Player } from "../game/player";
+import { Powerup } from "../game/powerup";
+import { Projectile } from "../game/projectile";
+import { AnimationEngine, AnimationFrame } from "../utility/animation";
+import { Controller } from "../utility/controller";
+import { FastArray } from "../utility/fast-array";
+import { PhysicalController } from "../utility/physical-controller";
+import { PRNG } from "../utility/prng";
+import { Timer } from "../utility/timer";
+import { Vector } from "../utility/vector";
 
 export class App {
     private gameContext: GameContext;
@@ -97,6 +97,14 @@ export class App {
                         createAnimationEngine("powerup"),
                     ),
             ),
+            effects: new FastArray<Effect>(
+                16,
+                () =>
+                    new Effect(
+                        this.uniqueId++,
+                        createAnimationEngine("effects"),
+                    ),
+            ),
             eventQueue: eventQueue,
             eventEmitter: this.eventEmitter,
             scores: [0, 0, 0, 0],
@@ -171,6 +179,9 @@ export class App {
         this.gameContext.powerups.forEach((p) => {
             p.update(dt, this.gameContext);
         });
+        this.gameContext.effects.forEach((e) => {
+            e.update(dt, this.gameContext);
+        });
 
         if (this.powerupSpawnTimer.ended()) {
             this.gameContext.eventQueue.add(eventSpawnPowerup());
@@ -211,6 +222,7 @@ export class App {
         this.gameContext.projectiles.clear();
         this.gameContext.obstacles.clear();
         this.gameContext.powerups.clear();
+        this.gameContext.effects.clear();
 
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");

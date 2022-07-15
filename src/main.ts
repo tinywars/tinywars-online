@@ -108,6 +108,22 @@ document.onkeyup = (e) => {
 
 console.log("App init");
 
+function ComputeAnimationFrames(
+    startX: number,
+    startY: number,
+    width: number,
+    height: number,
+    frameCount: number,
+): AnimationFrame[] {
+    const result: AnimationFrame[] = [];
+
+    for (let i = 0; i < frameCount; i++) {
+        result.push(new AnimationFrame(startX + i * 41, startY, width, height));
+    }
+
+    return result;
+}
+
 const animations = {
     player0: {
         idle: [new AnimationFrame(1, 1, 40, 40)],
@@ -144,6 +160,11 @@ const animations = {
         idle4: [new AnimationFrame(165, 247, 20, 20)],
         idle5: [new AnimationFrame(206, 247, 20, 20)],
         idle6: [new AnimationFrame(247, 247, 20, 20)],
+    },
+    effects: {
+        playerBoom: ComputeAnimationFrames(1, 288, 40, 40, 5),
+        powerupPickup: ComputeAnimationFrames(1, 329, 40, 40, 4),
+        projectileBoom: ComputeAnimationFrames(1, 370, 14, 14, 4),
     },
 };
 

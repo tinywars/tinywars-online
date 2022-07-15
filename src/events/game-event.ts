@@ -153,17 +153,38 @@ export function eventDestroyPowerup(index: number) {
                 context.powerups.getItem(i).despawn();
                 context.powerups.popItem(i);
             });
+            // TODO: create explosion effect
         },
     };
     return e;
 }
 
 export function eventCreateEffect(name: string, coords: Vector, angle: number) {
-    const e: GameEvent = {};
+    const e: GameEvent = {
+        name: "CreateEffectEvent",
+        process: (context: GameContext): void => {
+            if (!context.effects.grow()) return;
+            context.effects.getLastItem().spawn({
+                position: coords,
+                rotation: angle,
+                type: name,
+            });
+        },
+    };
     return e;
 }
 
 export function eventDestroyEffect(index: number) {
-    const e: GameEvent = {};
+    const e: GameEvent = {
+        name: "DestroyEffectEvent",
+        process: (context: GameContext): void => {
+            context.effects.forEach((e, i) => {
+                if (e.id !== index) return;
+
+                //context.effects.getItem(i).despawn();
+                context.effects.popItem(i);
+            });
+        },
+    };
     return e;
 }
