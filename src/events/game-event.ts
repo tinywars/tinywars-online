@@ -194,11 +194,7 @@ export function eventCreateEffect(options: {
         name: "CreateEffectEvent",
         process: (context: GameContext): void => {
             if (!context.effects.grow()) return;
-            context.log(
-                `Spawning effect at ${options.position.toString()} with type ${
-                    options.type
-                }`,
-            );
+
             context.effects.getLastItem().spawn({
                 position: options.position,
                 rotation: options.rotation,
@@ -216,7 +212,6 @@ export function eventDestroyEffect(index: number) {
             context.effects.forEach((e, i) => {
                 if (e.id !== index) return;
 
-                //context.effects.getItem(i).despawn();
                 context.effects.popItem(i);
             });
         },
