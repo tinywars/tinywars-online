@@ -16,6 +16,7 @@ import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
 import { App } from "./app/app";
 import { GameEventEmitter } from "./events/event-emitter";
+import { EffectType } from "./game/effect";
 import { GameSettings } from "./game/game-settings";
 import { KeyCode } from "./game/key-codes";
 import { PlayerControls, PlayerSettings } from "./game/player-settings";
@@ -330,15 +331,16 @@ const playerSettings: PlayerSettings[] = [
 const gameSettings: GameSettings = {
     SCREEN_WIDTH: 1280,
     SCREEN_HEIGHT: (1280 / 4) * 3,
-    ANIMATION_FPS: 2,
+    COMMON_ANIMATION_FPS: 2,
+    EFFECT_ANIMATION_FPS: 16,
     TIME_TILL_RESTART: 3,
     PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 2,
-    NPC_COUNT: 0,
+    PLAYER_COUNT: 4,
+    NPC_COUNT: 4,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -386,7 +388,24 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
-const app = new App(gameEventEmitter, keyboardState, animations, gameSettings);
+function effectTypeToAnimationName(name: EffectType): string {
+    switch (name) {
+        case EffectType.PlayerExplosion:
+            return "playerBoom";
+        case EffectType.ProjectileExplosion:
+            return "projectileBoom";
+        case EffectType.PowerupPickup:
+            return "powerupPickup";
+    }
+}
+
+const app = new App(
+    gameEventEmitter,
+    keyboardState,
+    animations,
+    gameSettings,
+    effectTypeToAnimationName,
+);
 app.start();
 
 const appView = new AppViewCanvas(

@@ -4,7 +4,8 @@ export function getMockSettings(): GameSettings {
     return {
         SCREEN_WIDTH: 1000,
         SCREEN_HEIGHT: 1000,
-        ANIMATION_FPS: 2,
+        COMMON_ANIMATION_FPS: 2,
+        EFFECT_ANIMATION_FPS: 16;
         TIME_TILL_RESTART: 5,
         PLAYER_SETTINGS: [],
         DISPLAY_PLAYER_NAMES: true,

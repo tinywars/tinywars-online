@@ -1,9 +1,9 @@
-import { Coords } from "../utility/coords";
-import { App } from "../app/app";
-import { Vector } from "../utility/vector";
-import { AnimationFrame } from "../utility/animation";
-import { Player } from "../game/player";
 import spriteheetUrl from "../../assets/spritesheet_v2.png";
+import { App } from "../app/app";
+import { Player } from "../game/player";
+import { AnimationFrame } from "../utility/animation";
+import { Coords } from "../utility/coords";
+import { Vector } from "../utility/vector";
 
 export class Sprite {
     constructor(private texture: CanvasImageSource) {}
@@ -133,6 +133,9 @@ export class AppViewCanvas {
         });
         context.powerups.forEach((p) => {
             this.drawEntity(p.getCoords());
+        });
+        context.effects.forEach((e) => {
+            this.drawEntity(e.getCoords());
         });
 
         const endgameStatus = this.app.getEndgameStatus();

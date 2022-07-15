@@ -44,17 +44,18 @@ export class AnimationEngine<
         return true;
     }
 
-    setState(name: keyof TStates, looping = false) {
+    setState(name: keyof TStates, looping = false, reset = false) {
         if (this.states[name] === undefined)
             throw new Error(
-                "Programatic error: Trying to use non-existent animation state " +
-                    name,
+                `Programatic error: Trying to use non-existent animation state ${
+                    name as string
+                }`,
             );
 
         this.loop = looping;
 
         // Repeated setting of the animation to the same values does nothing
-        if (this.currentState === name) return;
+        if (this.currentState === name && !reset) return;
 
         this.currentState = name;
         this.frameIndex = 0;

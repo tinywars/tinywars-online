@@ -4,7 +4,7 @@ import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { eventSpawnPowerup } from "../events/game-event";
 import { CollisionMediator } from "../game/collision-mediator";
-import { Effect } from "../game/effect";
+import { Effect, EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
 import { KeyCode } from "../game/key-codes";
@@ -35,6 +35,7 @@ export class App {
         private keyboardState: Record<string, boolean>,
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
+        effectTypeToAnimationName: (t: EffectType) => string,
     ) {
         const HUMAN_PLAYER_COUNT =
             this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
@@ -52,10 +53,13 @@ export class App {
             this.controllers.push(aiController);
         }
 
-        const createAnimationEngine = (animationSetName: string) => {
+        const createAnimationEngine = (
+            animationSetName: string,
+            speed = this.settings.COMMON_ANIMATION_FPS,
+        ) => {
             return new AnimationEngine(
                 this.animationDB[animationSetName],
-                this.settings.ANIMATION_FPS,
+                speed,
             );
         };
 
@@ -102,7 +106,11 @@ export class App {
                 () =>
                     new Effect(
                         this.uniqueId++,
-                        createAnimationEngine("effects"),
+                        createAnimationEngine(
+                            "effects",
+                            this.settings.EFFECT_ANIMATION_FPS,
+                        ),
+                        effectTypeToAnimationName,
                     ),
             ),
             eventQueue: eventQueue,
