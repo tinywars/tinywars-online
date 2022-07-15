@@ -9,7 +9,7 @@ import soundTurboUrl from "../assets/sounds/boost1.wav";
 import soundExplosionUrl from "../assets/sounds/explosion.wav";
 import soundLaser1Url from "../assets/sounds/laser1.wav";
 import soundLaser2Url from "../assets/sounds/laser3.wav";
-import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
+import soundPowerupPickedUrl from "../assets/sounds/powerup3.wav";
 import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
@@ -57,8 +57,8 @@ const soundPlayer = new SoundPlayer({
     [Sounds.WreckHit]: soundWreckHitUrl,
     [Sounds.ObstacleBounce]: soundRockHit2Url,
     [Sounds.Explosion]: soundExplosionUrl,
-    [Sounds.Powerup]: soundTurboUrl,
-    [Sounds.Turbo]: soundPowerupPickedUrl,
+    [Sounds.Powerup]: soundPowerupPickedUrl,
+    [Sounds.Turbo]: soundTurboUrl,
 });
 
 const gameEventEmitter = new GameEventEmitter();
