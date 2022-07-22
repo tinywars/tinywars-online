@@ -1,12 +1,13 @@
+import { assert } from "chai";
 import { createServer, Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
 import { ClientEvents } from "./events/client-events";
 import { ServerEvents } from "./events/server-events";
 import { BACKEND_PORT, HOST_IP } from "./settings";
 import { ClientState } from "./types/client-state";
-import { NetGameState } from "./types/game-state";
+import { NetGameStateManager } from "./types/game-state";
 
-const games: Map<string, NetGameState> = new Map();
+const games: Map<string, NetGameStateManager> = new Map();
 const clientsToGames: Map<string, string> = new Map(); // maps clientIds to games they're in
 
 const httpServer: HttpServer = createServer();
@@ -17,95 +18,124 @@ const serverOptions: Partial<ServerOptions> = {
 };
 const io = new Server<ClientEvents, ServerEvents>(httpServer, serverOptions);
 
+function getGameByClient(id: string): NetGameStateManager {
+    const gameId = clientsToGames.get(id);
+    if (gameId === undefined) {
+        throw Error(`Client (id: ${id}) is not connected to a game`);
+    }
+
+    const game = games.get(gameId);
+    if (game === undefined) {
+        throw Error(`Game (id: ${gameId}) does not exist`);
+    }
+
+    return game;
+}
+
 io.on("connection", (socket) => {
-    console.log("User connected");
+    console.log(`User (id: ${socket.id}) connected`);
 
     socket.on("disconnect", () => {
-        console.log("User disconnected");
+        console.log(`User (id: ${socket.id}) disconnected`);
+        try {
+            const game = getGameByClient(socket.id);
+            game.markClientAsDisconnected(socket.id);
+            // If everybody dropped the game
+            if (game.allClientsHaveDisconnected()) {
+                console.log(
+                    `Deleting game with id ${game.state.id} (Reason: Everybody disconnected)`,
+                );
+                games.delete(game.state.id);
+            }
+        } catch (e) {
+            console.log(`\tError: ${(e as Error).message}`);
+        }
     });
 
     socket.on("error", (e) => {
         console.log(`Error occured: ${e.name}: ${e.message}`);
     });
 
-    socket.on("lobbyRequested", (gameCode: string) => {
-        if (games.has(gameCode)) {
+    socket.on("lobbyRequested", (gameId: string) => {
+        if (games.has(gameId)) {
+            console.log(
+                `Game with id ${gameId} was requested, but it already exists`,
+            );
             socket.emit("gameError", "Game with such code already exists.");
             return;
         }
 
-        games.set(gameCode, {
-            clients: [],
-            collectedInputCount: 0,
-            playerInputs: new Array(4),
-        });
-
+        games.set(gameId, new NetGameStateManager(gameId));
+        console.log(`Created game with id: ${gameId}`);
         socket.emit("lobbyCreated");
     });
 
-    socket.on("lobbyEntered", (gameCode: string, clientState: ClientState) => {
-        const game = games.get(gameCode);
-        if (game === undefined) {
-            socket.emit("gameError", "Lobby does not exist.");
-            return;
-        }
+    socket.on("lobbyEntered", (gameId: string, clientState: ClientState) => {
+        try {
+            const game = games.get(gameId);
+            if (game === undefined)
+                throw Error(`Game (id: ${gameId}) does not exist`);
+            assert(game.state.id === gameId);
 
-        if (game.clients.find((cs) => cs === clientState) !== undefined) {
-            socket.emit(
-                "gameError",
-                "You are already connected to this lobby.",
+            if (game.isClientConnected(socket.id))
+                throw Error(
+                    `Client (id: ${socket.id}) already connected to this game (id: ${gameId})`,
+                );
+
+            console.log(
+                `User (id: ${socket.id}, name: ${clientState.name}) entered lobby`,
             );
-            return;
+
+            game.addNewClient(clientState);
+            clientsToGames.set(socket.id, game.state.id);
+
+            socket.join(game.state.id); // join socket 'room' -> we can emit messages to whole room by io.to().emit();
+            io.to(game.state.id).emit("lobbyUpdated", game.state); // emit message to whole room
+        } catch (e) {
+            console.log(
+                `User (id: ${
+                    clientState.id
+                }) attempted to enter lobby, but failed (Reason: ${
+                    (e as Error).message
+                })`,
+            );
+            socket.emit("gameError", (e as Error).message);
         }
-
-        console.log(
-            `Client ${clientState.id}@${clientState.name} entered lobby`,
-        );
-
-        game.clients.push(clientState);
-        clientsToGames.set(clientState.id, gameCode);
-
-        socket.join(gameCode); // join socket 'room' -> we can emit messages to whole room
-        io.to(gameCode).emit("lobbyUpdated", game); // emit message to whole room
     });
 
-    socket.on("lobbyCommited", (gameCode: string) => {
-        const game = games.get(gameCode);
-        if (game === undefined) {
-            socket.emit("gameError", "Lobby does not exist.");
-            return;
-        }
-
-        io.to(gameCode).emit("gameStarted", gameCode, game);
-    });
-
-    socket.on("gameInputGathered", (clientId: string, inputs: boolean[]) => {
-        const gameId = clientsToGames.get(clientId);
-        if (gameId === undefined) {
-            socket.emit("gameError", "You are not connected in any game.");
-            return;
-        }
-
+    socket.on("lobbyCommited", (gameId: string) => {
         const game = games.get(gameId);
         if (game === undefined) {
-            socket.emit("gameError", "Game no longer exists.");
+            console.log(`Tried to start non-existent game with id ${gameId}`);
+            socket.emit("gameError", "Lobby does not exist.");
             return;
         }
 
-        //console.log(`Got input from client ${clientId} for game ${gameId}`);
+        const seed = Date.now();
+        game.startGame();
+        console.log(
+            `Started game with id ${gameId} and seed ${seed}. ${game.state.clients.length} clients are connected.`,
+        );
+        io.to(game.state.id).emit("gameStarted", game.state, seed);
+    });
 
-        game.clients.forEach((client, index) => {
-            if (client.id !== clientId) return;
-            game.playerInputs[index] = inputs;
-            game.collectedInputCount++;
-        });
-
-        if (game.collectedInputCount === game.clients.length) {
-            /*console.log(
-                "All inputs for this frame were received, sending then back",
-            );*/
-            io.to(gameId).emit("gameInputsCollected", game.playerInputs);
-            game.collectedInputCount = 0;
+    socket.on("gameInputGathered", (inputs: boolean[]) => {
+        try {
+            const game = getGameByClient(socket.id);
+            game.receiveClientInput(socket.id, inputs);
+            if (game.areAllInputsCollected()) {
+                io.to(game.state.id).emit(
+                    "gameInputsCollected",
+                    game.state.playerInputs,
+                );
+                game.resetInputs();
+            }
+        } catch (e) {
+            const msg = (e as Error).message;
+            console.log(
+                `Inputs gathering failed for user with id ${socket.id} (Reason: ${msg})`,
+            );
+            socket.emit("gameError", msg);
         }
     });
 });

@@ -8,5 +8,5 @@ export interface ClientEvents {
     // Client with connection code requested to join
     // This is automatic for the player who created the lobby
     lobbyEntered: (gameCode: string, clientState: ClientState) => void;
-    gameInputGathered: (clientId: string, inputs: boolean[]) => void;
+    gameInputGathered: (inputs: boolean[]) => void;
 }

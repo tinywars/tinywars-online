@@ -29,11 +29,7 @@ export class NetAppRunner extends AppRunner {
         this.socket.on("gameInputsCollected", (inputs: boolean[][]) => {
             this.registerAllFrameInputs(inputs);
         });
-        this.socket.emit(
-            "gameInputGathered",
-            this.clientId,
-            this.myController.getSnapshot(),
-        );
+        this.socket.emit("gameInputGathered", this.myController.getSnapshot());
     }
 
     private registerAllFrameInputs(inputs: boolean[][]) {
@@ -57,11 +53,7 @@ export class NetAppRunner extends AppRunner {
         this.inputsReceived = false;
         this.nextUpdateAvailable = false;
 
-        this.socket.emit(
-            "gameInputGathered",
-            this.clientId,
-            this.myController.getSnapshot(),
-        );
+        this.socket.emit("gameInputGathered", this.myController.getSnapshot());
         this.app.updateLogic(this.frameTimeSec);
     }
 }

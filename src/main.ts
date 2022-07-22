@@ -55,12 +55,13 @@ const hardcodedRandomPlayerNames = [
     "rand'o",
     "PapoochCZ",
 ];
-const clientState: ClientState = {
+let clientState: ClientState; /* = {
     id: (PRNG.randomInt() % 1000) + "",
     name: PRNG.randomItem(hardcodedRandomPlayerNames),
+    disconnected: false,
 };
 
-console.log(clientState);
+console.log(clientState);*/
 
 // Instantiate socket connection
 // Dev: assume that backend lives on the same machine as frontend
@@ -72,6 +73,15 @@ const socket: TinywarsSocket = io(
 socket.on("connect", () => {
     console.log("Connected to backend");
     console.log(window.location.pathname);
+
+    clientState = {
+        id: socket.id,
+        name: PRNG.randomItem(hardcodedRandomPlayerNames),
+        disconnected: false,
+    };
+
+    console.log(clientState);
+
     if (window.location.pathname.startsWith("/net/connect/")) {
         const gameCode = window.location.pathname.slice("/net/connect/".length);
         socket.emit("lobbyEntered", gameCode, clientState);
@@ -343,8 +353,8 @@ if (!shouldStartNetGame) {
     }, 200);
 }
 
-socket.on("gameStarted", (gameCode: string, gameState: NetGameState) => {
-    console.log("Game starting...");
+socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
+    console.log(`Game starting... (seed ${seed})`);
     let myIndex = 0;
     gameState.clients.forEach((c, i) => {
         if (c.id === clientState.id) myIndex = i;
@@ -365,7 +375,7 @@ socket.on("gameStarted", (gameCode: string, gameState: NetGameState) => {
     gameSettings.PLAYER_COUNT = gameState.clients.length;
     gameSettings.NPC_COUNT = 0;
     gameSettings.PLAYER_SETTINGS = playerSettings;
-    gameSettings.PRNG_SEED = parseInt(gameCode);
+    gameSettings.PRNG_SEED = seed;
 
     const controllers: SimpleController[] = [];
     for (let i = 0; i < gameState.clients.length; i++)

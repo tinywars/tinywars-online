@@ -5,4 +5,6 @@ export interface ClientState {
     // Display name of the player, this can be changed on whim, client is
     // identified by their id
     name: string;
+    // When client disconnects, this is set to true and game does not wait for their inputs
+    disconnected: boolean;
 }

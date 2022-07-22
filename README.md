@@ -66,6 +66,8 @@ npm run coverage
 
 > NOTE: Each player in each of their browsers will have the controls of player 1 (WASD, R, T).
 
+> NOTE: https://webwormhole.io/ is great for sending out game codes.
+
 ## Known issues
 
 Game runs very sluggish on Waterfox browser.
