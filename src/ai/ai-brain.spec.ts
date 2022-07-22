@@ -1,3 +1,4 @@
+import { SimpleController } from "../controllers/simple-controller";
 import { EventQueue } from "../events/event-queue";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
@@ -7,10 +8,9 @@ import { getMockGameContext } from "../test/game-context";
 import { getMockSettings } from "../test/game-settings";
 import { Vector } from "../utility/vector";
 import { AiBrain } from "./ai-brain";
-import { AiPoweredController } from "./ai-controller";
 
 describe("AiBrain", () => {
-    let controller: AiPoweredController;
+    let controller: SimpleController;
     let brain: AiBrain;
     let player: Player;
     let settings: GameSettings;
@@ -22,7 +22,7 @@ describe("AiBrain", () => {
     const DT = 1 / 60;
 
     beforeEach(() => {
-        controller = new AiPoweredController();
+        controller = new SimpleController();
         eventQueue = new EventQueue();
         settings = getMockSettings();
         gameContext = getMockGameContext({
