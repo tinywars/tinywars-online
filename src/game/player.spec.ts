@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { AiPoweredController } from "../ai/ai-controller";
 import { EventQueue } from "../events/event-queue";
+import { getMockGameContext } from "../test/game-context";
+import { getMockSettings } from "../test/game-settings";
 import { Vector } from "../utility/vector";
-import { Player } from "./player";
-import { KeyCode } from "./key-codes";
 import { GameContext } from "./game-context";
 import { GameSettings } from "./game-settings";
-import { getMockSettings } from "../test/game-settings";
-import { getMockGameContext } from "../test/game-context";
+import { KeyCode } from "./key-codes";
+import { Player } from "./player";
 import { PowerupType } from "./powerup";
 
 describe("Player", () => {
@@ -36,6 +36,7 @@ describe("Player", () => {
             numProjectiles: 64,
             numObstacles: 8,
             numPowerups: 0,
+            numEffects: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,

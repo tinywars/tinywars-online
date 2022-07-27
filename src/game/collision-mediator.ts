@@ -1,6 +1,6 @@
 import {
     eventDestroyPowerup,
-    eventDestroyProjectile,
+    eventDestroyProjectile
 } from "../events/game-event";
 import { forEachPairOf } from "../utility/fast-array";
 import { Vector } from "../utility/vector";
@@ -177,6 +177,7 @@ export class CollisionMediator {
         context: GameContext,
     ) {
         player.give(powerup.getType());
+        context.eventEmitter.emit("PowerupPickedUp");
         context.eventQueue.add(eventDestroyPowerup(powerup.id));
     }
 

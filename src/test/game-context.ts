@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
+import { Effect } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
 import { Obstacle } from "../game/obstacle";
@@ -11,10 +12,12 @@ import { AnimationEngine } from "../utility/animation";
 import { Controller } from "../utility/controller";
 import { FastArray } from "../utility/fast-array";
 import {
+    effectAnimationMock,
+    effectTypeToAnimationNameMock,
     obstacleAnimationMock,
     playerAnimationMock,
     powerupAnimationMock,
-    projectileAnimationMock,
+    projectileAnimationMock
 } from "./animation-frame";
 
 export function getMockGameContext(options: {
@@ -22,6 +25,7 @@ export function getMockGameContext(options: {
     numProjectiles: number;
     numObstacles: number;
     numPowerups: number;
+    numEffects: number;
     controllers: Controller[];
     settings: GameSettings;
     eventQueue: EventQueue;
@@ -65,6 +69,15 @@ export function getMockGameContext(options: {
                 new Powerup(
                     index,
                     new AnimationEngine(powerupAnimationMock, 2),
+                ),
+        ),
+        effects: new FastArray<Effect>(
+            options.numEffects,
+            (index) =>
+                new Effect(
+                    index,
+                    new AnimationEngine(effectAnimationMock, 2),
+                    effectTypeToAnimationNameMock,
                 ),
         ),
         eventQueue: options.eventQueue,

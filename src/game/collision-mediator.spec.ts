@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { AiPoweredController } from "../ai/ai-controller";
 import { EventQueue } from "../events/event-queue";
+import { PowerupType } from "../game/powerup";
 import { getMockGameContext } from "../test/game-context";
 import { getMockSettings } from "../test/game-settings";
 import { Vector } from "../utility/vector";
@@ -8,7 +9,6 @@ import { CollisionMediator } from "./collision-mediator";
 import { GameContext } from "./game-context";
 import { GameSettings } from "./game-settings";
 import { KeyCode } from "./key-codes";
-import { PowerupType } from "../game/powerup";
 
 describe("CollisionMediator", () => {
     let controller: AiPoweredController;
@@ -25,6 +25,7 @@ describe("CollisionMediator", () => {
             numProjectiles: 64,
             numObstacles: 8,
             numPowerups: 1,
+            numEffects: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,
