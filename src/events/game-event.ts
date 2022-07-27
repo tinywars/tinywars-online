@@ -1,3 +1,4 @@
+import { EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { PowerupType } from "../game/powerup";
 import { PRNG } from "../utility/prng";
@@ -62,13 +63,21 @@ export function eventDestroyProjectile(index: number) {
     const e: GameEvent = {
         name: "DestroyProjectileEvent",
         process: (context: GameContext): void => {
-            // TODO: play destruction animation and/or sound
-            for (let i = 0; i < context.projectiles.getSize(); i++) {
-                if (context.projectiles.getItem(i).id === index) {
-                    context.projectiles.getItem(i).despawn();
-                    context.projectiles.popItem(i);
-                }
-            }
+            context.projectiles.forEach((p, i) => {
+                if (p.id !== index) return;
+
+                const coords = context.projectiles.getItem(i).getCoords();
+                context.eventQueue.add(
+                    eventCreateEffect({
+                        position: coords.position,
+                        rotation: coords.angle,
+                        type: EffectType.ProjectileExplosion,
+                    }),
+                );
+
+                context.projectiles.getItem(i).despawn();
+                context.projectiles.popItem(i);
+            });
         },
     };
 
@@ -81,6 +90,15 @@ export function eventDestroyPlayer(index: number) {
         process: (context: GameContext): void => {
             context.players.forEach((p, i) => {
                 if (p.id !== index) return;
+
+                const coords = context.players.getItem(i).getCoords();
+                context.eventQueue.add(
+                    eventCreateEffect({
+                        position: coords.position,
+                        rotation: 0,
+                        type: EffectType.PlayerExplosion,
+                    }),
+                );
 
                 context.players.getItem(i).despawn();
                 context.players.popItem(i);
@@ -150,8 +168,51 @@ export function eventDestroyPowerup(index: number) {
             context.powerups.forEach((p, i) => {
                 if (p.id !== index) return;
 
+                context.eventQueue.add(
+                    eventCreateEffect({
+                        position: context.powerups.getItem(i).getCoords()
+                            .position,
+                        rotation: 0,
+                        type: EffectType.PowerupPickup,
+                    }),
+                );
+
                 context.powerups.getItem(i).despawn();
                 context.powerups.popItem(i);
+            });
+        },
+    };
+    return e;
+}
+
+export function eventCreateEffect(options: {
+    position: Vector;
+    rotation: number;
+    type: EffectType;
+}) {
+    const e: GameEvent = {
+        name: "CreateEffectEvent",
+        process: (context: GameContext): void => {
+            if (!context.effects.grow()) return;
+
+            context.effects.getLastItem().spawn({
+                position: options.position,
+                rotation: options.rotation,
+                type: options.type,
+            });
+        },
+    };
+    return e;
+}
+
+export function eventDestroyEffect(index: number) {
+    const e: GameEvent = {
+        name: "DestroyEffectEvent",
+        process: (context: GameContext): void => {
+            context.effects.forEach((e, i) => {
+                if (e.id !== index) return;
+
+                context.effects.popItem(i);
             });
         },
     };
