@@ -56,13 +56,7 @@ const hardcodedRandomPlayerNames = [
     "rand'o",
     "PapoochCZ",
 ];
-let clientState: ClientState; /* = {
-    id: (PRNG.randomInt() % 1000) + "",
-    name: PRNG.randomItem(hardcodedRandomPlayerNames),
-    disconnected: false,
-};
-
-console.log(clientState);*/
+let clientState: ClientState;
 
 // Instantiate socket connection
 // Dev: assume that backend lives on the same machine as frontend
@@ -429,13 +423,7 @@ socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
         controllers,
         effectTypeToAnimationName,
     );
-    const runner = new NetAppRunner(
-        app,
-        socket,
-        controllers,
-        myController,
-        clientState.id,
-    );
+    const runner = new NetAppRunner(app, socket, controllers, myController);
     runner.run(FPS);
 
     const appView = new AppViewCanvas(

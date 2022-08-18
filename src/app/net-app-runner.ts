@@ -19,7 +19,6 @@ export class NetAppRunner extends AppRunner {
         private socket: TinywarsSocket,
         private netControllers: SimpleController[],
         private myController: Controller,
-        private clientId: string,
     ) {
         super();
     }
