@@ -1,25 +1,19 @@
-import type { Component } from "solid-js";
-
-import logo from "./logo.svg";
-import styles from "./App.module.css";
+import { Component, createSignal, Match, Switch } from "solid-js";
+import { Game } from "./ui/Game";
 
 const App: Component = () => {
+    const [isGameShown, setIsGameShown] = createSignal(false);
+    console.log("Starting app");
     return (
-        <div class={styles.App}>
-            <header class={styles.header}>
-                <img src={logo} class={styles.logo} alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    class={styles.link}
-                    href="https://github.com/solidjs/solid"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn Solid
-                </a>
-            </header>
+        <div>
+            <Switch fallback={<div>Click to show game</div>}>
+                <Match when={isGameShown()}>
+                    <Game />
+                </Match>
+            </Switch>
+            <button onClick={() => setIsGameShown(!isGameShown())}>
+                {isGameShown() ? "Hide game" : "Show game"}
+            </button>
         </div>
     );
 };
