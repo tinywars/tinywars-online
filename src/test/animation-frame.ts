@@ -1,3 +1,4 @@
+import { EffectType } from "../game/effect";
 import { AnimationFrame } from "../utility/animation";
 
 export const playerAnimationMock = {
@@ -27,3 +28,29 @@ export const powerupAnimationMock = {
     idle5: [new AnimationFrame(57, 58, 59, 60)],
     idle6: [new AnimationFrame(61, 62, 63, 64)],
 };
+
+export const effectAnimationMock = {
+    playerBoom: [
+        new AnimationFrame(65, 66, 67, 68),
+        new AnimationFrame(69, 70, 71, 72),
+    ],
+    projectileBoom: [
+        new AnimationFrame(73, 74, 75, 76),
+        new AnimationFrame(77, 78, 79, 80),
+    ],
+    powerupPickup: [
+        new AnimationFrame(81, 82, 83, 84),
+        new AnimationFrame(85, 86, 87, 88),
+    ],
+};
+
+export function effectTypeToAnimationNameMock(type: EffectType): string {
+    switch (type) {
+        case EffectType.PlayerExplosion:
+            return "playerBoom";
+        case EffectType.ProjectileExplosion:
+            return "projectileBoom";
+        case EffectType.PowerupPickup:
+            return "powerupPickup";
+    }
+}

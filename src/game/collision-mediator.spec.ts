@@ -25,6 +25,7 @@ describe("CollisionMediator", () => {
             numProjectiles: 64,
             numObstacles: 8,
             numPowerups: 1,
+            numEffects: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,

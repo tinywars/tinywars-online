@@ -30,6 +30,7 @@ describe("AiBrain", () => {
             numProjectiles: 64,
             numObstacles: 8,
             numPowerups: 0,
+            numEffects: 0,
             controllers: [controller],
             settings: settings,
             eventQueue: eventQueue,

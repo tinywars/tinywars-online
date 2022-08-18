@@ -5,6 +5,7 @@ import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { eventSpawnPowerup } from "../events/game-event";
 import { CollisionMediator } from "../game/collision-mediator";
+import { Effect, EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
 import { Obstacle } from "../game/obstacle";
@@ -31,13 +32,17 @@ export class App {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
         private controllers: Controller[],
+        effectTypeToAnimationName: (t: EffectType) => string,
     ) {
         this.aiBrains = [];
 
-        const createAnimationEngine = (animationSetName: string) => {
+        const createAnimationEngine = (
+            animationSetName: string,
+            speed = this.settings.COMMON_ANIMATION_FPS,
+        ) => {
             return new AnimationEngine(
                 this.animationDB[animationSetName],
-                this.settings.ANIMATION_FPS,
+                speed,
             );
         };
 
@@ -77,6 +82,18 @@ export class App {
                     new Powerup(
                         this.uniqueId++,
                         createAnimationEngine("powerup"),
+                    ),
+            ),
+            effects: new FastArray<Effect>(
+                16,
+                () =>
+                    new Effect(
+                        this.uniqueId++,
+                        createAnimationEngine(
+                            "effects",
+                            this.settings.EFFECT_ANIMATION_FPS,
+                        ),
+                        effectTypeToAnimationName,
                     ),
             ),
             eventQueue: eventQueue,
@@ -149,6 +166,9 @@ export class App {
         this.gameContext.powerups.forEach((p) => {
             p.update(dt, this.gameContext);
         });
+        this.gameContext.effects.forEach((e) => {
+            e.update(dt, this.gameContext);
+        });
 
         if (this.powerupSpawnTimer.ended()) {
             this.gameContext.eventQueue.add(eventSpawnPowerup());
@@ -189,6 +209,7 @@ export class App {
         this.gameContext.projectiles.clear();
         this.gameContext.obstacles.clear();
         this.gameContext.powerups.clear();
+        this.gameContext.effects.clear();
 
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");

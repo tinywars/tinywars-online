@@ -10,7 +10,7 @@ import soundTurboUrl from "../assets/sounds/boost1.wav";
 import soundExplosionUrl from "../assets/sounds/explosion.wav";
 import soundLaser1Url from "../assets/sounds/laser1.wav";
 import soundLaser2Url from "../assets/sounds/laser3.wav";
-import soundPowerupPickedUrl from "../assets/sounds/powerup.wav";
+import soundPowerupPickedUrl from "../assets/sounds/powerup3.wav";
 import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
@@ -25,6 +25,7 @@ import { Controller } from "./controllers/controller";
 import { ControllerFactory } from "./controllers/controller-factory";
 import { SimpleController } from "./controllers/simple-controller";
 import { GameEventEmitter } from "./events/event-emitter";
+import { EffectType } from "./game/effect";
 import { GameSettings } from "./game/game-settings";
 import {
     PLAYER1_DEFAULT_CONTROLS,
@@ -141,8 +142,8 @@ const soundPlayer = new SoundPlayer({
     [Sounds.WreckHit]: soundWreckHitUrl,
     [Sounds.ObstacleBounce]: soundRockHit2Url,
     [Sounds.Explosion]: soundExplosionUrl,
-    [Sounds.Powerup]: soundTurboUrl,
-    [Sounds.Turbo]: soundPowerupPickedUrl,
+    [Sounds.Powerup]: soundPowerupPickedUrl,
+    [Sounds.Turbo]: soundTurboUrl,
 });
 
 const gameEventEmitter = new GameEventEmitter();
@@ -190,6 +191,22 @@ document.onkeyup = (e) => {
     keyboardState[e.code] = false;
 };
 
+function ComputeAnimationFrames(
+    startX: number,
+    startY: number,
+    width: number,
+    height: number,
+    frameCount: number,
+): AnimationFrame[] {
+    const result: AnimationFrame[] = [];
+
+    for (let i = 0; i < frameCount; i++) {
+        result.push(new AnimationFrame(startX + i * 41, startY, width, height));
+    }
+
+    return result;
+}
+
 const animations = {
     player0: {
         idle: [new AnimationFrame(1, 1, 40, 40)],
@@ -227,6 +244,11 @@ const animations = {
         idle5: [new AnimationFrame(206, 247, 20, 20)],
         idle6: [new AnimationFrame(247, 247, 20, 20)],
     },
+    effects: {
+        playerBoom: ComputeAnimationFrames(1, 288, 40, 40, 5),
+        powerupPickup: ComputeAnimationFrames(1, 329, 40, 40, 4),
+        projectileBoom: ComputeAnimationFrames(1, 370, 14, 14, 4),
+    },
 };
 
 const playerSettings: PlayerSettings[] = [
@@ -255,7 +277,8 @@ const playerSettings: PlayerSettings[] = [
 const gameSettings: GameSettings = {
     SCREEN_WIDTH: 1280,
     SCREEN_HEIGHT: (1280 / 4) * 3,
-    ANIMATION_FPS: 2,
+    COMMON_ANIMATION_FPS: 2,
+    EFFECT_ANIMATION_FPS: 16,
     TIME_TILL_RESTART: 3,
     PLAYER_SETTINGS: playerSettings,
     DISPLAY_PLAYER_NAMES: true,
@@ -313,6 +336,17 @@ const hudFrames = {
 
 const shouldStartNetGame = window.location.pathname.startsWith("/net");
 
+function effectTypeToAnimationName(name: EffectType): string {
+    switch (name) {
+        case EffectType.PlayerExplosion:
+            return "playerBoom";
+        case EffectType.ProjectileExplosion:
+            return "projectileBoom";
+        case EffectType.PowerupPickup:
+            return "powerupPickup";
+    }
+}
+
 if (!shouldStartNetGame) {
     const HUMAN_PLAYER_COUNT =
         gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
@@ -337,6 +371,7 @@ if (!shouldStartNetGame) {
         animations,
         gameSettings,
         controllers,
+        effectTypeToAnimationName,
     );
     const runner = new LocalAppRunner(app);
     runner.run(FPS);
@@ -392,6 +427,7 @@ socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
         animations,
         gameSettings,
         controllers,
+        effectTypeToAnimationName,
     );
     const runner = new NetAppRunner(
         app,
