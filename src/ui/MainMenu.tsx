@@ -1,7 +1,7 @@
 import { Component, createSignal, Match, Switch } from "solid-js";
-import { Game } from "./ui/Game";
+import { Game } from "./Game";
 
-const App: Component = () => {
+export const MainMenu: Component = () => {
     const [isGameShown, setIsGameShown] = createSignal(false);
     console.log("Starting app");
     return (
@@ -17,5 +17,3 @@ const App: Component = () => {
         </div>
     );
 };
-
-export default App;

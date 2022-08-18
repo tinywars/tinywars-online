@@ -2,6 +2,6 @@
 import { render } from "solid-js/web";
 
 import "./index.css";
-import App from "./App";
+import { MainMenu } from "./ui/MainMenu";
 
-render(() => <App />, document.getElementById("root") as HTMLElement);
+render(() => <MainMenu />, document.getElementById("root") as HTMLElement);
