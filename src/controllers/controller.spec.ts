@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from "chai";
-import { AiPoweredController } from "../ai/ai-controller";
 import { KeyCode } from "../game/key-codes";
+import { SimpleController } from "./simple-controller";
 
 describe("Controller", () => {
-    let controller: AiPoweredController = new AiPoweredController();
+    let controller: SimpleController = new SimpleController();
 
     beforeEach(() => {
-        controller = new AiPoweredController();
+        controller = new SimpleController();
         controller.releaseKey(KeyCode.Action);
         controller.releaseKey(KeyCode.Shoot);
     });

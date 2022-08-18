@@ -33,4 +33,8 @@ export class PRNG {
     static randomRangedFloat(min: number, max: number): number {
         return PRNG.randomFloat() * (max - min) + min;
     }
+
+    static randomItem<T>(items: T[]): T {
+        return items[PRNG.randomInt() % items.length];
+    }
 }

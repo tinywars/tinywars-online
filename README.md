@@ -55,6 +55,19 @@ npm run test:watch **/*pattern*.spec.ts
 npm run coverage
 ```
 
+## Networking
+
+ 1) Run `npm install` in root folder, followed by `npm run dev -- --host`
+ 2) Run `npm install` in `backend` folder, followed by `npm run dev`
+ 3) On the PC that should host the game, go to `http://<public ip>:3000/net/host`
+	a) Open up a dev console
+	b) Find a message that says "Lobby created". It contains URL that can be used by other peers to connect
+ 4) Host machine will see each new client pop up in the console. When you are ready, type in `startNetGame()`
+
+> NOTE: Each player in each of their browsers will have the controls of player 1 (WASD, R, T).
+
+> NOTE: https://webwormhole.io/ is great for sending out game codes.
+
 ## Known issues
 
 Game runs very sluggish on Waterfox browser.

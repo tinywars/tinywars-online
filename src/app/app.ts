@@ -1,5 +1,6 @@
 import { AiBrain } from "../ai/ai-brain";
-import { AiPoweredController } from "../ai/ai-controller";
+import { Controller } from "../controllers/controller";
+import { SimpleController } from "../controllers/simple-controller";
 import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { eventSpawnPowerup } from "../events/game-event";
@@ -7,15 +8,12 @@ import { CollisionMediator } from "../game/collision-mediator";
 import { Effect, EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
-import { KeyCode } from "../game/key-codes";
 import { Obstacle } from "../game/obstacle";
 import { Player } from "../game/player";
 import { Powerup } from "../game/powerup";
 import { Projectile } from "../game/projectile";
 import { AnimationEngine, AnimationFrame } from "../utility/animation";
-import { Controller } from "../utility/controller";
 import { FastArray } from "../utility/fast-array";
-import { PhysicalController } from "../utility/physical-controller";
 import { PRNG } from "../utility/prng";
 import { Timer } from "../utility/timer";
 import { Vector } from "../utility/vector";
@@ -23,7 +21,6 @@ import { Vector } from "../utility/vector";
 export class App {
     private gameContext: GameContext;
     private uniqueId = 10; /// offseting this number so values below are reserved for players
-    private controllers: Controller[];
     private aiBrains: AiBrain[];
     private endgame = false;
     private timeTillRestart = 0;
@@ -32,26 +29,12 @@ export class App {
 
     constructor(
         private eventEmitter: GameEventEmitter,
-        private keyboardState: Record<string, boolean>,
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
+        private controllers: Controller[],
         effectTypeToAnimationName: (t: EffectType) => string,
     ) {
-        const HUMAN_PLAYER_COUNT =
-            this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
-
-        this.controllers = [];
         this.aiBrains = [];
-
-        for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
-            this.controllers.push(
-                this.createPhysicalController(i, this.keyboardState),
-            );
-
-        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
-            const aiController = new AiPoweredController();
-            this.controllers.push(aiController);
-        }
 
         const createAnimationEngine = (
             animationSetName: string,
@@ -123,10 +106,12 @@ export class App {
             },
         };
 
+        const HUMAN_PLAYER_COUNT =
+            this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
         for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
             this.aiBrains.push(
                 new AiBrain(
-                    this.controllers[i] as AiPoweredController,
+                    this.controllers[i] as SimpleController,
                     this.gameContext.players.getItem(i),
                     this.gameContext,
                 ),
@@ -142,12 +127,6 @@ export class App {
 
         this.reset();
         this.eventEmitter.emit("GameStarted");
-    }
-
-    start() {
-        setInterval(() => {
-            this.updateLogic(this.settings.FIXED_FRAME_TIME);
-        }, Math.floor(this.settings.FIXED_FRAME_TIME * 1000));
     }
 
     updateLogic(dt: number): void {
@@ -241,32 +220,7 @@ export class App {
         });
 
         this.spawnPlayersAndRocks();
-    }
-
-    private createPhysicalController(
-        index: number,
-        keyboardState: Record<string, boolean>,
-    ): PhysicalController {
-        const controls = this.settings.PLAYER_SETTINGS[index].controls;
-        const result = new PhysicalController(keyboardState);
-
-        Object.values(controls).forEach((binding) => {
-            if (
-                binding.key === undefined ||
-                binding.button === undefined ||
-                binding.code === undefined
-            )
-                return;
-            result.bindDigitalInput(binding.key, binding.button, binding.code);
-        });
-
-        result.bindAnalogInput(controls.steerAxis, KeyCode.Rotation);
-        result.setGamepadIndex(index);
-        result.setGamepadAxisDeadzone(0.25);
-        result.setInvertSteeringOnReverse(
-            this.settings.PLAYER_SETTINGS[index].invertSteeringOnReverse,
-        );
-        return result;
+        this.powerupSpawnTimer.reset();
     }
 
     private spawnPlayersAndRocks() {

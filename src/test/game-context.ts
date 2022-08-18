@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { Controller } from "../controllers/controller";
 import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { Effect } from "../game/effect";
@@ -9,7 +10,6 @@ import { Player } from "../game/player";
 import { Powerup } from "../game/powerup";
 import { Projectile } from "../game/projectile";
 import { AnimationEngine } from "../utility/animation";
-import { Controller } from "../utility/controller";
 import { FastArray } from "../utility/fast-array";
 import {
     effectAnimationMock,

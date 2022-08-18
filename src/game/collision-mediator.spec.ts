@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { AiPoweredController } from "../ai/ai-controller";
+import { SimpleController } from "../controllers/simple-controller";
 import { EventQueue } from "../events/event-queue";
 import { PowerupType } from "../game/powerup";
 import { getMockGameContext } from "../test/game-context";
@@ -11,13 +11,13 @@ import { GameSettings } from "./game-settings";
 import { KeyCode } from "./key-codes";
 
 describe("CollisionMediator", () => {
-    let controller: AiPoweredController;
+    let controller: SimpleController;
     let eventQueue: EventQueue;
     let settings: GameSettings;
     let gameContext: GameContext;
 
     beforeEach(() => {
-        controller = new AiPoweredController();
+        controller = new SimpleController();
         eventQueue = new EventQueue();
         settings = getMockSettings();
         gameContext = getMockGameContext({

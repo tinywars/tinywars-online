@@ -1,12 +1,12 @@
+import { Controller } from "../controllers/controller";
 import { EventQueue } from "../events/event-queue";
 import {
     eventDestroyPlayer,
     eventSpawnProjectile,
-    eventSpawnWreck,
+    eventSpawnWreck
 } from "../events/game-event";
 import { AnimationEngine } from "../utility/animation";
 import { CircleCollider } from "../utility/circle-collider";
-import { Controller } from "../utility/controller";
 import { Coords } from "../utility/coords";
 import { clamp, sanitizeAngle } from "../utility/math";
 import { Vector } from "../utility/vector";

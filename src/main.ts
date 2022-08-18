@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
+import { io } from "socket.io-client";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
@@ -14,18 +15,95 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
+import { BACKEND_PORT } from "../backend/src/settings";
+import { ClientState } from "../backend/src/types/client-state";
+import { NetGameState } from "../backend/src/types/game-state";
 import { App } from "./app/app";
+import { LocalAppRunner } from "./app/local-app-runner";
+import { NetAppRunner } from "./app/net-app-runner";
+import { Controller } from "./controllers/controller";
+import { ControllerFactory } from "./controllers/controller-factory";
+import { SimpleController } from "./controllers/simple-controller";
 import { GameEventEmitter } from "./events/event-emitter";
 import { EffectType } from "./game/effect";
 import { GameSettings } from "./game/game-settings";
-import { KeyCode } from "./game/key-codes";
-import { PlayerControls, PlayerSettings } from "./game/player-settings";
+import {
+    PLAYER1_DEFAULT_CONTROLS,
+    PLAYER2_DEFAULT_CONTROLS,
+    PLAYER3_DEFAULT_CONTROLS,
+    PLAYER4_DEFAULT_CONTROLS,
+    PlayerSettings
+} from "./game/player-settings";
+import { TinywarsSocket } from "./networking/types";
 import "./style.css";
 import { AnimationFrame } from "./utility/animation";
 import { Jukebox } from "./utility/jukebox";
-import { GamepadAxis, GamepadButton } from "./utility/physical-controller";
+import { PRNG } from "./utility/prng";
 import { SoundPlayer } from "./utility/sound-player";
 import { AppViewCanvas } from "./view-canvas/app-view";
+
+PRNG.setSeed(Date.now());
+
+function startNetGame(socket: TinywarsSocket, gameCode: string) {
+    socket.emit("lobbyCommited", gameCode);
+}
+
+// Generate random player state
+// this will be customizable in menu
+const hardcodedRandomPlayerNames = [
+    "ReadyPlayerOne",
+    "doomista",
+    "rand'o",
+    "PapoochCZ",
+];
+let clientState: ClientState;
+
+// Instantiate socket connection
+// Dev: assume that backend lives on the same machine as frontend
+const socket: TinywarsSocket = io(
+    `http://${window.location.hostname}:${BACKEND_PORT}`,
+    { transports: ["websocket"] },
+);
+
+socket.on("connect", () => {
+    console.log("Connected to backend");
+    console.log(window.location.pathname);
+
+    clientState = {
+        id: socket.id,
+        name: PRNG.randomItem(hardcodedRandomPlayerNames),
+        disconnected: false,
+    };
+
+    console.log(clientState);
+
+    if (window.location.pathname.startsWith("/net/connect/")) {
+        const gameCode = window.location.pathname.slice("/net/connect/".length);
+        socket.emit("lobbyEntered", gameCode, clientState);
+    } else if (window.location.pathname.startsWith("/net/host")) {
+        socket.emit("lobbyRequested", clientState.id);
+    }
+});
+
+socket.on("connect_error", (err) => {
+    console.error(err);
+    //alert(`Error: ${err.name}:${err.message}`);
+});
+
+socket.on("gameError", (message: string) => {
+    alert("GameError: " + message);
+});
+
+socket.on("lobbyUpdated", (state) => {
+    console.log(state);
+});
+
+socket.on("lobbyCreated", () => {
+    console.log(
+        `Lobby created. Other peers can connect by going to this address: http://${window.location.hostname}:${window.location.port}/net/connect/${clientState.id}`,
+    );
+    socket.emit("lobbyEntered", clientState.id, clientState);
+});
 
 const FPS = 60;
 
@@ -107,8 +185,6 @@ document.onkeyup = (e) => {
     keyboardState[e.code] = false;
 };
 
-console.log("App init");
-
 function ComputeAnimationFrames(
     startX: number,
     startY: number,
@@ -169,162 +245,26 @@ const animations = {
     },
 };
 
-const player1controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyW",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyS",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyA",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyD",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "KeyR",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyT",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player2controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyI",
-        button: GamepadButton.A,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyK",
-        button: GamepadButton.B,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyJ",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyL",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "KeyP",
-        button: GamepadButton.RTrigger,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyO",
-        button: GamepadButton.LTrigger,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player3controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "Numpad5",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "Numpad2",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "Numpad1",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "Numpad3",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "Numpad9",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "Numpad6",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
-const player4controls: PlayerControls = {
-    forward: {
-        code: KeyCode.Up,
-        key: "KeyG",
-        button: GamepadButton.RTrigger,
-    },
-    backward: {
-        code: KeyCode.Down,
-        key: "KeyB",
-        button: GamepadButton.LTrigger,
-    },
-    steerLeft: {
-        code: KeyCode.Left,
-        key: "KeyV",
-        button: GamepadButton.DpadLeft,
-    },
-    steerRight: {
-        code: KeyCode.Right,
-        key: "KeyN",
-        button: GamepadButton.DpadRight,
-    },
-    shoot: {
-        code: KeyCode.Shoot,
-        key: "Space",
-        button: GamepadButton.X,
-    },
-    action: {
-        code: KeyCode.Action,
-        key: "KeyH",
-        button: GamepadButton.A,
-    },
-    steerAxis: GamepadAxis.LHorizontal,
-};
-
 const playerSettings: PlayerSettings[] = [
     {
         name: "red",
         invertSteeringOnReverse: true,
-        controls: player1controls,
+        controls: PLAYER1_DEFAULT_CONTROLS,
     },
     {
         name: "green",
         invertSteeringOnReverse: false,
-        controls: player2controls,
+        controls: PLAYER2_DEFAULT_CONTROLS,
     },
     {
         name: "blue",
         invertSteeringOnReverse: false,
-        controls: player3controls,
+        controls: PLAYER3_DEFAULT_CONTROLS,
     },
     {
         name: "yellow",
         invertSteeringOnReverse: false,
-        controls: player4controls,
+        controls: PLAYER4_DEFAULT_CONTROLS,
     },
 ];
 
@@ -339,8 +279,8 @@ const gameSettings: GameSettings = {
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 4,
-    NPC_COUNT: 4,
+    PLAYER_COUNT: 3,
+    NPC_COUNT: 1,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -388,6 +328,8 @@ const hudFrames = {
     energybar: new AnimationFrame(247, 206, 7, 4),
 };
 
+const shouldStartNetGame = window.location.pathname.startsWith("/net");
+
 function effectTypeToAnimationName(name: EffectType): string {
     switch (name) {
         case EffectType.PlayerExplosion:
@@ -399,25 +341,105 @@ function effectTypeToAnimationName(name: EffectType): string {
     }
 }
 
-const app = new App(
-    gameEventEmitter,
-    keyboardState,
-    animations,
-    gameSettings,
-    effectTypeToAnimationName,
-);
-app.start();
+if (!shouldStartNetGame) {
+    const HUMAN_PLAYER_COUNT =
+        gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
+    const controllers: Controller[] = [];
 
-const appView = new AppViewCanvas(
-    app,
-    document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-    hudFrames,
-);
-appView.scale();
+    for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
+        controllers.push(
+            ControllerFactory.createPhysicalController(
+                i,
+                playerSettings[i],
+                keyboardState,
+            ),
+        );
 
-window.onresize = debounce(() => {
+    for (let i = HUMAN_PLAYER_COUNT; i < gameSettings.PLAYER_COUNT; i++) {
+        const aiController = new SimpleController();
+        controllers.push(aiController);
+    }
+
+    const app = new App(
+        gameEventEmitter,
+        animations,
+        gameSettings,
+        controllers,
+        effectTypeToAnimationName,
+    );
+    const runner = new LocalAppRunner(app);
+    runner.run(FPS);
+
+    const appView = new AppViewCanvas(
+        app,
+        document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+        hudFrames,
+    );
     appView.scale();
-}, 200);
+
+    window.onresize = debounce(() => {
+        appView.scale();
+    }, 200);
+}
+
+socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
+    console.log(`Game starting... (seed ${seed})`);
+    let myIndex = 0;
+    gameState.clients.forEach((c, i) => {
+        if (c.id === clientState.id) myIndex = i;
+    });
+
+    const playerSettings: PlayerSettings[] = [];
+    gameState.clients.forEach((c, i) => {
+        playerSettings.push({
+            name: c.name,
+            invertSteeringOnReverse: false,
+            controls:
+                i === myIndex
+                    ? PLAYER1_DEFAULT_CONTROLS
+                    : PLAYER4_DEFAULT_CONTROLS, // this is just dummy value, won't be used
+        });
+    });
+
+    gameSettings.PLAYER_COUNT = gameState.clients.length;
+    gameSettings.NPC_COUNT = 0;
+    gameSettings.PLAYER_SETTINGS = playerSettings;
+    gameSettings.PRNG_SEED = seed;
+
+    const controllers: SimpleController[] = [];
+    for (let i = 0; i < gameState.clients.length; i++)
+        controllers.push(new SimpleController());
+
+    const myController = ControllerFactory.createPhysicalController(
+        1,
+        playerSettings[myIndex],
+        keyboardState,
+    );
+
+    const app = new App(
+        gameEventEmitter,
+        animations,
+        gameSettings,
+        controllers,
+        effectTypeToAnimationName,
+    );
+    const runner = new NetAppRunner(app, socket, controllers, myController);
+    runner.run(FPS);
+
+    const appView = new AppViewCanvas(
+        app,
+        document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+        hudFrames,
+    );
+    appView.scale();
+
+    window.onresize = debounce(() => {
+        appView.scale();
+    }, 200);
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).app = app;
+//(window as any).app = app;
+(window as any).startNetGame = () => {
+    startNetGame(socket, clientState.id);
+};
