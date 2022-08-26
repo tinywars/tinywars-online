@@ -17,8 +17,9 @@ import { FastArray } from "../utility/fast-array";
 import { PRNG } from "../utility/prng";
 import { Timer } from "../utility/timer";
 import { Vector } from "../utility/vector";
+import { Releasable } from "./releasable";
 
-export class App {
+export class App extends Releasable {
     private gameContext: GameContext;
     private uniqueId = 10; /// offseting this number so values below are reserved for players
     private aiBrains: AiBrain[];
@@ -34,6 +35,7 @@ export class App {
         private controllers: Controller[],
         effectTypeToAnimationName: (t: EffectType) => string,
     ) {
+        super();
         this.aiBrains = [];
 
         const createAnimationEngine = (
@@ -270,5 +272,9 @@ export class App {
                 }
             }
         }
+    }
+
+    override release(): void {
+        this.eventEmitter.emit("GameStopped");
     }
 }

@@ -17,10 +17,9 @@ import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
 import { BACKEND_PORT } from "../backend/src/settings";
 import { ClientState } from "../backend/src/types/client-state";
-import { NetGameState } from "../backend/src/types/game-state";
 import { App } from "./app/app";
+import { AppRunner } from "./app/app-runner";
 import { LocalAppRunner } from "./app/local-app-runner";
-import { NetAppRunner } from "./app/net-app-runner";
 import { Controller } from "./controllers/controller";
 import { ControllerFactory } from "./controllers/controller-factory";
 import { SimpleController } from "./controllers/simple-controller";
@@ -58,58 +57,7 @@ const hardcodedRandomPlayerNames = [
 ];
 let clientState: ClientState;
 
-export const init = () => {
-    // Instantiate socket connection
-    // Dev: assume that backend lives on the same machine as frontend
-    const socket: TinywarsSocket = io(
-        `http://${window.location.hostname}:${BACKEND_PORT}`,
-        { transports: ["websocket"] },
-    );
-
-    socket.on("connect", () => {
-        console.log("Connected to backend");
-        console.log(window.location.pathname);
-
-        clientState = {
-            id: socket.id,
-            name: PRNG.randomItem(hardcodedRandomPlayerNames),
-            disconnected: false,
-        };
-
-        console.log(clientState);
-
-        if (window.location.pathname.startsWith("/net/connect/")) {
-            const gameCode = window.location.pathname.slice(
-                "/net/connect/".length,
-            );
-            socket.emit("lobbyEntered", gameCode, clientState);
-        } else if (window.location.pathname.startsWith("/net/host")) {
-            socket.emit("lobbyRequested", clientState.id);
-        }
-    });
-
-    socket.on("connect_error", (err) => {
-        console.error(err);
-        //alert(`Error: ${err.name}:${err.message}`);
-    });
-
-    socket.on("gameError", (message: string) => {
-        alert("GameError: " + message);
-    });
-
-    socket.on("lobbyUpdated", (state) => {
-        console.log(state);
-    });
-
-    socket.on("lobbyCreated", () => {
-        console.log(
-            `Lobby created. Other peers can connect by going to this address: http://${window.location.hostname}:${window.location.port}/net/connect/${clientState.id}`,
-        );
-        socket.emit("lobbyEntered", clientState.id, clientState);
-    });
-
-    const FPS = 60;
-
+export function CreateJukebox(): Jukebox {
     const jukebox = new Jukebox([
         musicTrack1,
         musicTrack2,
@@ -119,82 +67,18 @@ export const init = () => {
     ]);
     jukebox.setVolume(0.5);
 
-    enum Sounds {
-        Laser1 = "Laser1",
-        Laser2 = "Laser2",
-        ShipHit = "ShipHit",
-        RockHit = "RockHit",
-        WreckHit = "WreckHit",
-        ObstacleBounce = "ObstacleBounce",
-        Explosion = "4",
-        Powerup = "5",
-        Turbo = "6",
-    }
+    return jukebox;
+}
 
-    const soundPlayer = new SoundPlayer({
-        [Sounds.Laser1]: soundLaser1Url,
-        [Sounds.Laser2]: soundLaser2Url,
-        [Sounds.ShipHit]: soundShipHitUrl,
-        [Sounds.RockHit]: soundRockHitUrl,
-        [Sounds.WreckHit]: soundWreckHitUrl,
-        [Sounds.ObstacleBounce]: soundRockHit2Url,
-        [Sounds.Explosion]: soundExplosionUrl,
-        [Sounds.Powerup]: soundPowerupPickedUrl,
-        [Sounds.Turbo]: soundTurboUrl,
-    });
-
-    const gameEventEmitter = new GameEventEmitter();
-    gameEventEmitter
-        .addListener("ProjectileSpawned", (playerId) => {
-            soundPlayer.playSound(
-                playerId % 2 == 0 ? Sounds.Laser1 : Sounds.Laser2,
-            );
-        })
-        .addListener("PlayerWasHit", () => {
-            soundPlayer.playSound(Sounds.ShipHit);
-        })
-        .addListener("RockWasHit", () => {
-            soundPlayer.playSound(Sounds.RockHit);
-        })
-        .addListener("PlayerWasDestroyed", () => {
-            soundPlayer.playSound(Sounds.Explosion);
-        })
-        .addListener("PowerupPickedUp", () => {
-            soundPlayer.playSound(Sounds.Powerup);
-        })
-        .addListener("PlayerUsedTurbo", () => {
-            soundPlayer.playSound(Sounds.Turbo);
-        })
-        .addListener("WreckWasHit", () => {
-            soundPlayer.playSound(Sounds.WreckHit);
-        })
-        .addListener("ObstacleBounced", () => {
-            soundPlayer.playSound(Sounds.ObstacleBounce);
-        })
-        .addListener("GameStarted", () => {
-            jukebox.playNextSong();
-        })
-        .addListener("GameStopped", () => {
-            jukebox.stop();
-        });
-
-    const keyboardState: Record<string, boolean> = {};
-    document.onkeydown = (e) => {
-        console.log("OnKeyDown: " + e.code);
-        keyboardState[e.code] = true;
-    };
-    document.onkeyup = (e) => {
-        console.log("OnKeyUp: " + e.code);
-        keyboardState[e.code] = false;
-    };
-
-    function ComputeAnimationFrames(
+export type AnimationDB = Record<string, Record<string, AnimationFrame[]>>;
+export function CreateAnimationDb(): AnimationDB {
+    const ComputeAnimationFrames = (
         startX: number,
         startY: number,
         width: number,
         height: number,
         frameCount: number,
-    ): AnimationFrame[] {
+    ): AnimationFrame[] => {
         const result: AnimationFrame[] = [];
 
         for (let i = 0; i < frameCount; i++) {
@@ -204,9 +88,9 @@ export const init = () => {
         }
 
         return result;
-    }
+    };
 
-    const animations = {
+    return {
         player0: {
             idle: [new AnimationFrame(1, 1, 40, 40)],
             hit: [new AnimationFrame(83, 0, 40, 40)],
@@ -249,145 +133,282 @@ export const init = () => {
             projectileBoom: ComputeAnimationFrames(1, 370, 14, 14, 4),
         },
     };
+}
 
-    const playerSettings: PlayerSettings[] = [
-        {
-            name: "red",
-            invertSteeringOnReverse: true,
-            controls: PLAYER1_DEFAULT_CONTROLS,
-        },
-        {
-            name: "green",
-            invertSteeringOnReverse: false,
-            controls: PLAYER2_DEFAULT_CONTROLS,
-        },
-        {
-            name: "blue",
-            invertSteeringOnReverse: false,
-            controls: PLAYER3_DEFAULT_CONTROLS,
-        },
-        {
-            name: "yellow",
-            invertSteeringOnReverse: false,
-            controls: PLAYER4_DEFAULT_CONTROLS,
-        },
-    ];
-
-    const gameSettings: GameSettings = {
-        SCREEN_WIDTH: 1280,
-        SCREEN_HEIGHT: (1280 / 4) * 3,
-        COMMON_ANIMATION_FPS: 2,
-        EFFECT_ANIMATION_FPS: 16,
-        TIME_TILL_RESTART: 3,
-        PLAYER_SETTINGS: playerSettings,
-        DISPLAY_PLAYER_NAMES: true,
-        PRNG_SEED: 0,
-        FIXED_FRAME_TIME: 1 / FPS,
-        // Spawn settings
-        PLAYER_COUNT: 3,
-        NPC_COUNT: 1,
-        ROCK_COUNT: 4,
-        PLAYER_INITIAL_HEALTH: 3,
-        PLAYER_INITIAL_ENERGY: 2,
-        PLAYER_MAX_ENERGY: 4,
-        // AI Settings
-        AI_DUMBNESS: [0, 0.33, 0.66, 1],
-        AI_SHOOT_DELAY: 0.2,
-        AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
-        AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
-        AI_POWERUP_ACTIONABLE_RADIUS: 400,
-        AI_POWERUP_IGNORE_DELAY: 0.85,
-        AI_MAX_AIM_ERROR: 25, // degrees
-        AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
-        AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
-        AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
-        AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
-        // Simulation settings
-        //   Player
-        PLAYER_FORWARD_SPEED: 250,
-        PLAYER_TURBO_FORWARD_SPEED: 400,
-        PLAYER_ROTATION_SPEED: 200,
-        PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
-        PLAYER_MASS: 10,
-        //   Projectile
-        PROJECTILE_SPEED: 500,
-        PROJECTILE_DAMAGE: 1,
-        PROJECTILE_ENABLE_TELEPORT: false,
-        PROJECTILE_MASS: 5,
-        PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
-        //   Obstacle
-        OBSTACLE_MAX_SPEED: 375,
-        OBSTACLE_HIT_DAMAGE: 100,
-        OBSTACLE_MASS: 15,
-        OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
-        //   Powerup
-        POWERUP_MIN_SPAWN_DELAY: 5,
-        POWERUP_MAX_SPAWN_DELAY: 10,
-        POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
-        POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
-        POWERUP_ROTATION_SPEED: 64,
-    };
-
-    const hudFrames = {
+export function CreateHudFrameDB(): Record<string, AnimationFrame> {
+    return {
         healthbar: new AnimationFrame(247, 165, 12, 4),
         energybar: new AnimationFrame(247, 206, 7, 4),
     };
+}
 
-    const shouldStartNetGame = window.location.pathname.startsWith("/net");
-
-    function effectTypeToAnimationName(name: EffectType): string {
-        switch (name) {
-            case EffectType.PlayerExplosion:
-                return "playerBoom";
-            case EffectType.ProjectileExplosion:
-                return "projectileBoom";
-            case EffectType.PowerupPickup:
-                return "powerupPickup";
-        }
+function effectTypeToAnimationName(name: EffectType): string {
+    switch (name) {
+        case EffectType.PlayerExplosion:
+            return "playerBoom";
+        case EffectType.ProjectileExplosion:
+            return "projectileBoom";
+        case EffectType.PowerupPickup:
+            return "powerupPickup";
     }
+}
 
-    if (!shouldStartNetGame) {
-        const HUMAN_PLAYER_COUNT =
-            gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
-        const controllers: Controller[] = [];
+export enum Sounds {
+    Laser1 = "Laser1",
+    Laser2 = "Laser2",
+    ShipHit = "ShipHit",
+    RockHit = "RockHit",
+    WreckHit = "WreckHit",
+    ObstacleBounce = "ObstacleBounce",
+    Explosion = "4",
+    Powerup = "5",
+    Turbo = "6",
+}
 
-        for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
-            controllers.push(
-                ControllerFactory.createPhysicalController(
-                    i,
-                    playerSettings[i],
-                    keyboardState,
-                ),
+export function CreateSoundPlayer(): SoundPlayer<Sounds> {
+    return new SoundPlayer({
+        [Sounds.Laser1]: soundLaser1Url,
+        [Sounds.Laser2]: soundLaser2Url,
+        [Sounds.ShipHit]: soundShipHitUrl,
+        [Sounds.RockHit]: soundRockHitUrl,
+        [Sounds.WreckHit]: soundWreckHitUrl,
+        [Sounds.ObstacleBounce]: soundRockHit2Url,
+        [Sounds.Explosion]: soundExplosionUrl,
+        [Sounds.Powerup]: soundPowerupPickedUrl,
+        [Sounds.Turbo]: soundTurboUrl,
+    });
+}
+
+export function CreateGameEventEmitter(
+    soundPlayer: SoundPlayer<Sounds>,
+    jukebox: Jukebox,
+): GameEventEmitter {
+    const gameEventEmitter = new GameEventEmitter();
+    gameEventEmitter
+        .addListener("ProjectileSpawned", (playerId) => {
+            soundPlayer.playSound(
+                playerId % 2 == 0 ? Sounds.Laser1 : Sounds.Laser2,
             );
+        })
+        .addListener("PlayerWasHit", () => {
+            soundPlayer.playSound(Sounds.ShipHit);
+        })
+        .addListener("RockWasHit", () => {
+            soundPlayer.playSound(Sounds.RockHit);
+        })
+        .addListener("PlayerWasDestroyed", () => {
+            soundPlayer.playSound(Sounds.Explosion);
+        })
+        .addListener("PowerupPickedUp", () => {
+            soundPlayer.playSound(Sounds.Powerup);
+        })
+        .addListener("PlayerUsedTurbo", () => {
+            soundPlayer.playSound(Sounds.Turbo);
+        })
+        .addListener("WreckWasHit", () => {
+            soundPlayer.playSound(Sounds.WreckHit);
+        })
+        .addListener("ObstacleBounced", () => {
+            soundPlayer.playSound(Sounds.ObstacleBounce);
+        })
+        .addListener("GameStarted", () => {
+            jukebox.playNextSong();
+        })
+        .addListener("GameStopped", () => {
+            jukebox.stop();
+        });
+    return gameEventEmitter;
+}
 
-        for (let i = HUMAN_PLAYER_COUNT; i < gameSettings.PLAYER_COUNT; i++) {
-            const aiController = new SimpleController();
-            controllers.push(aiController);
+export function CreateSocket(): TinywarsSocket {
+    // Instantiate socket connection
+    // Dev: assume that backend lives on the same machine as frontend
+    const socket: TinywarsSocket = io(
+        `http://${window.location.hostname}:${BACKEND_PORT}`,
+        { transports: ["websocket"] },
+    );
+
+    socket.on("connect", () => {
+        console.log("Connected to backend");
+        console.log(window.location.pathname);
+
+        clientState = {
+            id: socket.id,
+            name: PRNG.randomItem(hardcodedRandomPlayerNames),
+            disconnected: false,
+        };
+
+        console.log(clientState);
+
+        if (window.location.pathname.startsWith("/net/connect/")) {
+            const gameCode = window.location.pathname.slice(
+                "/net/connect/".length,
+            );
+            socket.emit("lobbyEntered", gameCode, clientState);
+        } else if (window.location.pathname.startsWith("/net/host")) {
+            socket.emit("lobbyRequested", clientState.id);
         }
+    });
 
-        const app = new App(
-            gameEventEmitter,
-            animations,
-            gameSettings,
-            controllers,
-            effectTypeToAnimationName,
+    socket.on("connect_error", (err) => {
+        console.error(err);
+    });
+
+    socket.on("gameError", (message: string) => {
+        alert("GameError: " + message);
+    });
+
+    socket.on("lobbyUpdated", (state) => {
+        console.log(state);
+    });
+
+    socket.on("lobbyCreated", () => {
+        console.log(
+            `Lobby created. Other peers can connect by going to this address: http://${window.location.hostname}:${window.location.port}/net/connect/${clientState.id}`,
         );
-        const runner = new LocalAppRunner(app);
-        runner.run(FPS);
+        socket.emit("lobbyEntered", clientState.id, clientState);
+    });
 
-        const appView = new AppViewCanvas(
-            app,
-            document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-            hudFrames,
+    return socket;
+}
+
+const FPS = 60;
+
+const playerSettings: PlayerSettings[] = [
+    {
+        name: "red",
+        invertSteeringOnReverse: true,
+        controls: PLAYER1_DEFAULT_CONTROLS,
+    },
+    {
+        name: "green",
+        invertSteeringOnReverse: false,
+        controls: PLAYER2_DEFAULT_CONTROLS,
+    },
+    {
+        name: "blue",
+        invertSteeringOnReverse: false,
+        controls: PLAYER3_DEFAULT_CONTROLS,
+    },
+    {
+        name: "yellow",
+        invertSteeringOnReverse: false,
+        controls: PLAYER4_DEFAULT_CONTROLS,
+    },
+];
+
+const gameSettings: GameSettings = {
+    SCREEN_WIDTH: 1280,
+    SCREEN_HEIGHT: (1280 / 4) * 3,
+    COMMON_ANIMATION_FPS: 2,
+    EFFECT_ANIMATION_FPS: 16,
+    TIME_TILL_RESTART: 3,
+    PLAYER_SETTINGS: playerSettings,
+    DISPLAY_PLAYER_NAMES: true,
+    PRNG_SEED: 0,
+    FIXED_FRAME_TIME: 1 / FPS,
+    // Spawn settings
+    PLAYER_COUNT: 3,
+    NPC_COUNT: 1,
+    ROCK_COUNT: 4,
+    PLAYER_INITIAL_HEALTH: 3,
+    PLAYER_INITIAL_ENERGY: 2,
+    PLAYER_MAX_ENERGY: 4,
+    // AI Settings
+    AI_DUMBNESS: [0, 0.33, 0.66, 1],
+    AI_SHOOT_DELAY: 0.2,
+    AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
+    AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
+    AI_POWERUP_ACTIONABLE_RADIUS: 400,
+    AI_POWERUP_IGNORE_DELAY: 0.85,
+    AI_MAX_AIM_ERROR: 25, // degrees
+    AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
+    AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
+    AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
+    AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
+    // Simulation settings
+    //   Player
+    PLAYER_FORWARD_SPEED: 250,
+    PLAYER_TURBO_FORWARD_SPEED: 400,
+    PLAYER_ROTATION_SPEED: 200,
+    PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
+    PLAYER_MASS: 10,
+    //   Projectile
+    PROJECTILE_SPEED: 500,
+    PROJECTILE_DAMAGE: 1,
+    PROJECTILE_ENABLE_TELEPORT: false,
+    PROJECTILE_MASS: 5,
+    PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
+    //   Obstacle
+    OBSTACLE_MAX_SPEED: 375,
+    OBSTACLE_HIT_DAMAGE: 100,
+    OBSTACLE_MASS: 15,
+    OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
+    //   Powerup
+    POWERUP_MIN_SPAWN_DELAY: 5,
+    POWERUP_MAX_SPAWN_DELAY: 10,
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
+    POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
+    POWERUP_ROTATION_SPEED: 64,
+};
+
+export const init = (
+    gameEventEmitter: GameEventEmitter,
+    //socket: TinywarsSocket,
+    keyboardState: Record<string, boolean>,
+): AppRunner => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //(window as any).app = app;
+    /*(window as any).startNetGame = () => {
+        startNetGame(socket, clientState.id);
+    };*/
+
+    //const shouldStartNetGame = window.location.pathname.startsWith("/net");
+
+    //if (!shouldStartNetGame) {
+    const HUMAN_PLAYER_COUNT =
+        gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
+    const controllers: Controller[] = [];
+
+    for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
+        controllers.push(
+            ControllerFactory.createPhysicalController(
+                i,
+                playerSettings[i],
+                keyboardState,
+            ),
         );
-        appView.scale();
 
-        window.onresize = debounce(() => {
-            appView.scale();
-        }, 200);
+    for (let i = HUMAN_PLAYER_COUNT; i < gameSettings.PLAYER_COUNT; i++) {
+        const aiController = new SimpleController();
+        controllers.push(aiController);
     }
 
-    socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
+    const app = new App(
+        gameEventEmitter,
+        CreateAnimationDb(),
+        gameSettings,
+        controllers,
+        effectTypeToAnimationName,
+    );
+    const runner = new LocalAppRunner(app);
+    runner.run(FPS);
+
+    const appView = new AppViewCanvas(
+        app,
+        document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
+        CreateHudFrameDB(),
+    );
+    appView.scale();
+
+    window.onresize = debounce(() => {
+        appView.scale();
+    }, 200);
+
+    return runner;
+    //}
+
+    /*socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
         console.log(`Game starting... (seed ${seed})`);
         let myIndex = 0;
         gameState.clients.forEach((c, i) => {
@@ -423,7 +444,7 @@ export const init = () => {
 
         const app = new App(
             gameEventEmitter,
-            animations,
+            CreateAnimationDb(),
             gameSettings,
             controllers,
             effectTypeToAnimationName,
@@ -434,18 +455,12 @@ export const init = () => {
         const appView = new AppViewCanvas(
             app,
             document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-            hudFrames,
+            CreateHudFrameDB(),
         );
         appView.scale();
 
         window.onresize = debounce(() => {
             appView.scale();
         }, 200);
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //(window as any).app = app;
-    (window as any).startNetGame = () => {
-        startNetGame(socket, clientState.id);
-    };
+    });*/
 };

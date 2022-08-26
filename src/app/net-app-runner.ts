@@ -13,6 +13,7 @@ import { AppRunner } from "./app-runner";
 export class NetAppRunner extends AppRunner {
     private inputsReceived = false;
     private nextUpdateAvailable = false;
+    private intervalHandle = 0;
 
     constructor(
         private app: App,
@@ -24,7 +25,10 @@ export class NetAppRunner extends AppRunner {
     }
 
     protected override runInternal(): void {
-        setInterval(this.notifyNextUpdateAvailable, this.frameTimeMsec);
+        this.intervalHandle = setInterval(
+            this.notifyNextUpdateAvailable,
+            this.frameTimeMsec,
+        );
         this.socket.on("gameInputsCollected", (inputs: boolean[][]) => {
             this.registerAllFrameInputs(inputs);
         });
@@ -54,5 +58,11 @@ export class NetAppRunner extends AppRunner {
 
         this.socket.emit("gameInputGathered", this.myController.getSnapshot());
         this.app.updateLogic(this.frameTimeSec);
+    }
+
+    override release(): void {
+        this.socket.emit("lobbyLeft");
+        clearInterval(this.intervalHandle);
+        this.app.release();
     }
 }

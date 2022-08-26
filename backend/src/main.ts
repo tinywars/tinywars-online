@@ -32,21 +32,25 @@ function getGameByClient(id: string): NetGameStateManager {
     return game;
 }
 
+function handleClientLeavingGame(clientId: string) {
+    const game = getGameByClient(clientId);
+    game.markClientAsDisconnected(clientId);
+    // If everybody dropped the game
+    if (game.allClientsHaveDisconnected()) {
+        console.log(
+            `Deleting game with id ${game.state.id} (Reason: Everybody disconnected)`,
+        );
+        games.delete(game.state.id);
+    }
+}
+
 io.on("connection", (socket) => {
     console.log(`User (id: ${socket.id}) connected`);
 
     socket.on("disconnect", () => {
         console.log(`User (id: ${socket.id}) disconnected`);
         try {
-            const game = getGameByClient(socket.id);
-            game.markClientAsDisconnected(socket.id);
-            // If everybody dropped the game
-            if (game.allClientsHaveDisconnected()) {
-                console.log(
-                    `Deleting game with id ${game.state.id} (Reason: Everybody disconnected)`,
-                );
-                games.delete(game.state.id);
-            }
+            handleClientLeavingGame(socket.id);
         } catch (e) {
             console.log(`\tError: ${(e as Error).message}`);
         }
@@ -117,6 +121,15 @@ io.on("connection", (socket) => {
             `Started game with id ${gameId} and seed ${seed}. ${game.state.clients.length} clients are connected.`,
         );
         io.to(game.state.id).emit("gameStarted", game.state, seed);
+    });
+
+    socket.on("lobbyLeft", () => {
+        console.log(`User (id: ${socket.id}) left the game`);
+        try {
+            handleClientLeavingGame(socket.id);
+        } catch (e) {
+            console.log(`\tError: ${(e as Error).message}`);
+        }
     });
 
     socket.on("gameInputGathered", (inputs: boolean[]) => {
