@@ -52,10 +52,6 @@ export const LocalGameLobby: Component = () => {
     };
     const [isGameShown, setIsGameShown] = createSignal(false);
 
-    /* TODO:
-     * Player name is not reactive (cannot be changed yet)
-     */
-
     return (
         <Switch fallback={<div>Click to show game</div>}>
             <Match when={isGameShown()}>
