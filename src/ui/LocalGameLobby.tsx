@@ -53,13 +53,7 @@ export const LocalGameLobby: Component = () => {
     const [isGameShown, setIsGameShown] = createSignal(false);
 
     /* TODO:
-        1) Game settings so far only allow for having first N players to be human
-           and only the rest to be computer controlled.
-        2) Propagate playerSettings+playerCount (+ possibly mode settings in the future)
-           into the game component.
-        3) Hide lobby when game is started
-        4) Allow to exit the game (callback on pressed Esc could be enough for now or some
-           overlayed button).
+     * Player name is not reactive (cannot be changed yet)
      */
 
     return (
@@ -86,7 +80,17 @@ export const LocalGameLobby: Component = () => {
                         <Switch fallback={<div class="playerSettings"></div>}>
                             <Match when={i() < playerCount()}>
                                 <div class="playerSettings">
-                                    <input type="text" value={setting.name} />
+                                    <input
+                                        type="text"
+                                        value={setting.name}
+                                        onChange={(e) => {
+                                            setPlayerSettings((settings) => {
+                                                settings[i()].name =
+                                                    e.currentTarget.value;
+                                                return settings;
+                                            });
+                                        }}
+                                    />
 
                                     <label for={(() => `InvertSteer{i()}`)()}>
                                         Invert steering on reverse
@@ -120,7 +124,7 @@ export const LocalGameLobby: Component = () => {
                     )}
                 </For>
                 <button onClick={() => setIsGameShown(!isGameShown())}>
-                    {isGameShown() ? "Hide game" : "Show game"}
+                    Start game
                 </button>
             </Match>
         </Switch>
