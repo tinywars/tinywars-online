@@ -26,13 +26,7 @@ import { SimpleController } from "./controllers/simple-controller";
 import { GameEventEmitter } from "./events/event-emitter";
 import { EffectType } from "./game/effect";
 import { GameSettings } from "./game/game-settings";
-import {
-    PLAYER1_DEFAULT_CONTROLS,
-    PLAYER2_DEFAULT_CONTROLS,
-    PLAYER3_DEFAULT_CONTROLS,
-    PLAYER4_DEFAULT_CONTROLS,
-    PlayerSettings
-} from "./game/player-settings";
+import { PlayerSettings } from "./game/player-settings";
 import { TinywarsSocket } from "./networking/types";
 import "./style.css";
 import { AnimationFrame } from "./utility/animation";
@@ -274,114 +268,82 @@ export function CreateSocket(): TinywarsSocket {
 
 const FPS = 60;
 
-const playerSettings: PlayerSettings[] = [
-    {
-        name: "red",
-        invertSteeringOnReverse: true,
-        controls: PLAYER1_DEFAULT_CONTROLS,
-    },
-    {
-        name: "green",
-        invertSteeringOnReverse: false,
-        controls: PLAYER2_DEFAULT_CONTROLS,
-    },
-    {
-        name: "blue",
-        invertSteeringOnReverse: false,
-        controls: PLAYER3_DEFAULT_CONTROLS,
-    },
-    {
-        name: "yellow",
-        invertSteeringOnReverse: false,
-        controls: PLAYER4_DEFAULT_CONTROLS,
-    },
-];
-
-const gameSettings: GameSettings = {
-    SCREEN_WIDTH: 1280,
-    SCREEN_HEIGHT: (1280 / 4) * 3,
-    COMMON_ANIMATION_FPS: 2,
-    EFFECT_ANIMATION_FPS: 16,
-    TIME_TILL_RESTART: 3,
-    PLAYER_SETTINGS: playerSettings,
-    DISPLAY_PLAYER_NAMES: true,
-    PRNG_SEED: 0,
-    FIXED_FRAME_TIME: 1 / FPS,
-    // Spawn settings
-    PLAYER_COUNT: 3,
-    NPC_COUNT: 1,
-    ROCK_COUNT: 4,
-    PLAYER_INITIAL_HEALTH: 3,
-    PLAYER_INITIAL_ENERGY: 2,
-    PLAYER_MAX_ENERGY: 4,
-    // AI Settings
-    AI_DUMBNESS: [0, 0.33, 0.66, 1],
-    AI_SHOOT_DELAY: 0.2,
-    AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
-    AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
-    AI_POWERUP_ACTIONABLE_RADIUS: 400,
-    AI_POWERUP_IGNORE_DELAY: 0.85,
-    AI_MAX_AIM_ERROR: 25, // degrees
-    AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
-    AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
-    AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
-    AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
-    // Simulation settings
-    //   Player
-    PLAYER_FORWARD_SPEED: 250,
-    PLAYER_TURBO_FORWARD_SPEED: 400,
-    PLAYER_ROTATION_SPEED: 200,
-    PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
-    PLAYER_MASS: 10,
-    //   Projectile
-    PROJECTILE_SPEED: 500,
-    PROJECTILE_DAMAGE: 1,
-    PROJECTILE_ENABLE_TELEPORT: false,
-    PROJECTILE_MASS: 5,
-    PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
-    //   Obstacle
-    OBSTACLE_MAX_SPEED: 375,
-    OBSTACLE_HIT_DAMAGE: 100,
-    OBSTACLE_MASS: 15,
-    OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
-    //   Powerup
-    POWERUP_MIN_SPAWN_DELAY: 5,
-    POWERUP_MAX_SPAWN_DELAY: 10,
-    POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
-    POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
-    POWERUP_ROTATION_SPEED: 64,
-};
-
 export const init = (
     gameEventEmitter: GameEventEmitter,
     //socket: TinywarsSocket,
     keyboardState: Record<string, boolean>,
+    playerCount: number,
+    playerSettings: PlayerSettings[],
 ): AppRunner => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //(window as any).app = app;
-    /*(window as any).startNetGame = () => {
-        startNetGame(socket, clientState.id);
-    };*/
+    const gameSettings: GameSettings = {
+        SCREEN_WIDTH: 1280,
+        SCREEN_HEIGHT: (1280 / 4) * 3,
+        COMMON_ANIMATION_FPS: 2,
+        EFFECT_ANIMATION_FPS: 16,
+        TIME_TILL_RESTART: 3,
+        PLAYER_SETTINGS: playerSettings,
+        DISPLAY_PLAYER_NAMES: true,
+        PRNG_SEED: 0,
+        FIXED_FRAME_TIME: 1 / FPS,
+        // Spawn settings
+        PLAYER_COUNT: playerCount,
+        NPC_COUNT: 0, // TODO: remove this
+        ROCK_COUNT: 4,
+        PLAYER_INITIAL_HEALTH: 3,
+        PLAYER_INITIAL_ENERGY: 2,
+        PLAYER_MAX_ENERGY: 4,
+        // AI Settings
+        AI_DUMBNESS: [0, 0.33, 0.66, 1],
+        AI_SHOOT_DELAY: 0.2,
+        AI_HEALTH_SCORE_WEIGHT: 100, // how much each health point scores in pickTargetPlayer method
+        AI_HEALTH_POWERUP_SCORE_WEIGHT: 150,
+        AI_POWERUP_ACTIONABLE_RADIUS: 400,
+        AI_POWERUP_IGNORE_DELAY: 0.85,
+        AI_MAX_AIM_ERROR: 25, // degrees
+        AI_AIM_ERROR_DECREASE_SPEED: 0.25, // fully decreased after 4 seconds
+        AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
+        AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
+        AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
+        // Simulation settings
+        //   Player
+        PLAYER_FORWARD_SPEED: 250,
+        PLAYER_TURBO_FORWARD_SPEED: 400,
+        PLAYER_ROTATION_SPEED: 200,
+        PLAYER_ENERGY_RECHARGE_SPEED: 0.5,
+        PLAYER_MASS: 10,
+        //   Projectile
+        PROJECTILE_SPEED: 500,
+        PROJECTILE_DAMAGE: 1,
+        PROJECTILE_ENABLE_TELEPORT: false,
+        PROJECTILE_MASS: 5,
+        PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
+        //   Obstacle
+        OBSTACLE_MAX_SPEED: 375,
+        OBSTACLE_HIT_DAMAGE: 100,
+        OBSTACLE_MASS: 15,
+        OBSTACLE_BOUNCE_SLOW_FACTOR: 0.8,
+        //   Powerup
+        POWERUP_MIN_SPAWN_DELAY: 5,
+        POWERUP_MAX_SPAWN_DELAY: 10,
+        POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
+        POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
+        POWERUP_ROTATION_SPEED: 64,
+    };
 
-    //const shouldStartNetGame = window.location.pathname.startsWith("/net");
-
-    //if (!shouldStartNetGame) {
-    const HUMAN_PLAYER_COUNT =
-        gameSettings.PLAYER_COUNT - gameSettings.NPC_COUNT;
     const controllers: Controller[] = [];
-
-    for (let i = 0; i < HUMAN_PLAYER_COUNT; i++)
-        controllers.push(
-            ControllerFactory.createPhysicalController(
-                i,
-                playerSettings[i],
-                keyboardState,
-            ),
-        );
-
-    for (let i = HUMAN_PLAYER_COUNT; i < gameSettings.PLAYER_COUNT; i++) {
-        const aiController = new SimpleController();
-        controllers.push(aiController);
+    for (let i = 0; i < playerCount; i++) {
+        if (playerSettings[i].isComputerControlled) {
+            const aiController = new SimpleController();
+            controllers.push(aiController);
+        } else {
+            controllers.push(
+                ControllerFactory.createPhysicalController(
+                    i,
+                    playerSettings[i],
+                    keyboardState,
+                ),
+            );
+        }
     }
 
     const app = new App(
@@ -406,61 +368,4 @@ export const init = (
     const runner = new LocalAppRunner(app);
     runner.run(FPS);
     return runner;
-    //}
-
-    /*socket.on("gameStarted", (gameState: NetGameState, seed: number) => {
-        console.log(`Game starting... (seed ${seed})`);
-        let myIndex = 0;
-        gameState.clients.forEach((c, i) => {
-            if (c.id === clientState.id) myIndex = i;
-        });
-
-        const playerSettings: PlayerSettings[] = [];
-        gameState.clients.forEach((c, i) => {
-            playerSettings.push({
-                name: c.name,
-                invertSteeringOnReverse: false,
-                controls:
-                    i === myIndex
-                        ? PLAYER1_DEFAULT_CONTROLS
-                        : PLAYER4_DEFAULT_CONTROLS, // this is just dummy value, won't be used
-            });
-        });
-
-        gameSettings.PLAYER_COUNT = gameState.clients.length;
-        gameSettings.NPC_COUNT = 0;
-        gameSettings.PLAYER_SETTINGS = playerSettings;
-        gameSettings.PRNG_SEED = seed;
-
-        const controllers: SimpleController[] = [];
-        for (let i = 0; i < gameState.clients.length; i++)
-            controllers.push(new SimpleController());
-
-        const myController = ControllerFactory.createPhysicalController(
-            1,
-            playerSettings[myIndex],
-            keyboardState,
-        );
-
-        const app = new App(
-            gameEventEmitter,
-            CreateAnimationDb(),
-            gameSettings,
-            controllers,
-            effectTypeToAnimationName,
-        );
-        const runner = new NetAppRunner(app, socket, controllers, myController);
-        runner.run(FPS);
-
-        const appView = new AppViewCanvas(
-            app,
-            document.querySelector<HTMLCanvasElement>("#RenderCanvas")!,
-            CreateHudFrameDB(),
-        );
-        appView.scale();
-
-        window.onresize = debounce(() => {
-            appView.scale();
-        }, 200);
-    });*/
 };

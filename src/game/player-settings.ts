@@ -20,6 +20,7 @@ export interface PlayerControls {
 export interface PlayerSettings {
     name: string;
     invertSteeringOnReverse: boolean;
+    isComputerControlled: boolean;
     controls: PlayerControls;
 }
 

@@ -108,16 +108,16 @@ export class App extends Releasable {
             },
         };
 
-        const HUMAN_PLAYER_COUNT =
-            this.settings.PLAYER_COUNT - this.settings.NPC_COUNT;
-        for (let i = HUMAN_PLAYER_COUNT; i < this.settings.PLAYER_COUNT; i++) {
-            this.aiBrains.push(
-                new AiBrain(
-                    this.controllers[i] as SimpleController,
-                    this.gameContext.players.getItem(i),
-                    this.gameContext,
-                ),
-            );
+        for (let i = 0; i < this.settings.PLAYER_COUNT; i++) {
+            if (this.settings.PLAYER_SETTINGS[i].isComputerControlled) {
+                this.aiBrains.push(
+                    new AiBrain(
+                        this.controllers[i] as SimpleController,
+                        this.gameContext.players.getItem(i),
+                        this.gameContext,
+                    ),
+                );
+            }
         }
 
         this.powerupSpawnTimer = new Timer(() => {

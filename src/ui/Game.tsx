@@ -1,5 +1,6 @@
-import { Component, onCleanup, onMount } from "solid-js";
+import { Accessor, onCleanup, onMount, Setter } from "solid-js";
 import { AppRunner } from "../app/app-runner";
+import { PlayerSettings } from "../game/player-settings";
 import {
     CreateGameEventEmitter,
     CreateJukebox,
@@ -7,7 +8,13 @@ import {
     init
 } from "../main";
 
-export const Game: Component = () => {
+interface GameProps {
+    settings: Accessor<PlayerSettings[]>;
+    playerCount: Accessor<number>;
+    setIsGameShown: Setter<boolean>;
+}
+
+export function Game(props: GameProps) {
     const soundPlayer = CreateSoundPlayer();
     const jukebox = CreateJukebox();
     const gameEventEmitter = CreateGameEventEmitter(soundPlayer, jukebox);
@@ -24,7 +31,12 @@ export const Game: Component = () => {
 
     onMount(() => {
         console.log("Game:onMount");
-        appRunner = init(gameEventEmitter, keyboardState);
+        appRunner = init(
+            gameEventEmitter,
+            keyboardState,
+            props.playerCount(),
+            props.settings(),
+        );
     });
 
     onCleanup(() => {
@@ -40,8 +52,15 @@ export const Game: Component = () => {
 
     return (
         <div>
+            <button
+                class="exitGameButton"
+                onClick={() => {
+                    props.setIsGameShown(false);
+                }}
+            >
+                EXIT
+            </button>
             <canvas id="RenderCanvas"></canvas>
-            <div>GAME</div>
         </div>
     );
-};
+}
