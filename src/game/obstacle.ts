@@ -1,10 +1,10 @@
 import { AnimationEngine } from "../utility/animation";
 import { CircleCollider } from "../utility/circle-collider";
+import { Coords } from "../utility/coords";
+import { sanitizeAngle } from "../utility/math";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
-import { Coords } from "../utility/coords";
-import { sanitizeAngle } from "../utility/math";
 
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
@@ -43,7 +43,6 @@ export class Obstacle extends GameObject {
 
     hit(force: Vector) {
         this.forward.add(force);
-        // TODO: play sound
     }
 
     setForward(fwd: Vector) {

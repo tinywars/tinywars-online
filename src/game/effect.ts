@@ -20,7 +20,12 @@ export class Effect extends GameObject {
         super();
     }
 
-    spawn(options: { position: Vector; rotation: number; type: EffectType }) {
+    spawn(options: {
+        position: Vector;
+        rotation: number;
+        type: EffectType;
+        forward: Vector;
+    }) {
         this.collider.setPosition(options.position);
         this.rotation = options.rotation;
         this.animationEngine.setState(
@@ -28,9 +33,12 @@ export class Effect extends GameObject {
             false,
             true,
         );
+        this.forward = options.forward;
     }
 
     update(dt: number, context: GameContext): void {
+        this.collider.move(this.forward.getScaled(dt));
+
         if (!this.animationEngine.update(dt)) {
             context.eventQueue.add(eventDestroyEffect(this.id));
         }

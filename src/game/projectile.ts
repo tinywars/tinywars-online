@@ -1,10 +1,10 @@
-import { CircleCollider } from "../utility/circle-collider";
-import { Vector } from "../utility/vector";
-import { GameObject } from "./game-object";
-import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
 import { AnimationEngine } from "../utility/animation";
+import { CircleCollider } from "../utility/circle-collider";
 import { Coords } from "../utility/coords";
+import { Vector } from "../utility/vector";
+import { GameContext } from "./game-context";
+import { GameObject } from "./game-object";
 
 export class Projectile extends GameObject {
     private damage = 0;
@@ -24,7 +24,9 @@ export class Projectile extends GameObject {
 
         this.selfDestructTimeout -= dt;
         if (this.selfDestructTimeout <= 0)
-            context.eventQueue.add(eventDestroyProjectile(this.id));
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id, Vector.zero()),
+            );
 
         if (context.settings.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
@@ -69,7 +71,9 @@ export class Projectile extends GameObject {
             pos.y < 0 ||
             pos.y > context.settings.SCREEN_HEIGHT
         ) {
-            context.eventQueue.add(eventDestroyProjectile(this.id));
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id, Vector.zero()),
+            );
         }
     }
 }

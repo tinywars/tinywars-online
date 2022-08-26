@@ -279,8 +279,8 @@ const gameSettings: GameSettings = {
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 3,
-    NPC_COUNT: 1,
+    PLAYER_COUNT: 4,
+    NPC_COUNT: 4,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
