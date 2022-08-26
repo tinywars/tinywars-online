@@ -391,8 +391,6 @@ export const init = (
         controllers,
         effectTypeToAnimationName,
     );
-    const runner = new LocalAppRunner(app);
-    runner.run(FPS);
 
     const appView = new AppViewCanvas(
         app,
@@ -405,6 +403,8 @@ export const init = (
         appView.scale();
     }, 200);
 
+    const runner = new LocalAppRunner(app);
+    runner.run(FPS);
     return runner;
     //}
 
