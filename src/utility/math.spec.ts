@@ -264,4 +264,24 @@ describe("GameMath", () => {
             }
         });
     });
+
+    describe("getDifficultyFactorFromElapsedTime", () => {
+        it("returns 0 if elapsed time is lower than startTime", () => {
+            expect(
+                GameMath.getDifficultyFactorFromElapsedTime(0.25, 1, 2),
+            ).to.be.equal(0);
+        });
+
+        it("returns 1 if elapsed time is more than maxTime", () => {
+            expect(
+                GameMath.getDifficultyFactorFromElapsedTime(5.25, 1, 2),
+            ).to.be.equal(1);
+        });
+
+        it("returns interpolation if elapsed is somewhere in between", () => {
+            expect(
+                GameMath.getDifficultyFactorFromElapsedTime(1.75, 1, 2),
+            ).to.be.equal(0.75);
+        });
+    });
 });
