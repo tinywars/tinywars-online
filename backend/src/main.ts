@@ -154,31 +154,18 @@ io.on("connection", (socket) => {
     });
 
     socket.on("gameListRequested", () => {
-        console.log("Game list requested");
+        console.log(
+            `Game list requested. There are ${games.keys()} games in total.`,
+        );
 
         const infos: NetGameInfo[] = [];
-        for (const [key, value] of Object.entries(games)) {
-            if ((value as NetGameStateManager).hasGameStarted()) continue;
+        games.forEach((netStateMgr) => {
+            if (netStateMgr.hasGameStarted()) return;
 
             infos.push({
-                id: key,
-                numConnected: (value as NetGameStateManager).state.clients
-                    .length,
+                id: netStateMgr.state.id,
+                numConnected: netStateMgr.state.clients.length,
             });
-        }
-
-        // mocking
-        infos.push({
-            id: "id0",
-            numConnected: 4,
-        });
-        infos.push({
-            id: "id1",
-            numConnected: 2,
-        });
-        infos.push({
-            id: "id2",
-            numConnected: 1,
         });
 
         socket.emit("gameListCollected", infos);
