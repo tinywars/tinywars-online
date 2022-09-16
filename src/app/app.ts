@@ -96,6 +96,7 @@ export class App {
                         effectTypeToAnimationName,
                     ),
             ),
+            duration: 0,
             eventQueue: eventQueue,
             eventEmitter: this.eventEmitter,
             scores: [0, 0, 0, 0],
@@ -130,6 +131,8 @@ export class App {
     }
 
     updateLogic(dt: number): void {
+        this.gameContext.duration += dt;
+
         if (this.gameContext.players.getSize() <= 1 && !this.endgame) {
             this.endgame = true;
             this.timeTillRestart = this.settings.TIME_TILL_RESTART;
@@ -210,6 +213,7 @@ export class App {
         this.gameContext.obstacles.clear();
         this.gameContext.powerups.clear();
         this.gameContext.effects.clear();
+        this.gameContext.duration = 0;
 
         if (this.gameContext.eventQueue.events.length !== 0) {
             alert("Programmatic error: Event queue not empty");

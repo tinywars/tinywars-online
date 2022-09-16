@@ -19,6 +19,8 @@ export interface GameContext {
     scores: number[];
     wins: number[];
 
+    duration: number; // for how long the game runs
+
     eventQueue: EventQueue;
     eventEmitter: GameEventEmitter;
     log: (msg: string) => void;

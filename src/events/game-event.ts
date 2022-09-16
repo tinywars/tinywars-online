@@ -1,6 +1,7 @@
 import { EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { PowerupType } from "../game/powerup";
+import { clamp, lerp } from "../utility/math";
 import { PRNG } from "../utility/prng";
 import { Vector } from "../utility/vector";
 
@@ -42,17 +43,35 @@ export function eventSpawnProjectile(options: {
         process: (context: GameContext): void => {
             if (!context.projectiles.grow()) return;
 
+            const rampingTimeDiff =
+                context.settings.TIME_UNTIL_MAXIMUM_DIFFICULTY -
+                context.settings.TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP;
+            const difficultyFactor =
+                clamp(
+                    context.duration -
+                        context.settings
+                            .TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP,
+                    0,
+                    rampingTimeDiff,
+                ) / rampingTimeDiff;
+            const projectileSpeed = lerp(
+                context.settings.PROJECTILE_SPEED,
+                context.settings.PROJECTILE_HARDEST_SPEED,
+                difficultyFactor,
+            );
+
             context.eventEmitter.emit("ProjectileSpawned", options.playerId);
             context.projectiles.getLastItem().spawn({
                 position: options.position,
-                forward: options.direction.getScaled(
-                    context.settings.PROJECTILE_SPEED,
-                ),
+                forward: options.direction.getScaled(projectileSpeed),
                 damage:
                     options.damageMultiplier *
                     context.settings.PROJECTILE_DAMAGE,
                 selfDestructTimeout:
                     context.settings.PROJECTILE_SELF_DESTRUCT_TIMEOUT,
+                colliderScale:
+                    difficultyFactor *
+                    context.settings.PROJECTILE_MAX_COLLIDER_SCALE,
             });
         },
     };

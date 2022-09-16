@@ -279,8 +279,8 @@ const gameSettings: GameSettings = {
     PRNG_SEED: 0,
     FIXED_FRAME_TIME: 1 / FPS,
     // Spawn settings
-    PLAYER_COUNT: 3,
-    NPC_COUNT: 1,
+    PLAYER_COUNT: 4,
+    NPC_COUNT: 4,
     ROCK_COUNT: 4,
     PLAYER_INITIAL_HEALTH: 3,
     PLAYER_INITIAL_ENERGY: 2,
@@ -306,6 +306,8 @@ const gameSettings: GameSettings = {
     PLAYER_MASS: 10,
     //   Projectile
     PROJECTILE_SPEED: 500,
+    PROJECTILE_HARDEST_SPEED: 1500,
+    PROJECTILE_MAX_COLLIDER_SCALE: 3,
     PROJECTILE_DAMAGE: 1,
     PROJECTILE_ENABLE_TELEPORT: false,
     PROJECTILE_MASS: 5,
@@ -321,6 +323,9 @@ const gameSettings: GameSettings = {
     POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
     POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
     POWERUP_ROTATION_SPEED: 64,
+    // Difficulty settings
+    TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP: 5,
+    TIME_UNTIL_MAXIMUM_DIFFICULTY: 30,
 };
 
 const hudFrames = {

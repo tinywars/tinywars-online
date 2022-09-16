@@ -14,6 +14,7 @@ export class Sprite {
             position: Vector;
             frame: AnimationFrame;
             rotation: number;
+            scale: number;
         },
     ) {
         const translation = new Vector(
@@ -33,8 +34,8 @@ export class Sprite {
             options.frame.h,
             options.position.x - options.frame.w / 2,
             options.position.y - options.frame.h / 2,
-            options.frame.w,
-            options.frame.h,
+            options.frame.w * options.scale,
+            options.frame.h * options.scale,
         );
         context.restore();
     }
@@ -113,7 +114,11 @@ export class AppViewCanvas {
             context.settings.SCREEN_HEIGHT,
         );
         context.players.forEach((p) => {
-            this.drawEntity(p.getCoords(), p.getCollider().radius);
+            this.drawEntity(
+                p.getCoords(),
+                p.getColliderScale(),
+                p.getCollider().radius,
+            );
             this.drawHudForPlayer(p);
 
             if (context.settings.DISPLAY_PLAYER_NAMES)
@@ -125,16 +130,20 @@ export class AppViewCanvas {
                 );
         });
         context.projectiles.forEach((p) => {
-            this.drawEntity(p.getCoords());
+            this.drawEntity(p.getCoords(), p.getColliderScale());
         });
         context.obstacles.forEach((o) => {
-            this.drawEntity(o.getCoords(), o.getCollider().radius);
+            this.drawEntity(
+                o.getCoords(),
+                o.getColliderScale(),
+                o.getCollider().radius,
+            );
         });
         context.powerups.forEach((p) => {
-            this.drawEntity(p.getCoords());
+            this.drawEntity(p.getCoords(), p.getColliderScale());
         });
         context.effects.forEach((e) => {
-            this.drawEntity(e.getCoords());
+            this.drawEntity(e.getCoords(), e.getColliderScale());
         });
 
         const endgameStatus = this.app.getEndgameStatus();
@@ -167,11 +176,12 @@ export class AppViewCanvas {
         this.context2d.fillStyle = "black";
     }
 
-    private drawEntity(coords: Coords, radius?: number) {
+    private drawEntity(coords: Coords, colliderScale: number, radius?: number) {
         this.sprite.draw(this.context2d, {
             position: coords.position,
             rotation: coords.angle,
             frame: coords.frame,
+            scale: colliderScale,
         });
 
         if (radius) {
@@ -186,6 +196,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
+                    scale: colliderScale,
                 });
             } else if (WIDTH - coords.position.x < radius) {
                 this.sprite.draw(this.context2d, {
@@ -195,6 +206,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
+                    scale: colliderScale,
                 });
             }
 
@@ -206,6 +218,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
+                    scale: colliderScale,
                 });
             } else if (HEIGHT - coords.position.y < radius) {
                 this.sprite.draw(this.context2d, {
@@ -215,6 +228,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
+                    scale: colliderScale,
                 });
             }
         }
