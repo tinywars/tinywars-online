@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { debounce } from "lodash";
-import { io } from "socket.io-client";
 import musicTrack1 from "../assets/music/track1.ogg";
 import musicTrack2 from "../assets/music/track2.ogg";
 import musicTrack3 from "../assets/music/track3.ogg";
@@ -15,8 +14,6 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import { BACKEND_PORT } from "../backend/src/settings";
-import { ClientState } from "../backend/src/types/client-state";
 import { App } from "./app/app";
 import { AppRunner } from "./app/app-runner";
 import { LocalAppRunner } from "./app/local-app-runner";
@@ -37,20 +34,6 @@ import { SoundPlayer } from "./utility/sound-player";
 import { AppViewCanvas } from "./view-canvas/app-view";
 
 PRNG.setSeed(Date.now());
-
-function startNetGame(socket: TinywarsSocket, gameCode: string) {
-    socket.emit("lobbyCommited", gameCode);
-}
-
-// Generate random player state
-// this will be customizable in menu
-const hardcodedRandomPlayerNames = [
-    "ReadyPlayerOne",
-    "doomista",
-    "rand'o",
-    "PapoochCZ",
-];
-let clientState: ClientState;
 
 export function CreateJukebox(): Jukebox {
     const jukebox = new Jukebox([
@@ -213,58 +196,6 @@ export function CreateGameEventEmitter(
             jukebox.stop();
         });
     return gameEventEmitter;
-}
-
-export function CreateSocket(): TinywarsSocket {
-    // Instantiate socket connection
-    // Dev: assume that backend lives on the same machine as frontend
-    const socket: TinywarsSocket = io(
-        `http://${window.location.hostname}:${BACKEND_PORT}`,
-        { transports: ["websocket"] },
-    );
-
-    socket.on("connect", () => {
-        console.log("Connected to backend");
-        console.log(window.location.pathname);
-
-        clientState = {
-            id: socket.id,
-            name: PRNG.randomItem(hardcodedRandomPlayerNames),
-            disconnected: false,
-        };
-
-        console.log(clientState);
-
-        if (window.location.pathname.startsWith("/net/connect/")) {
-            const gameCode = window.location.pathname.slice(
-                "/net/connect/".length,
-            );
-            socket.emit("lobbyEntered", gameCode, clientState);
-        } else if (window.location.pathname.startsWith("/net/host")) {
-            socket.emit("lobbyRequested", clientState.id);
-        }
-    });
-
-    socket.on("connect_error", (err) => {
-        console.error(err);
-    });
-
-    socket.on("gameError", (message: string) => {
-        alert("GameError: " + message);
-    });
-
-    socket.on("lobbyUpdated", (state) => {
-        console.log(state);
-    });
-
-    socket.on("lobbyCreated", () => {
-        console.log(
-            `Lobby created. Other peers can connect by going to this address: http://${window.location.hostname}:${window.location.port}/net/connect/${clientState.id}`,
-        );
-        socket.emit("lobbyEntered", clientState.id, clientState);
-    });
-
-    return socket;
 }
 
 const FPS = 60;
