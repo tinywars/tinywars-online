@@ -5,6 +5,7 @@ import { ClientEvents } from "./events/client-events";
 import { ServerEvents } from "./events/server-events";
 import { BACKEND_PORT, HOST_IP } from "./settings";
 import { ClientState } from "./types/client-state";
+import { NetGameInfo } from "./types/game-info";
 import { NetGameStateManager } from "./types/game-state";
 
 const games: Map<string, NetGameStateManager> = new Map();
@@ -150,6 +151,35 @@ io.on("connection", (socket) => {
             );
             socket.emit("gameError", msg);
         }
+    });
+
+    socket.on("gameListRequested", () => {
+        const infos: NetGameInfo[] = [];
+        for (const [key, value] of Object.entries(games)) {
+            if ((value as NetGameStateManager).hasGameStarted()) continue;
+
+            infos.push({
+                id: key,
+                numConnected: (value as NetGameStateManager).state.clients
+                    .length,
+            });
+        }
+
+        // mocking
+        infos.push({
+            id: "id0",
+            numConnected: 4,
+        });
+        infos.push({
+            id: "id1",
+            numConnected: 2,
+        });
+        infos.push({
+            id: "id2",
+            numConnected: 1,
+        });
+
+        socket.emit("gameListCollected", infos);
     });
 });
 

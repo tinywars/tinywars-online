@@ -1,4 +1,5 @@
 import { NetGameState } from "../types/game-state";
+import { GameInfo } from "../types/server-types";
 
 export interface ServerEvents {
     // Confirmation of lobbyRequested
@@ -9,4 +10,5 @@ export interface ServerEvents {
     gameStarted: (gameState: NetGameState, seed: number) => void;
     gameInputsCollected: (inputs: boolean[][]) => void;
     gameError: (errorMessage: string) => void;
+    gameListCollected: (games: GameInfo[]) => void;
 }
