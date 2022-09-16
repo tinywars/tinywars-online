@@ -155,7 +155,7 @@ io.on("connection", (socket) => {
 
     socket.on("gameListRequested", () => {
         console.log(
-            `Game list requested. There are ${games.keys()} games in total.`,
+            `Game list requested. There are ${games.size} games in total.`,
         );
 
         const infos: NetGameInfo[] = [];

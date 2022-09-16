@@ -1,4 +1,4 @@
-import { Accessor, onCleanup, onMount, Setter } from "solid-js";
+import { Accessor, onCleanup, onMount } from "solid-js";
 import { AppRunner } from "../app/app-runner";
 import { PlayerSettings } from "../game/player-settings";
 import {
@@ -7,11 +7,15 @@ import {
     CreateSoundPlayer,
     init
 } from "../main";
+import { TinywarsSocket } from "../networking/types";
 
 interface GameProps {
     settings: Accessor<PlayerSettings[]>;
-    playerCount: Accessor<number>;
-    setIsGameShown: Setter<boolean>;
+    playerCount: number;
+    onGameExit: () => void;
+    gameSeed: number;
+    socket?: TinywarsSocket;
+    myIndex?: number;
 }
 
 export function Game(props: GameProps) {
@@ -34,8 +38,11 @@ export function Game(props: GameProps) {
         appRunner = init(
             gameEventEmitter,
             keyboardState,
-            props.playerCount(),
+            props.playerCount,
             props.settings(),
+            props.gameSeed,
+            props.socket,
+            props.myIndex,
         );
     });
 
@@ -52,12 +59,7 @@ export function Game(props: GameProps) {
 
     return (
         <div>
-            <button
-                class="exitGameButton"
-                onClick={() => {
-                    props.setIsGameShown(false);
-                }}
-            >
+            <button class="exitGameButton" onClick={props.onGameExit}>
                 EXIT
             </button>
             <canvas id="RenderCanvas"></canvas>

@@ -3,10 +3,11 @@ import {
     PLAYER1_DEFAULT_CONTROLS,
     PLAYER2_DEFAULT_CONTROLS,
     PLAYER3_DEFAULT_CONTROLS,
-    PLAYER4_DEFAULT_CONTROLS
+    PLAYER4_DEFAULT_CONTROLS,
+    PlayerSettings
 } from "../game/player-settings";
-import { Checkbox } from "./Checkbox";
 import { Game } from "./Game";
+import { PlayerSettingsCard } from "./PlayerSettingsCard";
 
 export const LocalGameLobby: Component = () => {
     const [playersSettings, setPlayerSettings] = createSignal([
@@ -36,29 +37,18 @@ export const LocalGameLobby: Component = () => {
         },
     ]);
     const [playerCount, setPlayerCount] = createSignal(4);
-    const toggleSteerInvert = (index: number) => {
-        setPlayerSettings((settings) => {
-            const val = settings[index].invertSteeringOnReverse;
-            settings[index].invertSteeringOnReverse = !val;
-            return settings;
-        });
-    };
-    const toggleComputerControl = (index: number) => {
-        setPlayerSettings((settings) => {
-            const val = settings[index].isComputerControlled;
-            settings[index].isComputerControlled = !val;
-            return settings;
-        });
-    };
     const [isGameShown, setIsGameShown] = createSignal(false);
 
     return (
-        <Switch fallback={<div>Click to show game</div>}>
+        <Switch>
             <Match when={isGameShown()}>
                 <Game
                     settings={playersSettings}
-                    playerCount={playerCount}
-                    setIsGameShown={setIsGameShown}
+                    playerCount={playerCount()}
+                    onGameExit={() => {
+                        setIsGameShown(false);
+                    }}
+                    gameSeed={Date.now()}
                 />
             </Match>
             <Match when={!isGameShown()}>
@@ -75,46 +65,17 @@ export const LocalGameLobby: Component = () => {
                     {(setting, i) => (
                         <Switch fallback={<div class="playerSettings"></div>}>
                             <Match when={i() < playerCount()}>
-                                <div class="playerSettings">
-                                    <input
-                                        type="text"
-                                        value={setting.name}
-                                        onChange={(e) => {
-                                            setPlayerSettings((settings) => {
-                                                settings[i()].name =
-                                                    e.currentTarget.value;
-                                                return settings;
-                                            });
-                                        }}
-                                    />
-
-                                    <label for={(() => `InvertSteer{i()}`)()}>
-                                        Invert steering on reverse
-                                    </label>
-                                    <Checkbox
-                                        id={(() => `InvertSteer{i()}`)()}
-                                        name="InvertSteer"
-                                        checked={
-                                            setting.invertSteeringOnReverse
-                                        }
-                                        onToggle={() => {
-                                            toggleSteerInvert(i());
-                                        }}
-                                    />
-                                    <label
-                                        for={(() => `ComputerControl{i()}`)()}
-                                    >
-                                        Computer controlled?
-                                    </label>
-                                    <Checkbox
-                                        id={(() => `ComputerControl{i()}`)()}
-                                        name="ComputerControl"
-                                        checked={setting.isComputerControlled}
-                                        onToggle={() => {
-                                            toggleComputerControl(i());
-                                        }}
-                                    />
-                                </div>
+                                <PlayerSettingsCard
+                                    index={i()}
+                                    settings={setting}
+                                    setSettings={(settings: PlayerSettings) => {
+                                        const copy = playersSettings();
+                                        copy[i()] = settings;
+                                        setPlayerSettings(copy);
+                                    }}
+                                    enabled={true}
+                                    netgame={false}
+                                />
                             </Match>
                         </Switch>
                     )}

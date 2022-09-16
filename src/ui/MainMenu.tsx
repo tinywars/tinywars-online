@@ -3,7 +3,7 @@ import { Component, createSignal, Match, Switch } from "solid-js";
 import { BACKEND_PORT } from "../../backend/src/settings";
 import { TinywarsSocket } from "../networking/types";
 import { LocalGameLobby } from "./LocalGameLobby";
-import { NetworkGameLobby } from "./NetworkGameLobby";
+import { NetGamePicker } from "./NetGamePicker";
 
 enum ConnectionStatus {
     Waiting = "Waiting",
@@ -34,7 +34,7 @@ export const MainMenu: Component = () => {
             <div>Connection status: {connectStatus()}</div>
             <Switch fallback={<LocalGameLobby />}>
                 <Match when={connectStatus() == ConnectionStatus.Connected}>
-                    <NetworkGameLobby socket={socket} />
+                    <NetGamePicker socket={socket} />
                 </Match>
             </Switch>
         </div>

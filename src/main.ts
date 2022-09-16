@@ -20,6 +20,7 @@ import { ClientState } from "../backend/src/types/client-state";
 import { App } from "./app/app";
 import { AppRunner } from "./app/app-runner";
 import { LocalAppRunner } from "./app/local-app-runner";
+import { NetAppRunner } from "./app/net-app-runner";
 import { Controller } from "./controllers/controller";
 import { ControllerFactory } from "./controllers/controller-factory";
 import { SimpleController } from "./controllers/simple-controller";
@@ -270,10 +271,12 @@ const FPS = 60;
 
 export const init = (
     gameEventEmitter: GameEventEmitter,
-    //socket: TinywarsSocket,
     keyboardState: Record<string, boolean>,
     playerCount: number,
     playerSettings: PlayerSettings[],
+    seed: number,
+    socket?: TinywarsSocket,
+    myIndex?: number, // only used in netgame to locate proper settings
 ): AppRunner => {
     const gameSettings: GameSettings = {
         SCREEN_WIDTH: 1280,
@@ -283,7 +286,7 @@ export const init = (
         TIME_TILL_RESTART: 3,
         PLAYER_SETTINGS: playerSettings,
         DISPLAY_PLAYER_NAMES: true,
-        PRNG_SEED: 0,
+        PRNG_SEED: seed,
         FIXED_FRAME_TIME: 1 / FPS,
         // Spawn settings
         PLAYER_COUNT: playerCount,
@@ -331,18 +334,26 @@ export const init = (
     };
 
     const controllers: Controller[] = [];
-    for (let i = 0; i < playerCount; i++) {
-        if (playerSettings[i].isComputerControlled) {
-            const aiController = new SimpleController();
-            controllers.push(aiController);
-        } else {
-            controllers.push(
-                ControllerFactory.createPhysicalController(
-                    i,
-                    playerSettings[i],
-                    keyboardState,
-                ),
-            );
+
+    if (socket === undefined) {
+        // local game
+        for (let i = 0; i < playerCount; i++) {
+            if (playerSettings[i].isComputerControlled) {
+                const aiController = new SimpleController();
+                controllers.push(aiController);
+            } else {
+                controllers.push(
+                    ControllerFactory.createPhysicalController(
+                        i,
+                        playerSettings[i],
+                        keyboardState,
+                    ),
+                );
+            }
+        }
+    } else {
+        for (let i = 0; i < playerCount; i++) {
+            controllers.push(new SimpleController());
         }
     }
 
@@ -365,6 +376,24 @@ export const init = (
         appView.scale();
     }, 200);
 
+    if (socket !== undefined && myIndex !== undefined) {
+        const myController = ControllerFactory.createPhysicalController(
+            1,
+            playerSettings[myIndex],
+            keyboardState,
+        );
+
+        const runner = new NetAppRunner(
+            app,
+            socket,
+            controllers as SimpleController[],
+            myController,
+        );
+        runner.run(FPS);
+        return runner;
+    }
+
+    // Local game
     const runner = new LocalAppRunner(app);
     runner.run(FPS);
     return runner;
