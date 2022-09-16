@@ -2,6 +2,7 @@ import { eventDestroyProjectile } from "../events/game-event";
 import { AnimationEngine } from "../utility/animation";
 import { CircleCollider } from "../utility/circle-collider";
 import { Coords } from "../utility/coords";
+import { lerp } from "../utility/math";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
@@ -9,7 +10,6 @@ import { GameObject } from "./game-object";
 export class Projectile extends GameObject {
     private damage = 0;
     private selfDestructTimeout = 0;
-    BASE_COLLIDER_SIZE = 2;
     private colliderScale = 1;
 
     constructor(
@@ -17,10 +17,8 @@ export class Projectile extends GameObject {
         private animationEngine: AnimationEngine<any>,
     ) {
         super();
-        this.collider = new CircleCollider(
-            Vector.outOfView(),
-            this.BASE_COLLIDER_SIZE,
-        );
+        // Collider is completely newly created in each spawn
+        this.collider = new CircleCollider(Vector.outOfView(), 0);
         this.animationEngine.setState("idle", true);
     }
 
@@ -43,15 +41,13 @@ export class Projectile extends GameObject {
         forward: Vector;
         damage: number;
         selfDestructTimeout: number;
+        colliderSize: number;
         colliderScale: number;
     }) {
-        this.colliderScale =
-            this.BASE_COLLIDER_SIZE /* +
-                this.BASE_COLLIDER_SIZE * this.colliderScale*/ /
-            this.BASE_COLLIDER_SIZE;
+        this.colliderScale = options.colliderScale;
         this.collider = new CircleCollider(
             options.position,
-            this.BASE_COLLIDER_SIZE * this.colliderScale,
+            options.colliderSize,
         );
         this.forward = options.forward;
         this.damage = options.damage;
@@ -88,5 +84,27 @@ export class Projectile extends GameObject {
         ) {
             context.eventQueue.add(eventDestroyProjectile(this.id));
         }
+    }
+
+    static getNewProjectileSpeed(
+        difficultyFactor: number,
+        context: GameContext,
+    ): number {
+        return lerp(
+            context.settings.PROJECTILE_SPEED,
+            context.settings.PROJECTILE_HARDEST_SPEED,
+            difficultyFactor,
+        );
+    }
+
+    static getNewProjectileColliderSize(
+        difficultyFactor: number,
+        context: GameContext,
+    ): number {
+        return lerp(
+            context.settings.PROJECTILE_COLLIDER_SIZE,
+            context.settings.PROJECTILE_HARDEST_COLLIDER_SIZE,
+            difficultyFactor,
+        );
     }
 }
