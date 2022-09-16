@@ -154,6 +154,8 @@ io.on("connection", (socket) => {
     });
 
     socket.on("gameListRequested", () => {
+        console.log("Game list requested");
+
         const infos: NetGameInfo[] = [];
         for (const [key, value] of Object.entries(games)) {
             if ((value as NetGameStateManager).hasGameStarted()) continue;

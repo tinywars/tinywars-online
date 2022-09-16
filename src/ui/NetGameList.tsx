@@ -1,19 +1,28 @@
-import { Accessor, For, Match, Switch } from "solid-js";
+import { Accessor, For, Match, onMount, Switch } from "solid-js";
 import { NetGameInfo } from "../../backend/src/types/game-info";
 
 export interface NetGameListProps {
     gameInfos: Accessor<NetGameInfo[]>;
     onJoinClick: (id: string) => void;
+    onRefresh: () => void;
 }
 
 export function NetGameList(props: NetGameListProps) {
+    onMount(() => {
+        props.onRefresh();
+    });
+
     return (
         <table class="netGameListTable">
             <thead>
                 <tr>
                     <td>Game ID</td>
                     <td>Player count</td>
-                    <td></td>
+                    <td>
+                        <button onClick={() => props.onRefresh()}>
+                            Refresh
+                        </button>
+                    </td>
                 </tr>
             </thead>
             <tbody>
