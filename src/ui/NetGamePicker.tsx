@@ -1,8 +1,8 @@
 import { createSignal, Match, Switch } from "solid-js";
 import { NetGameInfo } from "../../backend/src/types/game-info";
 import { TinywarsSocket } from "../networking/types";
-import { NetGameList } from "./NetGameList";
-import { NetGameLobby } from "./NetGameLobby";
+import { NetGameList } from "./components/NetGameList";
+import { NetGameLobby } from "./lobby/NetGameLobby";
 
 interface NetGamePickerProps {
     socket: TinywarsSocket;

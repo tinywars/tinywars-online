@@ -1,5 +1,5 @@
 import { Match, Switch } from "solid-js";
-import { PlayerSettings } from "../game/player-settings";
+import { PlayerSettings } from "../../game/player-settings";
 import { Checkbox } from "./Checkbox";
 
 export interface PlayerSettingsCardProps {
@@ -22,11 +22,11 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                 }}
             />
 
-            <label for={(() => `InvertSteer_{index}`)()}>
+            <label for={`InvertSteer_${props.index}`}>
                 Invert steering on reverse
             </label>
             <Checkbox
-                id={(() => `InvertSteer_{index}`)()}
+                id={`InvertSteer_${props.index}`}
                 name="InvertSteer"
                 checked={props.settings.invertSteeringOnReverse}
                 onToggle={() => {
@@ -37,11 +37,11 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
             />
             <Switch>
                 <Match when={!props.netgame}>
-                    <label for={(() => `ComputerControl{i()}`)()}>
+                    <label for={`ComputerControl_${props.index}`}>
                         Computer controlled?
                     </label>
                     <Checkbox
-                        id={(() => `ComputerControl{i()}`)()}
+                        id={`ComputerControl_${props.index}`}
                         name="ComputerControl"
                         checked={props.settings.isComputerControlled}
                         onToggle={() => {

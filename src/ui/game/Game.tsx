@@ -1,18 +1,18 @@
+import { Link } from "@gh0st-work/solid-js-router";
 import { Accessor, onCleanup, onMount } from "solid-js";
-import { AppRunner } from "../app/app-runner";
-import { PlayerSettings } from "../game/player-settings";
+import { AppRunner } from "../../app/app-runner";
+import { PlayerSettings } from "../../game/player-settings";
 import {
     CreateGameEventEmitter,
     CreateJukebox,
     CreateSoundPlayer,
     init
-} from "../main";
-import { TinywarsSocket } from "../networking/types";
+} from "../../main";
+import { TinywarsSocket } from "../../networking/types";
 
 interface GameProps {
     settings: Accessor<PlayerSettings[]>;
     playerCount: number;
-    onGameExit: () => void;
     gameSeed: number;
     socket?: TinywarsSocket;
     myIndex?: number;
@@ -25,6 +25,8 @@ export function Game(props: GameProps) {
     //const socket = CreateSocket();
     const keyboardState: Record<string, boolean> = {};
     let appRunner: AppRunner | undefined;
+
+    const isNetworkGame = !!props.socket;
 
     document.onkeydown = (e) => {
         keyboardState[e.code] = true;
@@ -59,9 +61,7 @@ export function Game(props: GameProps) {
 
     return (
         <div>
-            <button class="exitGameButton" onClick={props.onGameExit}>
-                EXIT
-            </button>
+            <Link href={isNetworkGame ? "/network" : "/local"}>EXIT</Link>
             <canvas id="RenderCanvas"></canvas>
         </div>
     );

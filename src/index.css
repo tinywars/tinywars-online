@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.disabled a {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.8;
+  color: orange
+}

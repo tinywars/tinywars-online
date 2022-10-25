@@ -8,15 +8,15 @@ import {
     Setter,
     Switch
 } from "solid-js";
-import { ClientState } from "../../backend/src/types/client-state";
-import { NetGameState } from "../../backend/src/types/game-state";
+import { ClientState } from "../../../backend/src/types/client-state";
+import { NetGameState } from "../../../backend/src/types/game-state";
 import {
     PLAYER1_DEFAULT_CONTROLS,
     PlayerSettings
-} from "../game/player-settings";
-import { TinywarsSocket } from "../networking/types";
-import { Game } from "./Game";
-import { PlayerSettingsCard } from "./PlayerSettingsCard";
+} from "../../game/player-settings";
+import { TinywarsSocket } from "../../networking/types";
+import { PlayerSettingsCard } from "../components/PlayerSettingsCard";
+import { Game } from "../game/Game";
 
 export interface NetGameLobbyProps {
     socket: TinywarsSocket;
@@ -93,6 +93,7 @@ export function NetGameLobby(props: NetGameLobbyProps) {
                 <Game
                     settings={playersSettings}
                     playerCount={playersSettings().length}
+                    // TODO: Refactor net game
                     onGameExit={() => {
                         props.socket.emit("lobbyLeft");
                     }}
