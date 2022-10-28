@@ -59,7 +59,10 @@ export const LocalGameLobby: Component = () => {
 function LocalGameLobbyView() {
     return (
         <>
+            <h2 class="title">Local game</h2>
+            <label for="PlayerCountInput">Number of players: </label>
             <input
+                id="PlayerCountInput"
                 type="number"
                 min="2"
                 max="4"
@@ -68,24 +71,31 @@ function LocalGameLobbyView() {
                     setPlayerCount(parseInt(e.currentTarget.value));
                 }}
             />
-            <For each={visiblePlayers()}>
-                {(setting, i) => (
-                    <PlayerSettingsCard
-                        index={i()}
-                        settings={setting}
-                        setSettings={(settings: PlayerSettings) => {
-                            const copy = playersSettings();
-                            copy[i()] = settings;
-                            setPlayerSettings(copy);
-                        }}
-                        enabled={true}
-                        netgame={false}
-                    />
-                )}
-            </For>
-            <Link href="local/game">Start game</Link>
+            <div id="PlayerSettingsCardsWrapper">
+                <For each={visiblePlayers()}>
+                    {(setting, i) => (
+                        <PlayerSettingsCard
+                            index={i()}
+                            settings={setting}
+                            setSettings={(settings: PlayerSettings) => {
+                                const copy = playersSettings();
+                                copy[i()] = settings;
+                                setPlayerSettings(copy);
+                            }}
+                            enabled={true}
+                            netgame={false}
+                        />
+                    )}
+                </For>
+            </div>
+
+            <Link href="local/game" class="menu_button">
+                Start game
+            </Link>
             <br />
-            <Link href="/">Back to menu</Link>
+            <Link href="/" class="menu_button">
+                Back to menu
+            </Link>
         </>
     );
 }

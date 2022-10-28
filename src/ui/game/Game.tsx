@@ -60,9 +60,17 @@ export function Game(props: GameProps) {
     });
 
     return (
-        <div>
-            <Link href={isNetworkGame ? "/network" : "/local"}>EXIT</Link>
+        <div id="GameView">
             <canvas id="RenderCanvas"></canvas>
+
+            <div id="GameSidebar">
+                <Link
+                    href={isNetworkGame ? "/network" : "/local"}
+                    class="menu_button"
+                >
+                    Exit game
+                </Link>
+            </div>
         </div>
     );
 }

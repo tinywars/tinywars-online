@@ -39,8 +39,20 @@ export function MainMenu() {
 
     return (
         <Router>
-            Status: {connectStatus()}
-            <hr />
+            <div id="ConnectionStatus">
+                Connection status:{" "}
+                <span
+                    classList={{
+                        text_success:
+                            connectStatus() === ConnectionStatus.Connected,
+                        text_warning:
+                            connectStatus() === ConnectionStatus.Waiting,
+                        text_error: connectStatus() === ConnectionStatus.Error,
+                    }}
+                >
+                    {connectStatus()}
+                </span>
+            </div>
             <Routes>
                 <Route path={"/local"}>
                     <LocalGameLobby />
@@ -65,16 +77,22 @@ export function MainMenu() {
 function MainMenuView(props: { isConnected: Accessor<boolean> }) {
     return (
         <>
-            <Link href={"/local"}>Local Game</Link>
-            <br />
-            {/* Reactive properties on the Link element don't work, so we wrap it with span */}
-            <span
-                classList={{
-                    disabled: !props.isConnected(),
-                }}
-            >
-                <Link href={"/network"}>Network Game</Link>
-            </span>
+            <h1 class="title">Tinywars</h1>
+            <div id="MainMenu">
+                <Link href={"/local"} class="menu_button">
+                    Local Game
+                </Link>
+                <br />
+                <Link
+                    href={"/network"}
+                    class="menu_button"
+                    classList={{
+                        disabled_button: !props.isConnected(),
+                    }}
+                >
+                    Network Game
+                </Link>
+            </div>
         </>
     );
 }
