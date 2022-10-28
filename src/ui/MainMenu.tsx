@@ -6,10 +6,11 @@ import {
     Routes
 } from "@gh0st-work/solid-js-router";
 import { io } from "socket.io-client";
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, createSignal, onCleanup, onMount } from "solid-js";
 import { BACKEND_PORT } from "../../backend/src/settings";
 import { TinywarsSocket } from "../networking/types";
 import { LocalGameLobby } from "./lobby/LocalGameLobby";
+import { NetworkMainMenu } from "./NetworkMainMenu";
 
 enum ConnectionStatus {
     Waiting = "Waiting",
@@ -37,6 +38,14 @@ export function MainMenu() {
         setConnectStatus(ConnectionStatus.Error);
     });
 
+    onMount(() => {
+        console.log("MainMenu:onMount");
+    });
+
+    onCleanup(() => {
+        console.log("MainMenu:onCleanup");
+    });
+
     return (
         <Router>
             <div id="ConnectionStatus">
@@ -58,8 +67,7 @@ export function MainMenu() {
                     <LocalGameLobby />
                 </Route>
                 <Route path={"/network"}>
-                    <div>BBBBB</div>
-                    {/* <NetGamePicker socket={socket} /> */}
+                    <NetworkMainMenu socket={socket} />
                 </Route>
                 {/*
                     Slash route must be LAST, as it matches everything
@@ -83,15 +91,15 @@ function MainMenuView(props: { isConnected: Accessor<boolean> }) {
                     Local Game
                 </Link>
                 <br />
-                <Link
-                    href={"/network"}
-                    class="menu_button"
+                <span
                     classList={{
                         disabled_button: !props.isConnected(),
                     }}
                 >
-                    Network Game
-                </Link>
+                    <Link href={"/network"} class="menu_button">
+                        Network Game
+                    </Link>
+                </span>
             </div>
         </>
     );

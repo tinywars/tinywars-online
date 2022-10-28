@@ -22,7 +22,6 @@ export function Game(props: GameProps) {
     const soundPlayer = CreateSoundPlayer();
     const jukebox = CreateJukebox();
     const gameEventEmitter = CreateGameEventEmitter(soundPlayer, jukebox);
-    //const socket = CreateSocket();
     const keyboardState: Record<string, boolean> = {};
     let appRunner: AppRunner | undefined;
 

@@ -1,3 +1,4 @@
+import { Link, Route, Routes } from "@gh0st-work/solid-js-router";
 import {
     Accessor,
     createSignal,
@@ -5,7 +6,6 @@ import {
     Match,
     onCleanup,
     onMount,
-    Setter,
     Switch
 } from "solid-js";
 import { ClientState } from "../../../backend/src/types/client-state";
@@ -20,31 +20,34 @@ import { Game } from "../game/Game";
 
 export interface NetGameLobbyProps {
     socket: TinywarsSocket;
-    clientState: Accessor<ClientState>;
-    setClientState: Setter<ClientState>;
-    setGameJoined: Setter<boolean>;
     isSelfHosting: boolean; // am I the host?
+    gameId: string;
 }
+
+/* Signals and properties */
+const [playersSettings, setPlayerSettings] = createSignal<PlayerSettings[]>([]);
+let myIndex = 0;
+let gameSeed = 0;
 
 export function NetGameLobby(props: NetGameLobbyProps) {
     /* Signals and properties */
-    const [playersSettings, setPlayerSettings] = createSignal<PlayerSettings[]>(
-        [],
-    );
-    const [isGameShown, setIsGameShown] = createSignal(false);
-    let myIndex = 0;
-    let gameSeed = 0;
+    const [clientState, setClientState] = createSignal({
+        id: props.socket.id,
+        name: "default",
+        disconnected: false,
+        // TODO: invertSteerOnReverse
+    });
 
     /* Methods and callbacks */
     const updatePlayers = (gameState: NetGameState) => {
         const playerData: PlayerSettings[] = [];
         gameState.clients.forEach((c, i) => {
-            if (c.id === props.clientState().id) {
+            if (c.id === clientState().id) {
                 myIndex = i;
 
                 if (c.disconnected) {
-                    setIsGameShown(false);
                     // TODO: should quit lobby completely
+                    // TODO: navigate to
                 }
             }
 
@@ -60,6 +63,10 @@ export function NetGameLobby(props: NetGameLobbyProps) {
         setPlayerSettings(playerData);
     };
 
+    const joinGame = (gameId: string) => {
+        props.socket.emit("lobbyEntered", gameId, clientState());
+    };
+
     /* onMount, onCleanup */
     onMount(() => {
         props.socket.on("lobbyUpdated", (gameState: NetGameState) => {
@@ -67,7 +74,7 @@ export function NetGameLobby(props: NetGameLobbyProps) {
         });
 
         props.socket.on("gameError", (message: string) => {
-            props.setGameJoined(false); // Go back to game picker
+            // TODO: props.setGameJoined(false); // Go back to game picker
             alert(message);
         });
 
@@ -76,10 +83,23 @@ export function NetGameLobby(props: NetGameLobbyProps) {
             (gameState: NetGameState, seed: number) => {
                 updatePlayers(gameState);
                 gameSeed = seed;
-                setIsGameShown(true);
+                // TODO: navigate to
                 // TODO: rest of setup
             },
         );
+
+        if (props.isSelfHosting) {
+            // When lobby is created, join it
+            props.socket.on("lobbyCreated", () => {
+                joinGame(clientState().id);
+            });
+
+            // Request lobby
+            props.socket.emit("lobbyRequested", props.socket.id);
+        } else {
+            // Lobby already exists, join it
+            joinGame(props.gameId);
+        }
     });
 
     onCleanup(() => {
@@ -88,22 +108,37 @@ export function NetGameLobby(props: NetGameLobbyProps) {
 
     /* HTML */
     return (
-        <Switch>
-            <Match when={isGameShown()}>
+        <Routes>
+            <Route path={"/game"}>
                 <Game
                     settings={playersSettings}
                     playerCount={playersSettings().length}
                     // TODO: Refactor net game
-                    onGameExit={() => {
-                        props.socket.emit("lobbyLeft");
-                    }}
                     gameSeed={gameSeed}
                     socket={props.socket}
                     myIndex={myIndex}
                 />
-            </Match>
-            <Match when={!isGameShown()}>
-                <h2>NetGameLobby</h2>
+            </Route>
+            <Route path={"/"} fallback={true}>
+                <NetGameLobbyView
+                    isSelfHosting={props.isSelfHosting}
+                    socket={props.socket}
+                    clientState={clientState}
+                />
+            </Route>
+        </Routes>
+    );
+}
+
+function NetGameLobbyView(props: {
+    isSelfHosting: boolean;
+    socket: TinywarsSocket;
+    clientState: Accessor<ClientState>;
+}) {
+    return (
+        <>
+            <h2 class="title">NetGameLobby</h2>
+            <div id="PlayerSettingsCardsWrapper">
                 <For each={playersSettings()}>
                     {(setting, i) => (
                         <PlayerSettingsCard
@@ -120,22 +155,28 @@ export function NetGameLobby(props: NetGameLobbyProps) {
                         />
                     )}
                 </For>
-                <Switch>
-                    <Match when={props.isSelfHosting}>
-                        <button
-                            disabled={playersSettings().length < 2}
-                            onclick={() => {
-                                props.socket.emit(
-                                    "lobbyCommited",
-                                    props.clientState().id,
-                                );
-                            }}
-                        >
-                            Start game
-                        </button>
-                    </Match>
-                </Switch>
-            </Match>
-        </Switch>
+            </div>
+
+            <Switch>
+                <Match when={props.isSelfHosting}>
+                    <span
+                        classList={{
+                            disabled_button: playersSettings().length < 2,
+                        }}
+                    >
+                        <Link href="network/game">
+                            {/*
+                             onclick={() => {
+                            props.socket.emit(
+                                "lobbyCommited",
+                                props.clientState().id,
+                            );
+                        }} */}
+                            Start Game
+                        </Link>
+                    </span>
+                </Match>
+            </Switch>
+        </>
     );
 }

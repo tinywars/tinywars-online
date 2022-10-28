@@ -1,5 +1,5 @@
 import { Link, Route, Routes } from "@gh0st-work/solid-js-router";
-import { Component, createSignal, For } from "solid-js";
+import { Component, createSignal, For, onCleanup, onMount } from "solid-js";
 import {
     PLAYER1_DEFAULT_CONTROLS,
     PLAYER2_DEFAULT_CONTROLS,
@@ -40,6 +40,14 @@ const [playerCount, setPlayerCount] = createSignal(4);
 const visiblePlayers = () => playersSettings().slice(0, playerCount());
 
 export const LocalGameLobby: Component = () => {
+    onMount(() => {
+        console.log("LocalGameLobby:onMount");
+    });
+
+    onCleanup(() => {
+        console.log("LocalGameLobby:onCleanup");
+    });
+
     return (
         <Routes>
             <Route path={"/game"}>
