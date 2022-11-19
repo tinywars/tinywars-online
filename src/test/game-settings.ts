@@ -39,9 +39,9 @@ export function getMockSettings(): GameSettings {
         PLAYER_MASS: 10,
         //   Projectile
         PROJECTILE_SPEED: 500,
-        PROJECTILE_HARDEST_SPEED: 1000,
+        PROJECTILE_MAX_SPEED: 1000,
         PROJECTILE_COLLIDER_SIZE: 2,
-        PROJECTILE_HARDEST_COLLIDER_SIZE: 6,
+        PROJECTILE_MAX_COLLIDER_SIZE: 6,
         PROJECTILE_DAMAGE: 1,
         PROJECTILE_ENABLE_TELEPORT: false,
         PROJECTILE_MASS: 5,

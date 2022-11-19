@@ -39,9 +39,9 @@ export interface GameSettings {
     PLAYER_MASS: number;
     //   Projectile
     PROJECTILE_SPEED: number;
-    PROJECTILE_HARDEST_SPEED: number;
+    PROJECTILE_MAX_SPEED: number;
     PROJECTILE_COLLIDER_SIZE: number;
-    PROJECTILE_HARDEST_COLLIDER_SIZE: number;
+    PROJECTILE_MAX_COLLIDER_SIZE: number;
     PROJECTILE_DAMAGE: number;
     PROJECTILE_ENABLE_TELEPORT: boolean;
     PROJECTILE_MASS: number;
