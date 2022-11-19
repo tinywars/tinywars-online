@@ -80,7 +80,10 @@ export function eventSpawnProjectile(options: {
     return e;
 }
 
-export function eventDestroyProjectile(index: number) {
+export function eventDestroyProjectile(
+    index: number,
+    explosionForwardSpeed: Vector,
+) {
     const e: GameEvent = {
         name: "DestroyProjectileEvent",
         process: (context: GameContext): void => {
@@ -93,11 +96,13 @@ export function eventDestroyProjectile(index: number) {
                         position: coords.position,
                         rotation: coords.angle,
                         type: EffectType.ProjectileExplosion,
+                        forward: explosionForwardSpeed,
                         scale: context.projectiles
                             .getItem(i)
                             .getColliderScale(),
                     }),
                 );
+                console.log(explosionForwardSpeed);
 
                 context.projectiles.getItem(i).despawn();
                 context.projectiles.popItem(i);
@@ -114,15 +119,6 @@ export function eventDestroyPlayer(index: number) {
         process: (context: GameContext): void => {
             context.players.forEach((p, i) => {
                 if (p.id !== index) return;
-
-                const coords = context.players.getItem(i).getCoords();
-                context.eventQueue.add(
-                    eventCreateEffect({
-                        position: coords.position,
-                        rotation: 0,
-                        type: EffectType.PlayerExplosion,
-                    }),
-                );
 
                 context.players.getItem(i).despawn();
                 context.players.popItem(i);
@@ -152,6 +148,15 @@ export function eventSpawnWreck(options: {
                 forward: options.forward,
                 playerIndex: options.index,
             });
+
+            context.eventQueue.add(
+                eventCreateEffect({
+                    position: options.position,
+                    rotation: 0,
+                    type: EffectType.PlayerExplosion,
+                    forward: options.forward,
+                }),
+            );
         },
     };
     return e;
@@ -198,6 +203,7 @@ export function eventDestroyPowerup(index: number) {
                             .position,
                         rotation: 0,
                         type: EffectType.PowerupPickup,
+                        forward: Vector.zero(),
                     }),
                 );
 
@@ -213,6 +219,7 @@ export function eventCreateEffect(options: {
     position: Vector;
     rotation: number;
     type: EffectType;
+    forward: Vector;
     scale?: number;
 }) {
     const e: GameEvent = {
@@ -224,6 +231,7 @@ export function eventCreateEffect(options: {
                 position: options.position,
                 rotation: options.rotation,
                 type: options.type,
+                forward: options.forward,
                 scale: options.scale,
             });
         },

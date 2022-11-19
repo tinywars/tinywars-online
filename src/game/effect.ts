@@ -26,6 +26,7 @@ export class Effect extends GameObject {
         position: Vector;
         rotation: number;
         type: EffectType;
+        forward: Vector;
         scale?: number;
     }) {
         this.collider.setPosition(options.position);
@@ -35,10 +36,13 @@ export class Effect extends GameObject {
             false,
             true,
         );
+        this.forward = options.forward;
         this.colliderScale = options.scale ?? 1;
     }
 
     update(dt: number, context: GameContext): void {
+        this.collider.move(this.forward.getScaled(dt));
+
         if (!this.animationEngine.update(dt)) {
             context.eventQueue.add(eventDestroyEffect(this.id));
         }

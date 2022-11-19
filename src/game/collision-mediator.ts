@@ -110,7 +110,9 @@ export class CollisionMediator {
         context: GameContext,
     ) {
         player.hit(projectile.getDamage());
-        context.eventQueue.add(eventDestroyProjectile(projectile.id));
+        context.eventQueue.add(
+            eventDestroyProjectile(projectile.id, player.getForward()),
+        );
         context.eventEmitter.emit("PlayerWasHit");
     }
 
@@ -127,7 +129,9 @@ export class CollisionMediator {
                         context.settings.OBSTACLE_MASS,
                 ),
         );
-        context.eventQueue.add(eventDestroyProjectile(projectile.id));
+        context.eventQueue.add(
+            eventDestroyProjectile(projectile.id, obstacle.getForward()),
+        );
         context.eventEmitter.emit(
             obstacle.isWreck() ? "WreckWasHit" : "RockWasHit",
         );
