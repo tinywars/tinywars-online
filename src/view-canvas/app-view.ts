@@ -14,12 +14,12 @@ export class Sprite {
             position: Vector;
             frame: AnimationFrame;
             rotation: number;
-            scale: number;
+            scale: Vector;
         },
     ) {
         const translation = new Vector(
             options.position.x, // + options.frame.w / 2,
-            options.position.y, // + options.frame.h / 2
+            options.position.y, // + options.frame.h / 2,
         );
 
         context.save();
@@ -32,10 +32,10 @@ export class Sprite {
             options.frame.y,
             options.frame.w,
             options.frame.h,
-            options.position.x - options.frame.w / 2,
-            options.position.y - options.frame.h / 2,
-            options.frame.w * options.scale,
-            options.frame.h * options.scale,
+            options.position.x - (options.frame.w / 2) * options.scale.x,
+            options.position.y - (options.frame.h / 2) * options.scale.y,
+            options.frame.w * options.scale.x,
+            options.frame.h * options.scale.y,
         );
         context.restore();
     }
@@ -181,7 +181,7 @@ export class AppViewCanvas {
             position: coords.position,
             rotation: coords.angle,
             frame: coords.frame,
-            scale: colliderScale,
+            scale: new Vector(colliderScale),
         });
 
         if (radius) {
@@ -196,7 +196,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
-                    scale: colliderScale,
+                    scale: new Vector(colliderScale),
                 });
             } else if (WIDTH - coords.position.x < radius) {
                 this.sprite.draw(this.context2d, {
@@ -206,7 +206,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
-                    scale: colliderScale,
+                    scale: new Vector(colliderScale),
                 });
             }
 
@@ -218,7 +218,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
-                    scale: colliderScale,
+                    scale: new Vector(colliderScale),
                 });
             } else if (HEIGHT - coords.position.y < radius) {
                 this.sprite.draw(this.context2d, {
@@ -228,7 +228,7 @@ export class AppViewCanvas {
                     ),
                     rotation: coords.angle,
                     frame: coords.frame,
-                    scale: colliderScale,
+                    scale: new Vector(colliderScale),
                 });
             }
         }

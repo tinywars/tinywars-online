@@ -93,6 +93,9 @@ export function eventDestroyProjectile(index: number) {
                         position: coords.position,
                         rotation: coords.angle,
                         type: EffectType.ProjectileExplosion,
+                        scale: context.projectiles
+                            .getItem(i)
+                            .getColliderScale(),
                     }),
                 );
 
@@ -210,6 +213,7 @@ export function eventCreateEffect(options: {
     position: Vector;
     rotation: number;
     type: EffectType;
+    scale?: number;
 }) {
     const e: GameEvent = {
         name: "CreateEffectEvent",
@@ -220,6 +224,7 @@ export function eventCreateEffect(options: {
                 position: options.position,
                 rotation: options.rotation,
                 type: options.type,
+                scale: options.scale,
             });
         },
     };

@@ -92,7 +92,7 @@ export class Projectile extends GameObject {
     ): number {
         return lerp(
             context.settings.PROJECTILE_SPEED,
-            context.settings.PROJECTILE_HARDEST_SPEED,
+            context.settings.PROJECTILE_MAX_SPEED,
             difficultyFactor,
         );
     }
@@ -103,7 +103,7 @@ export class Projectile extends GameObject {
     ): number {
         return lerp(
             context.settings.PROJECTILE_COLLIDER_SIZE,
-            context.settings.PROJECTILE_HARDEST_COLLIDER_SIZE,
+            context.settings.PROJECTILE_MAX_COLLIDER_SIZE,
             difficultyFactor,
         );
     }
