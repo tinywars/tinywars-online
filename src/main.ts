@@ -247,10 +247,13 @@ export const init = (
         PLAYER_MASS: 10,
         //   Projectile
         PROJECTILE_SPEED: 500,
+        PROJECTILE_MAX_SPEED: 1500,
         PROJECTILE_DAMAGE: 1,
         PROJECTILE_ENABLE_TELEPORT: false,
         PROJECTILE_MASS: 5,
         PROJECTILE_SELF_DESTRUCT_TIMEOUT: 10,
+        PROJECTILE_COLLIDER_SIZE: 2,
+        PROJECTILE_MAX_COLLIDER_SIZE: 8,
         //   Obstacle
         OBSTACLE_MAX_SPEED: 375,
         OBSTACLE_HIT_DAMAGE: 100,
@@ -262,6 +265,9 @@ export const init = (
         POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7], // Array of prefix sums of [ 2, 3, 2 ]
         POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7, // sum f original distribution 2 + 3 + 2
         POWERUP_ROTATION_SPEED: 64,
+        // Difficulty
+        TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP: 15,
+        TIME_UNTIL_MAXIMUM_DIFFICULTY: 60,
     };
 
     const controllers: Controller[] = [];

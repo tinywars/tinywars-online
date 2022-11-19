@@ -1,6 +1,8 @@
 import { EffectType } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { PowerupType } from "../game/powerup";
+import { Projectile } from "../game/projectile";
+import { getDifficultyFactorFromElapsedTime } from "../utility/math";
 import { PRNG } from "../utility/prng";
 import { Vector } from "../utility/vector";
 
@@ -42,24 +44,46 @@ export function eventSpawnProjectile(options: {
         process: (context: GameContext): void => {
             if (!context.projectiles.grow()) return;
 
+            const difficultyFactor = getDifficultyFactorFromElapsedTime(
+                context.duration,
+                context.settings.TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP,
+                context.settings.TIME_UNTIL_MAXIMUM_DIFFICULTY,
+            );
+
+            const projectileSpeed = Projectile.getNewProjectileSpeed(
+                difficultyFactor,
+                context,
+            );
+
+            const projectileColliderSize =
+                Projectile.getNewProjectileColliderSize(
+                    difficultyFactor,
+                    context,
+                );
+
             context.eventEmitter.emit("ProjectileSpawned", options.playerId);
             context.projectiles.getLastItem().spawn({
                 position: options.position,
-                forward: options.direction.getScaled(
-                    context.settings.PROJECTILE_SPEED,
-                ),
+                forward: options.direction.getScaled(projectileSpeed),
                 damage:
                     options.damageMultiplier *
                     context.settings.PROJECTILE_DAMAGE,
                 selfDestructTimeout:
                     context.settings.PROJECTILE_SELF_DESTRUCT_TIMEOUT,
+                colliderSize: projectileColliderSize,
+                colliderScale:
+                    projectileColliderSize /
+                    context.settings.PROJECTILE_COLLIDER_SIZE,
             });
         },
     };
     return e;
 }
 
-export function eventDestroyProjectile(index: number) {
+export function eventDestroyProjectile(
+    index: number,
+    explosionForwardSpeed: Vector,
+) {
     const e: GameEvent = {
         name: "DestroyProjectileEvent",
         process: (context: GameContext): void => {
@@ -72,8 +96,13 @@ export function eventDestroyProjectile(index: number) {
                         position: coords.position,
                         rotation: coords.angle,
                         type: EffectType.ProjectileExplosion,
+                        forward: explosionForwardSpeed,
+                        scale: context.projectiles
+                            .getItem(i)
+                            .getColliderScale(),
                     }),
                 );
+                console.log(explosionForwardSpeed);
 
                 context.projectiles.getItem(i).despawn();
                 context.projectiles.popItem(i);
@@ -90,15 +119,6 @@ export function eventDestroyPlayer(index: number) {
         process: (context: GameContext): void => {
             context.players.forEach((p, i) => {
                 if (p.id !== index) return;
-
-                const coords = context.players.getItem(i).getCoords();
-                context.eventQueue.add(
-                    eventCreateEffect({
-                        position: coords.position,
-                        rotation: 0,
-                        type: EffectType.PlayerExplosion,
-                    }),
-                );
 
                 context.players.getItem(i).despawn();
                 context.players.popItem(i);
@@ -128,6 +148,15 @@ export function eventSpawnWreck(options: {
                 forward: options.forward,
                 playerIndex: options.index,
             });
+
+            context.eventQueue.add(
+                eventCreateEffect({
+                    position: options.position,
+                    rotation: 0,
+                    type: EffectType.PlayerExplosion,
+                    forward: options.forward,
+                }),
+            );
         },
     };
     return e;
@@ -174,6 +203,7 @@ export function eventDestroyPowerup(index: number) {
                             .position,
                         rotation: 0,
                         type: EffectType.PowerupPickup,
+                        forward: Vector.zero(),
                     }),
                 );
 
@@ -189,6 +219,8 @@ export function eventCreateEffect(options: {
     position: Vector;
     rotation: number;
     type: EffectType;
+    forward: Vector;
+    scale?: number;
 }) {
     const e: GameEvent = {
         name: "CreateEffectEvent",
@@ -199,6 +231,8 @@ export function eventCreateEffect(options: {
                 position: options.position,
                 rotation: options.rotation,
                 type: options.type,
+                forward: options.forward,
+                scale: options.scale,
             });
         },
     };

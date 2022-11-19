@@ -39,6 +39,9 @@ export interface GameSettings {
     PLAYER_MASS: number;
     //   Projectile
     PROJECTILE_SPEED: number;
+    PROJECTILE_MAX_SPEED: number;
+    PROJECTILE_COLLIDER_SIZE: number;
+    PROJECTILE_MAX_COLLIDER_SIZE: number;
     PROJECTILE_DAMAGE: number;
     PROJECTILE_ENABLE_TELEPORT: boolean;
     PROJECTILE_MASS: number;
@@ -54,4 +57,7 @@ export interface GameSettings {
     POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: number;
     POWERUP_SPAWN_CHANCE_DISTRIBUTION: number[];
     POWERUP_ROTATION_SPEED: number;
+    //   Other settings
+    TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP: number;
+    TIME_UNTIL_MAXIMUM_DIFFICULTY: number;
 }

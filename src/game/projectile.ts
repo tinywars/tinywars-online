@@ -1,21 +1,24 @@
-import { CircleCollider } from "../utility/circle-collider";
-import { Vector } from "../utility/vector";
-import { GameObject } from "./game-object";
-import { GameContext } from "./game-context";
 import { eventDestroyProjectile } from "../events/game-event";
 import { AnimationEngine } from "../utility/animation";
+import { CircleCollider } from "../utility/circle-collider";
 import { Coords } from "../utility/coords";
+import { lerp } from "../utility/math";
+import { Vector } from "../utility/vector";
+import { GameContext } from "./game-context";
+import { GameObject } from "./game-object";
 
 export class Projectile extends GameObject {
     private damage = 0;
     private selfDestructTimeout = 0;
+    private colliderScale = 1;
 
     constructor(
         readonly id: number,
         private animationEngine: AnimationEngine<any>,
     ) {
         super();
-        this.collider = new CircleCollider(Vector.outOfView(), 2);
+        // Collider is completely newly created in each spawn
+        this.collider = new CircleCollider(Vector.outOfView(), 0);
         this.animationEngine.setState("idle", true);
     }
 
@@ -24,7 +27,9 @@ export class Projectile extends GameObject {
 
         this.selfDestructTimeout -= dt;
         if (this.selfDestructTimeout <= 0)
-            context.eventQueue.add(eventDestroyProjectile(this.id));
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id, Vector.zero()),
+            );
 
         if (context.settings.PROJECTILE_ENABLE_TELEPORT) {
             this.handleLeavingScreenByWrappingAround(context);
@@ -38,8 +43,14 @@ export class Projectile extends GameObject {
         forward: Vector;
         damage: number;
         selfDestructTimeout: number;
+        colliderSize: number;
+        colliderScale: number;
     }) {
-        this.collider.setPosition(options.position);
+        this.colliderScale = options.colliderScale;
+        this.collider = new CircleCollider(
+            options.position,
+            options.colliderSize,
+        );
         this.forward = options.forward;
         this.damage = options.damage;
         this.rotation = this.forward.toAngle();
@@ -61,6 +72,10 @@ export class Projectile extends GameObject {
         return this.damage;
     }
 
+    override getColliderScale(): number {
+        return this.colliderScale;
+    }
+
     private handleLeavingScreen(context: GameContext) {
         const pos = this.collider.getPosition();
         if (
@@ -69,7 +84,31 @@ export class Projectile extends GameObject {
             pos.y < 0 ||
             pos.y > context.settings.SCREEN_HEIGHT
         ) {
-            context.eventQueue.add(eventDestroyProjectile(this.id));
+            context.eventQueue.add(
+                eventDestroyProjectile(this.id, Vector.zero()),
+            );
         }
+    }
+
+    static getNewProjectileSpeed(
+        difficultyFactor: number,
+        context: GameContext,
+    ): number {
+        return lerp(
+            context.settings.PROJECTILE_SPEED,
+            context.settings.PROJECTILE_MAX_SPEED,
+            difficultyFactor,
+        );
+    }
+
+    static getNewProjectileColliderSize(
+        difficultyFactor: number,
+        context: GameContext,
+    ): number {
+        return lerp(
+            context.settings.PROJECTILE_COLLIDER_SIZE,
+            context.settings.PROJECTILE_MAX_COLLIDER_SIZE,
+            difficultyFactor,
+        );
     }
 }

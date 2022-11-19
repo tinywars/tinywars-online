@@ -12,6 +12,8 @@ export enum EffectType {
 }
 
 export class Effect extends GameObject {
+    private colliderScale = 1;
+
     constructor(
         readonly id: number,
         private animationEngine: AnimationEngine<any>,
@@ -20,7 +22,13 @@ export class Effect extends GameObject {
         super();
     }
 
-    spawn(options: { position: Vector; rotation: number; type: EffectType }) {
+    spawn(options: {
+        position: Vector;
+        rotation: number;
+        type: EffectType;
+        forward: Vector;
+        scale?: number;
+    }) {
         this.collider.setPosition(options.position);
         this.rotation = options.rotation;
         this.animationEngine.setState(
@@ -28,12 +36,20 @@ export class Effect extends GameObject {
             false,
             true,
         );
+        this.forward = options.forward;
+        this.colliderScale = options.scale ?? 1;
     }
 
     update(dt: number, context: GameContext): void {
+        this.collider.move(this.forward.getScaled(dt));
+
         if (!this.animationEngine.update(dt)) {
             context.eventQueue.add(eventDestroyEffect(this.id));
         }
+    }
+
+    override getColliderScale(): number {
+        return this.colliderScale;
     }
 
     getCoords(): Coords {

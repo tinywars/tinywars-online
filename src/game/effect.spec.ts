@@ -33,12 +33,13 @@ describe("Effect", () => {
         effect = gameContext.effects.getItem(0);
     });
 
-    it("#spawn", () => {
-        describe("Spawns correctly", () => {
+    describe("#spawn", () => {
+        it("Spawns correctly", () => {
             effect.spawn({
                 position: new Vector(42, 69),
                 rotation: 45,
                 type: EffectType.PlayerExplosion,
+                forward: new Vector(67, 68),
             });
 
             expect(effect.getCoords().position.x).to.equal(42);
@@ -46,13 +47,16 @@ describe("Effect", () => {
             expect(effect.getCoords().angle).to.equal(45);
             expect(effect.getCoords().frame.x).to.equal(65);
             expect(effect.getCoords().frame.y).to.equal(66);
+            expect(effect.getForward().x).to.equal(67);
+            expect(effect.getForward().y).to.equal(68);
         });
 
-        describe("Repeated spawning with same type resets animation", () => {
+        it("Repeated spawning with same type resets animation", () => {
             effect.spawn({
                 position: new Vector(42, 69),
                 rotation: 45,
                 type: EffectType.PlayerExplosion,
+                forward: Vector.zero(),
             });
 
             // Simulate until frame changes
@@ -65,18 +69,20 @@ describe("Effect", () => {
                 position: new Vector(42, 69),
                 rotation: 45,
                 type: EffectType.PlayerExplosion,
+                forward: Vector.zero(),
             });
             expect(effect.getCoords().frame.x).to.equal(65);
             expect(effect.getCoords().frame.y).to.equal(66);
         });
     });
 
-    it("#update", () => {
-        describe("Creates destroy event when animation ends", () => {
+    describe("#update", () => {
+        it("Creates destroy event when animation ends", () => {
             effect.spawn({
                 position: new Vector(42, 69),
                 rotation: 45,
                 type: EffectType.PlayerExplosion,
+                forward: Vector.zero(),
             });
 
             // Simulate until animation ends
@@ -87,6 +93,19 @@ describe("Effect", () => {
             expect(gameContext.eventQueue.events[0].name).to.equal(
                 "DestroyEffectEvent",
             );
+        });
+
+        it("Moves forward", () => {
+            effect.spawn({
+                position: new Vector(0, 0),
+                rotation: 0,
+                type: EffectType.PlayerExplosion,
+                forward: new Vector(10, 10),
+            });
+
+            effect.update(1, gameContext);
+            expect(effect.getCoords().position.x).to.equal(10);
+            expect(effect.getCoords().position.y).to.equal(10);
         });
     });
 });

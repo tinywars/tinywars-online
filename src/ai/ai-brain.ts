@@ -224,6 +224,7 @@ export class AiBrain {
                     : settings.PLAYER_FORWARD_SPEED,
                 this.myPlayer.getProjectileSpawnOffset(
                     projectileAiming ? settings.FIXED_FRAME_TIME : 0,
+                    this.context,
                 ),
             );
         if (targetPoint === null) return;
