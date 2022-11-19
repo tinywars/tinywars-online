@@ -1,7 +1,7 @@
 import { CircleCollider } from "../utility/circle-collider";
+import { Coords } from "../utility/coords";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
-import { Coords } from "../utility/coords";
 
 export abstract class GameObject {
     protected hash = "";
@@ -25,6 +25,10 @@ export abstract class GameObject {
     }
 
     abstract getCoords(): Coords;
+
+    getColliderScale(): number {
+        return 1;
+    }
 
     protected handleLeavingScreenByWrappingAround(context: GameContext) {
         const pos = this.collider.getPosition();

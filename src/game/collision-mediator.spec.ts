@@ -47,6 +47,8 @@ describe("CollisionMediator", () => {
                 forward: PROJECTILE_FWD.copy(),
                 damage: 1,
                 selfDestructTimeout: Infinity,
+                colliderSize: gameContext.settings.PROJECTILE_COLLIDER_SIZE,
+                colliderScale: 1,
             });
 
             gameContext.obstacles.getItem(0).spawn({
@@ -70,6 +72,8 @@ describe("CollisionMediator", () => {
                 forward: PROJECTILE_FWD.copy(),
                 damage: 1,
                 selfDestructTimeout: Infinity,
+                colliderSize: gameContext.settings.PROJECTILE_COLLIDER_SIZE,
+                colliderScale: 1,
             });
 
             gameContext.obstacles.getItem(0).spawn({
@@ -106,6 +110,8 @@ describe("CollisionMediator", () => {
                 forward: Vector.zero(), // irrelevant
                 damage: 1,
                 selfDestructTimeout: Infinity,
+                colliderSize: gameContext.settings.PROJECTILE_COLLIDER_SIZE,
+                colliderScale: 1,
             });
 
             gameContext.players.getItem(0).spawn({
@@ -131,6 +137,8 @@ describe("CollisionMediator", () => {
                 forward: Vector.zero(), // irrelevant
                 damage: 1,
                 selfDestructTimeout: Infinity,
+                colliderSize: gameContext.settings.PROJECTILE_COLLIDER_SIZE,
+                colliderScale: 1,
             });
 
             gameContext.players.getItem(0).spawn({

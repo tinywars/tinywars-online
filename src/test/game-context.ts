@@ -80,6 +80,7 @@ export function getMockGameContext(options: {
                     effectTypeToAnimationNameMock,
                 ),
         ),
+        duration: 0,
         eventQueue: options.eventQueue,
         eventEmitter: new GameEventEmitter(),
         scores: [0, 0, 0, 0],

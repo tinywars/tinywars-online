@@ -39,6 +39,9 @@ export function getMockSettings(): GameSettings {
         PLAYER_MASS: 10,
         //   Projectile
         PROJECTILE_SPEED: 500,
+        PROJECTILE_MAX_SPEED: 1000,
+        PROJECTILE_COLLIDER_SIZE: 2,
+        PROJECTILE_MAX_COLLIDER_SIZE: 6,
         PROJECTILE_DAMAGE: 1,
         PROJECTILE_ENABLE_TELEPORT: false,
         PROJECTILE_MASS: 5,
@@ -54,5 +57,8 @@ export function getMockSettings(): GameSettings {
         POWERUP_SPAWN_CHANCE_DISTRIBUTION: [2, 5, 7],
         POWERUP_SPAWN_CHANCE_DISTRIBUTION_SUM: 7,
         POWERUP_ROTATION_SPEED: 64,
+        // Difficulty stuff
+        TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP: 5,
+        TIME_UNTIL_MAXIMUM_DIFFICULTY: 30,
     };
 }

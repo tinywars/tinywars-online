@@ -8,11 +8,16 @@ import {
 import { AnimationEngine } from "../utility/animation";
 import { CircleCollider } from "../utility/circle-collider";
 import { Coords } from "../utility/coords";
-import { clamp, sanitizeAngle } from "../utility/math";
+import {
+    clamp,
+    getDifficultyFactorFromElapsedTime,
+    sanitizeAngle
+} from "../utility/math";
 import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 import { PowerupType } from "./powerup";
+import { Projectile } from "./projectile";
 
 export class Player extends GameObject {
     protected static RADIUS = 12;
@@ -65,7 +70,7 @@ export class Player extends GameObject {
         steer *= context.settings.PLAYER_ROTATION_SPEED;
 
         this.handleAction(context);
-        this.handleShooting(dt);
+        this.handleShooting(dt, context);
         this.updateRotation(steer, dt);
         this.moveForward(throttle, dt, context);
         this.rechargeEnergy(dt, context);
@@ -120,8 +125,24 @@ export class Player extends GameObject {
         return this.health;
     }
 
-    getProjectileSpawnOffset(dt: number): number {
-        return Player.RADIUS + 1 + this.forward.getScaled(dt).getSize();
+    getProjectileSpawnOffset(dt: number, context: GameContext): number {
+        const difficultyFactor = getDifficultyFactorFromElapsedTime(
+            context.duration,
+            context.settings.TIME_UNTIL_DIFFICULTY_STARTS_RAMPING_UP,
+            context.settings.TIME_UNTIL_MAXIMUM_DIFFICULTY,
+        );
+
+        const projectileColliderSize = Projectile.getNewProjectileColliderSize(
+            difficultyFactor,
+            context,
+        );
+
+        return (
+            Player.RADIUS +
+            projectileColliderSize +
+            1 +
+            this.forward.getScaled(dt).getSize()
+        );
     }
 
     private updateRotation(frameRotation: number, dt: number) {
@@ -148,7 +169,7 @@ export class Player extends GameObject {
         );
     }
 
-    private handleShooting(dt: number) {
+    private handleShooting(dt: number, context: GameContext) {
         if (!this.controller.readAttackToggled()) return;
 
         if (this.energy < 1) return;
@@ -160,7 +181,9 @@ export class Player extends GameObject {
                     // There is some rounding error that I cannot reproduce in unit tests, but when
                     // you turbo and fire, then your own projectile will damage you, unless the +1
                     // is in the expression below.
-                    this.direction.getScaled(this.getProjectileSpawnOffset(dt)),
+                    this.direction.getScaled(
+                        this.getProjectileSpawnOffset(dt, context),
+                    ),
                 ),
                 direction: this.direction,
                 damageMultiplier: 1,
