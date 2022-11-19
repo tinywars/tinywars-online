@@ -10,7 +10,15 @@ Example usage 2: I want to get direction from point A to point B:
 */
 
 export class Vector {
-    constructor(public x: number, public y: number) {}
+    public x: number;
+    public y: number;
+
+    constructor(size: number);
+    constructor(x: number, y: number);
+    constructor(x: number, maybeY?: number) {
+        this.x = x;
+        this.y = maybeY ?? x;
+    }
 
     /**
      * Get directional vector between two points

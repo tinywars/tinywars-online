@@ -131,3 +131,21 @@ export function getIntersectionBetweenMovingPointAndGrowingCircle(
 
     return pointOrigin.getSum(pointForward.getScaled(t));
 }
+
+/**
+ * @param elapsed Time elapsed since start of the game
+ * @param startTime Time until min difficulty is active
+ * @param maxTime Time after max difficulty is achieved
+ * @returns Value in <0, 1> where anything lower than startTime will be 0, anything more than maxTime will
+ * be 1 and values in between will be linearily interpolated.
+ */
+export function getDifficultyFactorFromElapsedTime(
+    elapsed: number,
+    startTime: number,
+    maxTime: number,
+): number {
+    const difficultyTimeDelta = maxTime - startTime;
+    return (
+        clamp(elapsed - startTime, 0, difficultyTimeDelta) / difficultyTimeDelta
+    );
+}
