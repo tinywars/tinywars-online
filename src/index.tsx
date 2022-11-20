@@ -2,12 +2,12 @@ import { Router } from "@gh0st-work/solid-js-router";
 import { render } from "solid-js/web";
 
 import "./index.css";
-import { MainMenu } from "./ui/MainMenu";
+import { AppTopLevel } from "./ui/App";
 
 render(
     () => (
         <Router>
-            <MainMenu />
+            <AppTopLevel />
         </Router>
     ),
     document.getElementById("root") as HTMLElement,
