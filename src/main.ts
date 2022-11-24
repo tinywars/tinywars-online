@@ -326,12 +326,12 @@ export const init = (
             controllers as SimpleController[],
             myController,
         );
-        runner.run(FPS);
+        //runner.run(FPS);
         return runner;
     }
 
     // Local game
     const runner = new LocalAppRunner(app);
-    runner.run(FPS);
+    //runner.run(FPS);
     return runner;
 };
