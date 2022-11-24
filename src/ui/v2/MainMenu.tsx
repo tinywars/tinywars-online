@@ -3,6 +3,7 @@ import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
 import { LocalGameLobbyState } from "./lobby/LocalGameLobby";
+import { NetworkMainMenuState } from "./NetworkMainMenu";
 
 export class MainMenuState extends AppState {
     constructor(
@@ -33,6 +34,8 @@ export class MainMenuState extends AppState {
         // I can pass whatever I need to newly created states
         if (path === "local")
             this.app.pushState(new LocalGameLobbyState(this.app));
+        else if (path === "network")
+            this.app.pushState(new NetworkMainMenuState(this.app, this.socket));
     }
 }
 
@@ -53,9 +56,9 @@ function MainMenuView(props: {
                 <br />
                 <button
                     onclick={() => props.navigateTo("network")}
-                    classList={{
+                    /*classList={{
                         disabled_button: !props.isConnected(),
-                    }}
+                    }}*/
                     class="menu_button"
                 >
                     Network Game
