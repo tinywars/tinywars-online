@@ -60,6 +60,8 @@ export class GameState extends AppState {
             }),
         );
 
+        // Must initialize apprunner after component is rendered
+        // because it fetches reference to canvas element
         this.appRunner = this.init();
         this.appRunner?.run(this.FPS);
     }
