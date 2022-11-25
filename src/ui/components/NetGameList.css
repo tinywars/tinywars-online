@@ -1,0 +1,25 @@
+#RefreshButton, .join_button {
+    margin: auto;
+}
+
+#NetGameListTable {
+    width: 100%;
+}
+
+#NetGameListTable thead tr {
+    border: 3px solid white;
+    background: #000042;
+}
+
+#NetGameListTable thead td {
+    text-align: center;
+    font-weight: bold;
+}
+
+#NetGameListTable tbody td {
+    text-align: center;
+}
+
+#NetGameListTable tbody tr:nth-child(even) {
+    background: #212121;
+}

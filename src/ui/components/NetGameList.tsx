@@ -1,5 +1,6 @@
 import { Accessor, For, onMount } from "solid-js";
 import { NetGameInfo } from "../../../backend/src/types/game-info";
+import "./NetGameList.css";
 
 export interface NetGameListProps {
     gameInfos: Accessor<NetGameInfo[]>;
@@ -13,13 +14,16 @@ export function NetGameList(props: NetGameListProps) {
     });
 
     return (
-        <table class="netGameListTable">
+        <table id="NetGameListTable">
             <thead>
                 <tr>
                     <td>Game ID</td>
                     <td>Player count</td>
                     <td>
-                        <button onClick={() => props.onRefresh()}>
+                        <button
+                            onClick={() => props.onRefresh()}
+                            id="RefreshButton"
+                        >
                             Refresh
                         </button>
                     </td>
@@ -32,20 +36,17 @@ export function NetGameList(props: NetGameListProps) {
                             <td>{info.id}</td>
                             <td>{info.numConnected} / 4</td>
                             <td>
-                                <span
-                                    classList={{
-                                        disabled: info.numConnected >= 4,
+                                <button
+                                    onclick={() => {
+                                        props.onJoinClick(info.id);
                                     }}
+                                    classList={{
+                                        disabled_button: info.numConnected >= 4,
+                                    }}
+                                    class="join_button"
                                 >
-                                    <button
-                                        onclick={() => {
-                                            props.onJoinClick(info.id);
-                                        }}
-                                        class="menu_button"
-                                    >
-                                        Join
-                                    </button>
-                                </span>
+                                    Join
+                                </button>
                             </td>
                         </tr>
                     )}

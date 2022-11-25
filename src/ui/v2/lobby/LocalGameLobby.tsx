@@ -101,50 +101,53 @@ function LocalGameLobbyView(props: {
     });
 
     return (
-        <>
+        <div class="container-100">
             <h2 class="title">Local game</h2>
-            <label for="PlayerCountInput">Number of players: </label>
-            <input
-                id="PlayerCountInput"
-                type="number"
-                min="2"
-                max="4"
-                value={props.playerCount()}
-                onchange={(e) => {
-                    props.setPlayerCount(parseInt(e.currentTarget.value));
-                }}
-            />
-            <div id="PlayerSettingsCardsWrapper">
-                <For each={props.visiblePlayers()}>
-                    {(setting, i) => (
-                        <PlayerSettingsCard
-                            index={i()}
-                            settings={setting}
-                            setSettings={(settings: PlayerSettings) => {
-                                const copy = playersSettings();
-                                copy[i()] = settings;
-                                setPlayerSettings(copy);
-                            }}
-                            enabled={true}
-                            netgame={false}
-                        />
-                    )}
-                </For>
-            </div>
+            <div class="container-80">
+                <label for="PlayerCountInput">Number of players: </label>
+                <input
+                    id="PlayerCountInput"
+                    type="number"
+                    min="2"
+                    max="4"
+                    value={props.playerCount()}
+                    onchange={(e) => {
+                        props.setPlayerCount(parseInt(e.currentTarget.value));
+                    }}
+                />
+                <div id="PlayerSettingsCardsWrapper">
+                    <For each={props.visiblePlayers()}>
+                        {(setting, i) => (
+                            <PlayerSettingsCard
+                                index={i()}
+                                settings={setting}
+                                setSettings={(settings: PlayerSettings) => {
+                                    const copy = playersSettings();
+                                    copy[i()] = settings;
+                                    setPlayerSettings(copy);
+                                }}
+                                enabled={true}
+                                netgame={false}
+                            />
+                        )}
+                    </For>
+                </div>
 
-            <button
-                onclick={() => props.navigateTo("game")}
-                class="menu_button"
-            >
-                Start game
-            </button>
-            <br />
-            <button
-                onclick={() => props.navigateTo("back")}
-                class="menu_button"
-            >
-                Back to menu
-            </button>
-        </>
+                <div class="horizontal_button_group">
+                    <button
+                        onclick={() => props.navigateTo("game")}
+                        class="menu_button"
+                    >
+                        Start game
+                    </button>
+                    <button
+                        onclick={() => props.navigateTo("back")}
+                        class="menu_button"
+                    >
+                        Back to menu
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }

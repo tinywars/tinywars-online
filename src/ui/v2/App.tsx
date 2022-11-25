@@ -4,6 +4,7 @@ import { BACKEND_PORT } from "../../../backend/src/settings";
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
 import { EmptyComponent } from "../appstate/EmptyComponent";
+import "./App.css";
 import { MainMenuState } from "./MainMenu";
 
 enum ConnectionStatus {
@@ -42,5 +43,23 @@ export function AppTopLevel() {
         );
     });
 
-    return <>{activeComponent()}</>;
+    return (
+        <>
+            {activeComponent()}
+            <div id="ConnectionStatus">
+                Connection Status:{" "}
+                <span
+                    classList={{
+                        text_success:
+                            connectStatus() === ConnectionStatus.Connected,
+                        text_warning:
+                            connectStatus() === ConnectionStatus.Waiting,
+                        text_error: connectStatus() === ConnectionStatus.Error,
+                    }}
+                >
+                    {connectStatus()}
+                </span>
+            </div>
+        </>
+    );
 }

@@ -51,28 +51,21 @@ function NetworkMainMenuView(props: { navigateTo: (p: string) => void }) {
     });
 
     return (
-        <>
+        <div class="container-100">
             <h2 class="title">Network game</h2>
-            <div id="MainMenu">
-                <button
-                    onclick={() => props.navigateTo("host")}
-                    class="menu_button"
-                >
-                    Host game
-                </button>
-                <button
-                    onclick={() => props.navigateTo("list")}
-                    class="menu_button"
-                >
-                    Browse games
-                </button>
-                <button
-                    onclick={() => props.navigateTo("back")}
-                    class="menu_button"
-                >
-                    Back to menu
-                </button>
+            <div class="container-20">
+                <div class="vertical_button_group">
+                    <button onclick={() => props.navigateTo("host")}>
+                        Host game
+                    </button>
+                    <button onclick={() => props.navigateTo("list")}>
+                        Browse games
+                    </button>
+                    <button onclick={() => props.navigateTo("back")}>
+                        Back to menu
+                    </button>
+                </div>
             </div>
-        </>
+        </div>
     );
 }

@@ -12,6 +12,7 @@ import { TinywarsSocket } from "../../../networking/types";
 import { AppController } from "../../appstate/AppController";
 import { AppState } from "../../appstate/AppState";
 import { logMount, logUnmount } from "../../UiLogger";
+import "./Game.css";
 
 export class GameState extends AppState {
     private appRunner: AppRunner | undefined;
@@ -97,12 +98,14 @@ function GameStateView(props: { navigateTo: (p: string) => void }) {
             <canvas id="RenderCanvas"></canvas>
 
             <div id="GameSidebar">
-                <button
-                    onclick={() => props.navigateTo("back")}
-                    class="menu_button"
-                >
-                    Exit game
-                </button>
+                <h2 class="title">Game Options</h2>
+                <div class="container-80">
+                    <div class="vertical_button_group">
+                        <button onclick={() => props.navigateTo("back")}>
+                            Exit game
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

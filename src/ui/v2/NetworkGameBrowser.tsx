@@ -67,21 +67,23 @@ function NetworkGameBrowserView(props: {
     });
 
     return (
-        <>
+        <div class="container-100">
             <h2 class="title">Browse games</h2>
-            <NetGameList
-                gameInfos={props.gameList}
-                onJoinClick={props.onGameJoined}
-                onRefresh={() => {
-                    props.socket.emit("gameListRequested");
-                }}
-            />
-            <button
-                onclick={() => props.navigateTo("back")}
-                class="menu_button"
-            >
-                Back to menu
-            </button>
-        </>
+            <div class="container-80">
+                <NetGameList
+                    gameInfos={props.gameList}
+                    onJoinClick={props.onGameJoined}
+                    onRefresh={() => {
+                        props.socket.emit("gameListRequested");
+                    }}
+                />
+
+                <div class="horizontal_button_group">
+                    <button onclick={() => props.navigateTo("back")}>
+                        Back to menu
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -2,6 +2,7 @@ import { Match, Switch } from "solid-js";
 import spritesheet from "../../../assets/spritesheet_v2.png";
 import { PlayerSettings } from "../../game/player-settings";
 import { Checkbox } from "./Checkbox";
+import "./PlayerSettingsCard.css";
 
 export interface PlayerSettingsCardProps {
     index: number;

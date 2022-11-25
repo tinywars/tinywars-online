@@ -1,0 +1,66 @@
+.player_settings {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 20%;
+    border: 3px solid;
+    padding: 40px;
+  }
+  
+  .player_settings:nth-of-type(1) {
+    border-color: red;
+  }
+  
+  .player_settings:nth-of-type(2) {
+    border-color: green;
+  }
+  
+  .player_settings:nth-of-type(3) {
+    border-color: blue;
+  }
+  
+  .player_settings:nth-of-type(4) {
+    border-color: yellow;
+  }
+  
+  .player_settings>.icon_wrap {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* DONT ASK. TRIAL AND ERROR. CROPS THE SPRITESHEET IMAGE */
+  /* Cannot use clip-path, as it hides rest of the image but keeps the bounding box */
+  .player_settings:nth-of-type(1) .icon_wrap>img {
+    margin: -2px 0px -320px -2px;
+  }
+  
+  .player_settings:nth-of-type(2) .icon_wrap>img {
+    margin: -45px 0px -320px -5px;
+  }
+  
+  .player_settings:nth-of-type(3) .icon_wrap>img {
+    margin: -75px 0px -251px -2px;
+  }
+  
+  .player_settings:nth-of-type(4) .icon_wrap>img {
+    margin: -128px 0px -251px -5px;
+  }
+  
+  .player_settings>div {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .player_settings label {
+    display: block;
+    flex-basis: 75%;
+  }
+  
+  .player_settings input {
+    display: block;
+    flex-basis: 25%;
+    min-width: 0;
+  }
+  

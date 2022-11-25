@@ -186,40 +186,45 @@ function NetworkGameLobbyView(props: {
     });
 
     return (
-        <>
+        <div class="container-100">
             <h2 class="title">NetGameLobby</h2>
-            <div id="PlayerSettingsCardsWrapper">
-                <For each={props.playerSettings()}>
-                    {(setting, i) => (
-                        <PlayerSettingsCard
-                            index={i()}
-                            settings={setting}
-                            setSettings={(settings: PlayerSettings) => {
-                                props.updateLocalPlayer(settings);
-                            }}
-                            enabled={i() === props.myIndex}
-                            netgame={true}
-                        />
-                    )}
-                </For>
-            </div>
+            <div class="container-80">
+                <div id="PlayerSettingsCardsWrapper">
+                    <For each={props.playerSettings()}>
+                        {(setting, i) => (
+                            <PlayerSettingsCard
+                                index={i()}
+                                settings={setting}
+                                setSettings={(settings: PlayerSettings) => {
+                                    props.updateLocalPlayer(settings);
+                                }}
+                                enabled={i() === props.myIndex}
+                                netgame={true}
+                            />
+                        )}
+                    </For>
+                </div>
 
-            <Switch>
-                <Match when={props.isSelfHosting}>
-                    <button
-                        onclick={() => props.navigateTo("game")}
-                        classList={{
-                            disabled_button: props.playerSettings().length < 2,
-                        }}
-                    >
-                        Start Game
+                <div class="horizontal_button_group">
+                    <Switch>
+                        <Match when={props.isSelfHosting}>
+                            <button
+                                onclick={() => props.navigateTo("game")}
+                                classList={{
+                                    disabled_button:
+                                        props.playerSettings().length < 2,
+                                }}
+                            >
+                                Start Game
+                            </button>
+                        </Match>
+                    </Switch>
+
+                    <button onclick={() => props.navigateTo("back")}>
+                        Leave Lobby
                     </button>
-                </Match>
-            </Switch>
-
-            <button onclick={() => props.navigateTo("back")}>
-                Leave Lobby
-            </button>
-        </>
+                </div>
+            </div>
+        </div>
     );
 }

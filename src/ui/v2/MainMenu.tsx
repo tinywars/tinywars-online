@@ -4,6 +4,7 @@ import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
 import { logMount, logUnmount } from "../UiLogger";
 import { LocalGameLobbyState } from "./lobby/LocalGameLobby";
+import "./MainMenu.css";
 import { NetworkMainMenuState } from "./NetworkMainMenu";
 
 export class MainMenuState extends AppState {
@@ -53,26 +54,23 @@ function MainMenuView(props: {
     });
 
     return (
-        <>
+        <div class="container-100">
             <h1 class="title">Tinywars</h1>
-            <div id="MainMenu">
-                <button
-                    onclick={() => props.navigateTo("local")}
-                    class="menu_button"
-                >
-                    Local Game
-                </button>
-                <br />
-                <button
-                    onclick={() => props.navigateTo("network")}
-                    /*classList={{
-                        disabled_button: !props.isConnected(),
-                    }}*/
-                    class="menu_button"
-                >
-                    Network Game
-                </button>
+            <div class="container-20">
+                <div class="vertical_button_group">
+                    <button onclick={() => props.navigateTo("local")}>
+                        Local Game
+                    </button>
+                    <button
+                        onclick={() => props.navigateTo("network")}
+                        classList={{
+                            disabled_button: !props.isConnected(),
+                        }}
+                    >
+                        Network Game
+                    </button>
+                </div>
             </div>
-        </>
+        </div>
     );
 }

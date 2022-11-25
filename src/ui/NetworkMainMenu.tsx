@@ -25,7 +25,7 @@ export function NetworkMainMenu(props: { socket: TinywarsSocket }) {
 
 function NetworkMainMenuView() {
     return (
-        <>
+        <div class="view">
             <h2 class="title">Network game</h2>
             <div id="MainMenu">
                 <Link href="network/lobby" class="menu_button">
@@ -38,6 +38,6 @@ function NetworkMainMenuView() {
                     Back to menu
                 </Link>
             </div>
-        </>
+        </div>
     );
 }
