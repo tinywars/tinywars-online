@@ -168,6 +168,24 @@ io.on("connection", (socket) => {
             });
         });
 
+        // Only for testing
+        infos.push({
+            id: "dummy1",
+            numConnected: 4,
+        });
+        infos.push({
+            id: "dummy2",
+            numConnected: 2,
+        });
+        infos.push({
+            id: "dummy3",
+            numConnected: 2,
+        });
+        infos.push({
+            id: "dummy4",
+            numConnected: 1,
+        });
+
         socket.emit("gameListCollected", infos);
     });
 });
