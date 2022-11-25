@@ -10,6 +10,5 @@ export abstract class AppState {
 
     cleanup(): void {
         /* default impl */
-        console.log("default");
     }
 }

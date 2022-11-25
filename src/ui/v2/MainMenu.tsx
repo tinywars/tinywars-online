@@ -1,7 +1,8 @@
-import { JSX, Setter } from "solid-js";
+import { JSX, onCleanup, onMount, Setter } from "solid-js";
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
+import { logMount, logUnmount } from "../UiLogger";
 import { LocalGameLobbyState } from "./lobby/LocalGameLobby";
 import { NetworkMainMenuState } from "./NetworkMainMenu";
 
@@ -14,9 +15,9 @@ export class MainMenuState extends AppState {
         super(app);
     }
 
-    override renderTo(component: Setter<JSX.Element>): void {
+    override renderTo(setComponent: Setter<JSX.Element>): void {
         // This is a lot of boiler plate :( but I can pass in everything I need to views
-        component(() =>
+        setComponent(() =>
             MainMenuView({
                 navigateTo: (p: string) => {
                     this.navigateTo(p);
@@ -43,6 +44,14 @@ function MainMenuView(props: {
     navigateTo: (path: string) => void;
     isConnected: () => boolean;
 }) {
+    onMount(() => {
+        logMount("MainMenuView");
+    });
+
+    onCleanup(() => {
+        logUnmount("MainMenuView");
+    });
+
     return (
         <>
             <h1 class="title">Tinywars</h1>

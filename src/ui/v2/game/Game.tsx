@@ -1,4 +1,4 @@
-import { Accessor, Setter } from "solid-js";
+import { Accessor, onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import { AppRunner } from "../../../app/app-runner";
 import { PlayerSettings } from "../../../game/player-settings";
@@ -11,6 +11,7 @@ import {
 import { TinywarsSocket } from "../../../networking/types";
 import { AppController } from "../../appstate/AppController";
 import { AppState } from "../../appstate/AppState";
+import { logMount, logUnmount } from "../../UiLogger";
 
 export class GameState extends AppState {
     private appRunner: AppRunner | undefined;
@@ -83,6 +84,14 @@ export class GameState extends AppState {
 }
 
 function GameStateView(props: { navigateTo: (p: string) => void }) {
+    onMount(() => {
+        logMount("GameStateView");
+    });
+
+    onCleanup(() => {
+        logUnmount("GameStateView");
+    });
+
     return (
         <div id="GameView">
             <canvas id="RenderCanvas"></canvas>

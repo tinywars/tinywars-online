@@ -1,4 +1,12 @@
-import { Accessor, createSignal, For, JSX, Setter } from "solid-js";
+import {
+    Accessor,
+    createSignal,
+    For,
+    JSX,
+    onCleanup,
+    onMount,
+    Setter
+} from "solid-js";
 import {
     PLAYER1_DEFAULT_CONTROLS,
     PLAYER2_DEFAULT_CONTROLS,
@@ -9,6 +17,7 @@ import {
 import { AppController } from "../../appstate/AppController";
 import { AppState } from "../../appstate/AppState";
 import { PlayerSettingsCard } from "../../components/PlayerSettingsCard";
+import { logMount, logUnmount } from "../../UiLogger";
 import { GameState } from "../game/Game";
 
 const [playersSettings, setPlayerSettings] = createSignal([
@@ -83,6 +92,14 @@ function LocalGameLobbyView(props: {
     setPlayerCount: Setter<number>;
     visiblePlayers: () => PlayerSettings[];
 }) {
+    onMount(() => {
+        logMount("LocalGameLobbyView");
+    });
+
+    onCleanup(() => {
+        logUnmount("LocalGameLobbyView");
+    });
+
     return (
         <>
             <h2 class="title">Local game</h2>

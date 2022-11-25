@@ -1,4 +1,3 @@
-import { Link } from "@gh0st-work/solid-js-router";
 import { Accessor, For, onMount } from "solid-js";
 import { NetGameInfo } from "../../../backend/src/types/game-info";
 
@@ -38,15 +37,14 @@ export function NetGameList(props: NetGameListProps) {
                                         disabled: info.numConnected >= 4,
                                     }}
                                 >
-                                    <Link
-                                        href="/network/list/lobby2"
-                                        beforeRedirect={() => {
+                                    <button
+                                        onclick={() => {
                                             props.onJoinClick(info.id);
                                         }}
                                         class="menu_button"
                                     >
                                         Join
-                                    </Link>
+                                    </button>
                                 </span>
                             </td>
                         </tr>
