@@ -69,6 +69,7 @@ export class NetworkGameLobbyState extends AppState {
             this.socket.emit("lobbyCommited", this.socket.id);
         } else if (path === "back") {
             this.socket.emit("lobbyLeft");
+            this.quitGame();
         }
     }
 
