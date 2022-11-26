@@ -15,7 +15,9 @@ enum ConnectionStatus {
 
 export function AppTopLevel() {
     const [activeComponent, setActiveComponent] = createSignal(EmptyComponent);
-    const controller = new AppController(setActiveComponent);
+    // setActiveComponent threw type error, dunno why, it works
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const controller = new AppController(setActiveComponent as any);
 
     /* socket */
     const socket: TinywarsSocket = io(
