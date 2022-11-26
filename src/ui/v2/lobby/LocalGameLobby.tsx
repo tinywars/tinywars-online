@@ -19,6 +19,7 @@ import { AppState } from "../../appstate/AppState";
 import { PlayerSettingsCard } from "../../components/PlayerSettingsCard";
 import { logMount, logUnmount } from "../../UiLogger";
 import { GameState } from "../game/Game";
+import "./LocalGameLobby.css";
 
 const [playersSettings, setPlayerSettings] = createSignal([
     {
@@ -104,46 +105,62 @@ function LocalGameLobbyView(props: {
         <div class="container-100">
             <h2 class="title">Local game</h2>
             <div class="container-80">
-                <label for="PlayerCountInput">Number of players: </label>
-                <input
-                    id="PlayerCountInput"
-                    type="number"
-                    min="2"
-                    max="4"
-                    value={props.playerCount()}
-                    onchange={(e) => {
-                        props.setPlayerCount(parseInt(e.currentTarget.value));
-                    }}
-                />
-                <div id="PlayerSettingsCardsWrapper">
-                    <For each={props.visiblePlayers()}>
-                        {(setting, i) => (
-                            <PlayerSettingsCard
-                                index={i()}
-                                settings={setting}
-                                setSettings={(settings: PlayerSettings) => {
-                                    const copy = playersSettings();
-                                    copy[i()] = settings;
-                                    setPlayerSettings(copy);
-                                }}
-                                enabled={true}
-                                netgame={false}
-                            />
-                        )}
-                    </For>
+                <div class="hbox">
+                    <div id="LobbyOptionBar" class="vbox">
+                        <div class="hbox space-evenly">
+                            <div class="vbox">
+                                {/* labels */}
+                                <label for="PlayerCountInput">
+                                    Number of players:
+                                </label>
+                                <label for="GameModeInput">Game mode:</label>
+                            </div>
+                            <div class="vbox">
+                                {/* options */}
+                                <input
+                                    id="PlayerCountInput"
+                                    type="number"
+                                    min="2"
+                                    max="4"
+                                    value={props.playerCount()}
+                                    onchange={(e) => {
+                                        props.setPlayerCount(
+                                            parseInt(e.currentTarget.value),
+                                        );
+                                    }}
+                                />
+                                <select id="GameModeInput">
+                                    <option value="default">Vanilla</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="PlayerSettingsCardsWrapper">
+                        <For each={props.visiblePlayers()}>
+                            {(setting, i) => (
+                                <PlayerSettingsCard
+                                    index={i()}
+                                    settings={setting}
+                                    setSettings={(settings: PlayerSettings) => {
+                                        const copy = playersSettings();
+                                        copy[i()] = settings;
+                                        setPlayerSettings(copy);
+                                    }}
+                                    enabled={true}
+                                    netgame={false}
+                                />
+                            )}
+                        </For>
+                    </div>
                 </div>
 
-                <div class="horizontal_button_group">
-                    <button
-                        onclick={() => props.navigateTo("game")}
-                        class="menu_button"
-                    >
+                <br></br>
+
+                <div class="hbox space-between">
+                    <button onclick={() => props.navigateTo("game")}>
                         Start game
                     </button>
-                    <button
-                        onclick={() => props.navigateTo("back")}
-                        class="menu_button"
-                    >
+                    <button onclick={() => props.navigateTo("back")}>
                         Back to menu
                     </button>
                 </div>

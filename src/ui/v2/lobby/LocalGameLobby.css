@@ -1,0 +1,14 @@
+#PlayerSettingsCardsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    border: 3px solid var(--bgr-lighter-color);
+    padding: 10px;
+    flex-basis: 80%;
+}
+
+#LobbyOptionBar {
+    border: 3px solid var(--tertiary-color);
+    flex-basis: 20%;
+    padding-top: 10px;
+}

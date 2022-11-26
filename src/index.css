@@ -1,8 +1,23 @@
+:root {
+  /* https://coolors.co/ffff00-ff312e-000000-386c0b-212121-000021 */
+  --bgr-color: #090909;
+  --bgr-lighter-color: #212121;
+  --bgr-accent-color: #000042;
+  --primary-color: #FFFF00;
+  --secondary-color: #386C0B;
+  --tertiary-color: #FF312E;
+  --text-color: white;
+}
+
+div {
+  box-sizing: border-box;
+}
+
 html {
   margin: 0px;
   padding: 0px;
-  background-color: #090909;
-  color: white;
+  background-color: var(--bgr-color);
+  color: var(--text-color);
   font-family: 'Pixel-Art';
 }
 
@@ -20,19 +35,18 @@ button, button:visited {
   border: 0px;
   border-left: 3px solid;
   border-right: 3px solid;
-  border-color: blue;
+  background-color: var(--bgr-accent-color);
   padding: 5px;
   display: block;
-  color: white;
   text-decoration: none;
   text-align: center;
-  /* transform: scale(0.9); */
+  color: var(--text-color);
 }
 
 button:hover {
-  border-color: yellow;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
   font-weight: bold;
-  /* transform: scale(1.0); */
 }
 
 canvas {
@@ -40,15 +54,15 @@ canvas {
 }
 
 .text_success {
-  color: greenyellow;
+  color: var(--secondary-color);
 }
 
 .text_warning {
-  color: yellow;
+  color: var(--primary-color);
 }
 
 .text_error {
-  color: red;
+  color: var(--tertiary-color);
 }
 
 /* Box model */
@@ -58,6 +72,7 @@ canvas {
   margin-right: auto;
   width: 80%;
   text-align: center;
+  color: var(--primary-color);
 }
 
 .container-100 {
@@ -101,13 +116,28 @@ canvas {
   pointer-events: none;
   cursor: default;
   opacity: 0.8;
-  color: grey !important;
-  border-color: gray !important;
+  background-color: var(--bgr-lighter-color) !important;
+  border-color: var(--bgr-lighter-color) !important;
 }
 
-#PlayerSettingsCardsWrapper {
+.hbox {
   display: flex;
+  flex-direction: row;
+}
+
+.vbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.space-evenly {
+  justify-content: space-evenly;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.space-around {
   justify-content: space-around;
-  margin-top: 10px;
-  margin-bottom: 10px;
 }

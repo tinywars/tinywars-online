@@ -1,9 +1,11 @@
 .player_settings {
     display: flex;
     flex-direction: column;
-    flex-basis: 20%;
+    flex-basis: 48%;
     border: 3px solid;
     padding: 40px;
+    margin: 1%;
+    background-color: var(--bgr-color);
   }
   
   .player_settings:nth-of-type(1) {
