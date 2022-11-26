@@ -3,6 +3,7 @@ interface CheckboxProps {
     checked: boolean;
     name: string;
     onToggle: () => void;
+    disabled?: boolean;
 }
 
 export function Checkbox(props: CheckboxProps) {
@@ -13,6 +14,7 @@ export function Checkbox(props: CheckboxProps) {
             name={props.name}
             checked={props.checked}
             onClick={() => props.onToggle()}
+            disabled={props.disabled ?? false}
         />
     );
 }

@@ -32,6 +32,7 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                         props.settings.name = e.currentTarget.value;
                         props.setSettings(props.settings);
                     }}
+                    disabled={!props.enabled}
                 />
             </div>
 
@@ -48,6 +49,7 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                             !props.settings.invertSteeringOnReverse;
                         props.setSettings(props.settings);
                     }}
+                    disabled={!props.enabled}
                 />
             </div>
 
@@ -66,6 +68,7 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                                     !props.settings.isComputerControlled;
                                 props.setSettings(props.settings);
                             }}
+                            disabled={!props.enabled}
                         />
                     </Match>
                 </Switch>

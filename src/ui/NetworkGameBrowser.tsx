@@ -77,7 +77,7 @@ function NetworkGameBrowserView(props: {
                         props.socket.emit("gameListRequested");
                     }}
                 />
-
+                <br />
                 <div class="horizontal_button_group">
                     <button onclick={() => props.navigateTo("back")}>
                         Back to menu

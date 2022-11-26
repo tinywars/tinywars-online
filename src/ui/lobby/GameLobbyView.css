@@ -8,7 +8,7 @@
 }
 
 #LobbyOptionBar {
-    border: 3px solid var(--tertiary-color);
+    border: 3px solid var(--bgr-lighter-color);
     flex-basis: 20%;
-    padding-top: 10px;
+    padding: 10px;
 }

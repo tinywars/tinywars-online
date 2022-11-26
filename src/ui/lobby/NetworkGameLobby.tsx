@@ -1,12 +1,6 @@
 import {
     Accessor,
-    createSignal,
-    For,
-    Match,
-    onCleanup,
-    onMount,
-    Setter,
-    Switch
+    createSignal, Setter
 } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import { NetGameState } from "../../../backend/src/types/game-state";
@@ -17,14 +11,18 @@ import {
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
-import { PlayerSettingsCard } from "../components/PlayerSettingsCard";
 import { GameState } from "../game/Game";
-import { logMount, logUnmount } from "../UiLogger";
+import { GameLobbyView } from "./GameLobbyView";
+
+// FIXME: this.myIndex should be accessor, because it is set late
+// and then network settings are broken
 
 export class NetworkGameLobbyState extends AppState {
-    private myIndex = 0;
+    //private myIndex = -1;
     private playerSettings: Accessor<PlayerSettings[]>;
     private setPlayerSettings: Setter<PlayerSettings[]>;
+    private myIndex: Accessor<number>;
+    private setMyIndex: Setter<number>;
 
     constructor(
         app: AppController,
@@ -38,6 +36,8 @@ export class NetworkGameLobbyState extends AppState {
             PlayerSettings[]
         >([]);
 
+        [this.myIndex, this.setMyIndex] = createSignal(-1);
+
         this.setSocketListeners();
 
         if (this.isSelfHosting) {
@@ -50,16 +50,21 @@ export class NetworkGameLobbyState extends AppState {
 
     override renderTo(setComponent: Setter<JSX.Element>): void {
         setComponent(() =>
-            NetworkGameLobbyView({
+            GameLobbyView({
                 navigateTo: (p: string) => {
                     this.navigateTo(p);
                 },
-                playerSettings: this.playerSettings,
-                updateLocalPlayer: (settings: PlayerSettings) => {
+                playerCount: () => this.playerSettings().length,
+                setPlayerCount: () => {
+                    /* intentionally left blank */
+                },
+                visiblePlayers: () => this.playerSettings(),
+                updatePlayerSettings: (_: number, settings: PlayerSettings) => {
                     this.updateLocalPlayer(settings);
                 },
-                myIndex: this.myIndex,
-                isSelfHosting: this.isSelfHosting,
+                isNetgame: true,
+                isSelfHosted: this.isSelfHosting,
+                myIndex: () => this.myIndex(),
             }),
         );
     }
@@ -115,7 +120,7 @@ export class NetworkGameLobbyState extends AppState {
         const playerData: PlayerSettings[] = [];
         gameState.clients.forEach((c, i) => {
             if (c.id === this.socket.id) {
-                this.myIndex = i;
+                this.setMyIndex(i);
 
                 if (c.disconnected) {
                     this.quitGame();
@@ -136,7 +141,7 @@ export class NetworkGameLobbyState extends AppState {
 
     private updateLocalPlayer(settings: PlayerSettings) {
         const copy = this.playerSettings();
-        copy[this.myIndex] = settings;
+        copy[this.myIndex()] = settings;
         this.setPlayerSettings(copy);
         // TODO: emit change to socket this.socket.emit("")
     }
@@ -150,7 +155,7 @@ export class NetworkGameLobbyState extends AppState {
                 this.playerSettings,
                 seed,
                 this.socket,
-                this.myIndex,
+                this.myIndex(),
             ),
         );
     }
@@ -168,63 +173,4 @@ export class NetworkGameLobbyState extends AppState {
     private quitGame() {
         this.app.popState();
     }
-}
-
-function NetworkGameLobbyView(props: {
-    navigateTo: (path: string) => void;
-    playerSettings: Accessor<PlayerSettings[]>;
-    updateLocalPlayer: (settings: PlayerSettings) => void;
-    myIndex: number;
-    isSelfHosting: boolean;
-}) {
-    onMount(() => {
-        logMount("NetworkGameLobbyView");
-    });
-
-    onCleanup(() => {
-        logUnmount("NetworkGameLobbyView");
-    });
-
-    return (
-        <div class="container-100">
-            <h2 class="title">NetGameLobby</h2>
-            <div class="container-80">
-                <div id="PlayerSettingsCardsWrapper">
-                    <For each={props.playerSettings()}>
-                        {(setting, i) => (
-                            <PlayerSettingsCard
-                                index={i()}
-                                settings={setting}
-                                setSettings={(settings: PlayerSettings) => {
-                                    props.updateLocalPlayer(settings);
-                                }}
-                                enabled={i() === props.myIndex}
-                                netgame={true}
-                            />
-                        )}
-                    </For>
-                </div>
-
-                <div class="horizontal_button_group">
-                    <Switch>
-                        <Match when={props.isSelfHosting}>
-                            <button
-                                onclick={() => props.navigateTo("game")}
-                                classList={{
-                                    disabled_button:
-                                        props.playerSettings().length < 2,
-                                }}
-                            >
-                                Start Game
-                            </button>
-                        </Match>
-                    </Switch>
-
-                    <button onclick={() => props.navigateTo("back")}>
-                        Leave Lobby
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
 }
