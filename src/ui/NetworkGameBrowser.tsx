@@ -1,12 +1,12 @@
 import { Accessor, createSignal, onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { NetGameInfo } from "../../../backend/src/types/game-info";
-import { TinywarsSocket } from "../../networking/types";
-import { AppController } from "../appstate/AppController";
-import { AppState } from "../appstate/AppState";
-import { NetGameList } from "../components/NetGameList";
-import { logMount, logUnmount } from "../UiLogger";
+import { NetGameInfo } from "../../backend/src/types/game-info";
+import { TinywarsSocket } from "../networking/types";
+import { AppController } from "./appstate/AppController";
+import { AppState } from "./appstate/AppState";
+import { NetGameList } from "./components/NetGameList";
 import { NetworkGameLobbyState } from "./lobby/NetworkGameLobby";
+import { logMount, logUnmount } from "./UiLogger";
 
 export class NetworkGameBrowserState extends AppState {
     private gameList: Accessor<NetGameInfo[]>;

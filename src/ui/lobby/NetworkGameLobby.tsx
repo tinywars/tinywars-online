@@ -9,17 +9,17 @@ import {
     Switch
 } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { NetGameState } from "../../../../backend/src/types/game-state";
+import { NetGameState } from "../../../backend/src/types/game-state";
 import {
     PLAYER1_DEFAULT_CONTROLS,
     PlayerSettings
-} from "../../../game/player-settings";
-import { TinywarsSocket } from "../../../networking/types";
-import { AppController } from "../../appstate/AppController";
-import { AppState } from "../../appstate/AppState";
-import { PlayerSettingsCard } from "../../components/PlayerSettingsCard";
-import { logMount, logUnmount } from "../../UiLogger";
+} from "../../game/player-settings";
+import { TinywarsSocket } from "../../networking/types";
+import { AppController } from "../appstate/AppController";
+import { AppState } from "../appstate/AppState";
+import { PlayerSettingsCard } from "../components/PlayerSettingsCard";
 import { GameState } from "../game/Game";
+import { logMount, logUnmount } from "../UiLogger";
 
 export class NetworkGameLobbyState extends AppState {
     private myIndex = 0;

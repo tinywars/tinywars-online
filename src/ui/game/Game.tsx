@@ -1,17 +1,17 @@
 import { Accessor, onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { AppRunner } from "../../../app/app-runner";
-import { PlayerSettings } from "../../../game/player-settings";
+import { AppRunner } from "../../app/app-runner";
+import { PlayerSettings } from "../../game/player-settings";
 import {
     CreateGameEventEmitter,
     CreateJukebox,
     CreateSoundPlayer,
     init
-} from "../../../main";
-import { TinywarsSocket } from "../../../networking/types";
-import { AppController } from "../../appstate/AppController";
-import { AppState } from "../../appstate/AppState";
-import { logMount, logUnmount } from "../../UiLogger";
+} from "../../main";
+import { TinywarsSocket } from "../../networking/types";
+import { AppController } from "../appstate/AppController";
+import { AppState } from "../appstate/AppState";
+import { logMount, logUnmount } from "../UiLogger";
 import "./Game.css";
 
 export class GameState extends AppState {

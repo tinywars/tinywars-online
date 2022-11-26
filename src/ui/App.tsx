@@ -1,10 +1,10 @@
 import { io } from "socket.io-client";
 import { createSignal, onMount } from "solid-js";
-import { BACKEND_PORT } from "../../../backend/src/settings";
-import { TinywarsSocket } from "../../networking/types";
-import { AppController } from "../appstate/AppController";
-import { EmptyComponent } from "../appstate/EmptyComponent";
+import { BACKEND_PORT } from "../../backend/src/settings";
+import { TinywarsSocket } from "../networking/types";
 import "./App.css";
+import { AppController } from "./appstate/AppController";
+import { EmptyComponent } from "./appstate/EmptyComponent";
 import { MainMenuState } from "./MainMenu";
 
 enum ConnectionStatus {

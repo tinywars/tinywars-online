@@ -13,12 +13,12 @@ import {
     PLAYER3_DEFAULT_CONTROLS,
     PLAYER4_DEFAULT_CONTROLS,
     PlayerSettings
-} from "../../../game/player-settings";
-import { AppController } from "../../appstate/AppController";
-import { AppState } from "../../appstate/AppState";
-import { PlayerSettingsCard } from "../../components/PlayerSettingsCard";
-import { logMount, logUnmount } from "../../UiLogger";
+} from "../../game/player-settings";
+import { AppController } from "../appstate/AppController";
+import { AppState } from "../appstate/AppState";
+import { PlayerSettingsCard } from "../components/PlayerSettingsCard";
 import { GameState } from "../game/Game";
+import { logMount, logUnmount } from "../UiLogger";
 import "./LocalGameLobby.css";
 
 const [playersSettings, setPlayerSettings] = createSignal([

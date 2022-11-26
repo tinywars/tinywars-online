@@ -1,11 +1,11 @@
 import { onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { TinywarsSocket } from "../../networking/types";
-import { AppController } from "../appstate/AppController";
-import { AppState } from "../appstate/AppState";
-import { logMount, logUnmount } from "../UiLogger";
+import { TinywarsSocket } from "../networking/types";
+import { AppController } from "./appstate/AppController";
+import { AppState } from "./appstate/AppState";
 import { NetworkGameLobbyState } from "./lobby/NetworkGameLobby";
 import { NetworkGameBrowserState } from "./NetworkGameBrowser";
+import { logMount, logUnmount } from "./UiLogger";
 
 export class NetworkMainMenuState extends AppState {
     constructor(app: AppController, private socket: TinywarsSocket) {
