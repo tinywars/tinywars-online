@@ -17,6 +17,8 @@ import "./Game.css";
 export class GameState extends AppState {
     private appRunner: AppRunner | undefined;
     private init: () => AppRunner;
+    private soundPlayer = CreateSoundPlayer();
+    private jukebox = CreateJukebox();
     FPS = 60;
 
     constructor(
@@ -29,9 +31,10 @@ export class GameState extends AppState {
     ) {
         super(app);
 
-        const soundPlayer = CreateSoundPlayer();
-        const jukebox = CreateJukebox();
-        const gameEventEmitter = CreateGameEventEmitter(soundPlayer, jukebox);
+        const gameEventEmitter = CreateGameEventEmitter(
+            this.soundPlayer,
+            this.jukebox,
+        );
         const keyboardState: Record<string, boolean> = {};
 
         document.onkeydown = (e) => {
@@ -59,6 +62,12 @@ export class GameState extends AppState {
                 navigateTo: (p: string) => {
                     this.navigateTo(p);
                 },
+                setMusicVolume: (value: number) => {
+                    this.jukebox.setVolume(value / 100.0);
+                },
+                setSoundVolume: (value: number) => {
+                    this.soundPlayer.setVolume(value / 100.0);
+                },
             }),
         );
 
@@ -84,7 +93,11 @@ export class GameState extends AppState {
     }
 }
 
-function GameStateView(props: { navigateTo: (p: string) => void }) {
+function GameStateView(props: {
+    navigateTo: (p: string) => void;
+    setMusicVolume: (value: number) => void;
+    setSoundVolume: (value: number) => void;
+}) {
     onMount(() => {
         logMount("GameStateView");
     });
@@ -94,19 +107,60 @@ function GameStateView(props: { navigateTo: (p: string) => void }) {
     });
 
     return (
-        <div id="GameView">
-            <canvas id="RenderCanvas"></canvas>
-
-            <div id="GameSidebar">
-                <h2 class="title">Game Options</h2>
-                <div class="container-80">
-                    <div class="vertical_button_group">
-                        <button onclick={() => props.navigateTo("back")}>
-                            Exit game
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <table id="GameView">
+            <tbody>
+                <tr>
+                    <td id="RenderCanvasParent">
+                        <canvas id="RenderCanvas"></canvas>
+                    </td>
+                    <td id="GameSidebar">
+                        <h2 class="title">Game Options</h2>
+                        <div class="container-80">
+                            <div class="vbox">
+                                <div class="hbox space-between">
+                                    <label for="SoundVolumeInput">Sound</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        id="SoundVolumeInput"
+                                        onChange={(event) => {
+                                            props.setSoundVolume(
+                                                parseInt(
+                                                    event.currentTarget.value,
+                                                ),
+                                            );
+                                        }}
+                                    />
+                                </div>
+                                <br />
+                                <div class="hbox space-between">
+                                    <label for="MusicVolumeInput">Music</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        id="MusicVolumeInput"
+                                        onChange={(event) => {
+                                            props.setMusicVolume(
+                                                parseInt(
+                                                    event.currentTarget.value,
+                                                ),
+                                            );
+                                        }}
+                                    />
+                                </div>
+                                <br />
+                                <button
+                                    onclick={() => props.navigateTo("back")}
+                                >
+                                    Exit game
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     );
 }

@@ -7,6 +7,7 @@
   --secondary-color: #386C0B;
   --tertiary-color: #FF312E;
   --text-color: white;
+  --font-size: 2.5vh;
 }
 
 div {
@@ -18,7 +19,6 @@ html {
   padding: 0px;
   background-color: var(--bgr-color);
   color: var(--text-color);
-  font-family: 'Pixel-Art';
 }
 
 body {
@@ -26,8 +26,9 @@ body {
   padding: 0px;
 }
 
-button {
+html, button, input {
   font-family: 'Pixel-Art';
+  font-size: var(--font-size);
 }
 
 button, button:visited {

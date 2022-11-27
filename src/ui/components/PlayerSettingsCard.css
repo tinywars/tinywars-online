@@ -3,7 +3,7 @@
     flex-direction: column;
     flex-basis: 48%;
     border: 3px solid;
-    padding: 40px;
+    padding: 2%;
     margin: 1%;
     background-color: var(--bgr-color);
   }
