@@ -26,7 +26,7 @@ export function GameLobbyView(props: {
         <div class="container-100">
             <h2 class="title">Local game</h2>
             <div class="container-80">
-                <div class="hbox">
+                <div class="hbox gap-1">
                     <div id="LobbyOptionBar" class="vbox">
                         <Switch>
                             <Match when={!props.isNetgame}>

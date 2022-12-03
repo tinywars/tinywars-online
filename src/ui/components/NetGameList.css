@@ -6,20 +6,41 @@
     width: 100%;
 }
 
-#NetGameListTable thead tr {
-    border: 3px solid white;
+#NetGameListThead {
     background: var(--bgr-accent-color);
-}
-
-#NetGameListTable thead td {
-    text-align: center;
     font-weight: bold;
+    padding: 5px;
+    width: calc(100%);
 }
 
-#NetGameListTable tbody td {
+#NetGameListThead>div {
+    vertical-align: middle;
+}
+
+#NetGameListThead>div:nth-child(1),
+#NetGameListTbody>div>div:nth-child(1) {
+    width: 60%;
+}
+
+#NetGameListThead>div:nth-child(2),
+#NetGameListTbody>div>div:nth-child(2) {
+    width: 20%;
+}
+
+#NetGameListThead>div:nth-child(3),
+#NetGameListTbody>div>div:nth-child(3) {
+    width: 20%;
+}
+
+#NetGameListThead, #NetGameListTbody {
     text-align: center;
 }
 
-#NetGameListTable tbody tr:nth-child(even) {
+#NetGameListTbody>div:nth-child(even) {
     background: var(--bgr-lighter-color);
+}
+
+#NetGameListTbody {
+    height: 50vh;
+    overflow-y: auto;
 }

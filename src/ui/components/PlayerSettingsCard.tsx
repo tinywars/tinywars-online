@@ -1,8 +1,13 @@
 import { Match, Switch } from "solid-js";
-import spritesheet from "../../../assets/spritesheet_v2.png";
+import icon_blue from "../../../assets/player-icons/blue.png";
+import icon_green from "../../../assets/player-icons/green.png";
+import icon_red from "../../../assets/player-icons/red.png";
+import icon_yellow from "../../../assets/player-icons/yellow.png";
 import { PlayerSettings } from "../../game/player-settings";
 import { Checkbox } from "./Checkbox";
 import "./PlayerSettingsCard.css";
+
+const ICONS = [icon_red, icon_green, icon_blue, icon_yellow];
 
 export interface PlayerSettingsCardProps {
     index: number;
@@ -14,11 +19,8 @@ export interface PlayerSettingsCardProps {
 
 export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
     return (
-        <div class="player_settings">
-            <div class="icon_wrap">
-                {/* Cannot be scaled, we have to replace it with dedicated sprites */}
-                <img src={spritesheet} />
-            </div>
+        <div class="player_settings vbox">
+            <img src={ICONS[props.index]} />
 
             <div>
                 <label for={`PlayerNameInput_${props.index}`}>

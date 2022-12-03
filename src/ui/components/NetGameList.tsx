@@ -14,28 +14,30 @@ export function NetGameList(props: NetGameListProps) {
     });
 
     return (
-        <table id="NetGameListTable">
-            <thead>
-                <tr>
-                    <td>Game ID</td>
-                    <td>Player count</td>
-                    <td>
-                        <button
-                            onClick={() => props.onRefresh()}
-                            id="RefreshButton"
-                        >
-                            Refresh
-                        </button>
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
+        <div id="NetGameListTable" class="vbox">
+            <div id="NetGameListThead" class="hbox">
+                <div class="vbox space-around">
+                    <div>Game ID</div>
+                </div>
+                <div class="vbox space-around">
+                    <div>Player Count</div>
+                </div>
+                <div class="vbox space-around">
+                    <button
+                        onClick={() => props.onRefresh()}
+                        id="RefreshButton"
+                    >
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="NetGameListTbody" class="vbox">
                 <For each={props.gameInfos()}>
                     {(info) => (
-                        <tr>
-                            <td>{info.id}</td>
-                            <td>{info.numConnected} / 4</td>
-                            <td>
+                        <div class="hbox">
+                            <div>{info.id}</div>
+                            <div>{info.numConnected} / 4</div>
+                            <div>
                                 <button
                                     onclick={() => {
                                         props.onJoinClick(info.id);
@@ -47,11 +49,11 @@ export function NetGameList(props: NetGameListProps) {
                                 >
                                     Join
                                 </button>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     )}
                 </For>
-            </tbody>
-        </table>
+            </div>
+        </div>
     );
 }
