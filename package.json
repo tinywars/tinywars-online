@@ -2,9 +2,13 @@
   "name": "tinywars-online",
   "private": true,
   "version": "0.6.0",
+  "engines": {
+    "node": ">=16 <18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && cp ./RELEASE.md ./dist/README.md",
+    "serve": "npx -y serve dist -s",
     "preview": "vite preview",
     "typecheck": "tsc",
     "test:all": "ts-mocha **/*.spec.ts",
