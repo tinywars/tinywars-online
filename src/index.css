@@ -27,12 +27,12 @@ body {
   padding: 0px;
 }
 
-html, button, input, select {
+html, button, input, select, option {
   font-family: 'Pixel-Art';
   font-size: var(--font-size);
 }
 
-input, select {
+input, select, option {
   font-size: var(--input-font-size);
 }
 

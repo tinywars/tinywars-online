@@ -1,16 +1,30 @@
 #PlayerSettingsCardsWrapper {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
     flex-wrap: wrap;
     border: 3px solid var(--bgr-lighter-color);
     flex-basis: 70%;
 
     /* Items inside */
-    gap: 0.5rem;
-    padding: 0.5rem;
+    grid-column-gap: 0.5rem;
+    grid-row-gap: 0.5rem;
+    padding: 0.5rem;    
 }
+
+@media (max-height: 100vw) and (min-width: 100vh) {
+    #PlayerSettingsCardsWrapper {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }  
+
 
 #LobbyOptionBar {
     border: 3px solid var(--bgr-lighter-color);
     flex-basis: 30%;
     padding: 10px;
+}
+
+input[type=number] {
+    height: 1rem;
+    width: 25%;
 }

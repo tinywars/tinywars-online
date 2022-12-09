@@ -57,6 +57,7 @@
   .player_settings>div {
     display: flex;
     flex-direction: row;
+    align-items: center;
   }
   
   .player_settings label {
@@ -68,5 +69,6 @@
     display: block;
     flex-basis: 25%;
     min-width: 0;
+    height: 1rem;
   }
   
