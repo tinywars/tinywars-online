@@ -1,0 +1,46 @@
+#RefreshButton, .join_button {
+    margin: auto;
+}
+
+#NetGameListTable {
+    width: 100%;
+}
+
+#NetGameListThead {
+    background: var(--bgr-accent-color);
+    font-weight: bold;
+    padding: 5px;
+    width: calc(100%);
+}
+
+#NetGameListThead>div {
+    vertical-align: middle;
+}
+
+#NetGameListThead>div:nth-child(1),
+#NetGameListTbody>div>div:nth-child(1) {
+    width: 60%;
+}
+
+#NetGameListThead>div:nth-child(2),
+#NetGameListTbody>div>div:nth-child(2) {
+    width: 20%;
+}
+
+#NetGameListThead>div:nth-child(3),
+#NetGameListTbody>div>div:nth-child(3) {
+    width: 20%;
+}
+
+#NetGameListThead, #NetGameListTbody {
+    text-align: center;
+}
+
+#NetGameListTbody>div:nth-child(even) {
+    background: var(--bgr-lighter-color);
+}
+
+#NetGameListTbody {
+    height: 50vh;
+    overflow-y: auto;
+}

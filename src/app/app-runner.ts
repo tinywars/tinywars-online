@@ -1,9 +1,11 @@
+import { Releasable } from "./releasable";
+
 /**
  * Generic class that provides frame time contants
  * computed from FPS and single point of entry for
  * running something.
  */
-export abstract class AppRunner {
+export abstract class AppRunner extends Releasable {
     protected frameTimeSec = 0;
     protected frameTimeMsec = 0;
 

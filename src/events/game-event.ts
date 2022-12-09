@@ -102,7 +102,6 @@ export function eventDestroyProjectile(
                             .getColliderScale(),
                     }),
                 );
-                console.log(explosionForwardSpeed);
 
                 context.projectiles.getItem(i).despawn();
                 context.projectiles.popItem(i);

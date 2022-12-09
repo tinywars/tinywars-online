@@ -1,14 +1,21 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "prettier/prettier": ["warn"],
+    "indent": ["warn", 4],
+    "comma-dangle": ["warn", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "never",
+      "exports": "always-multiline",
+      "functions": "always-multiline"
+    }],
     "no-restricted-syntax": [
       "error",
       {
@@ -16,5 +23,13 @@
         "message": "It is forbidden to call Math.random(). Use PRNG from utility/prng instead."
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.json", "*.yml"],
+      "rules": {
+        "indent": ["warn", 2]
+      }
+    }
+  ]
 }

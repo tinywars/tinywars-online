@@ -1,28 +1,31 @@
-import { EventEmitter, ListenerFn } from "eventemitter3";
+import { EventEmitter } from "eventemitter3";
 
-export type GameEvent =
-    | "GameStarted"
-    | "GamePaused"
-    | "GameResumed"
-    | "GameStopped"
-    | "ProjectileSpawned"
-    | "ProjectileVanished"
-    | "ProjectileWasDestroyed"
-    | "PlayerWasHit"
-    | "PlayerUsedTurbo"
-    | "PlayerWasDestroyed"
-    | "RockWasHit"
-    | "WreckWasHit"
-    | "ObstacleBounced"
-    | "PowerupPickedUp";
+export interface GameEvents {
+    "GameStarted": never,
+    "GamePaused": never,
+    "GameResumed": never,
+    "GameStopped": never,
+    "ProjectileSpawned": number,
+    "ProjectileVanished": never,
+    "ProjectileWasDestroyed": never,
+    "PlayerWasHit": never,
+    "PlayerUsedTurbo": never,
+    "PlayerWasDestroyed": never,
+    "RockWasHit": never,
+    "WreckWasHit": never,
+    "ObstacleBounced": never,
+    "PowerupPickedUp": never,
+}
+
+export type GameEvent = keyof GameEvents
 
 export class GameEventEmitter extends EventEmitter {
-    override addListener(eventName: GameEvent, fn: ListenerFn): this {
+    override addListener<T extends GameEvent>(eventName: T, fn: (payload: GameEvents[T]) => void): this {
         super.addListener(eventName, fn);
         return this;
     }
 
-    override emit(eventName: GameEvent, ...args: any[]): boolean {
-        return super.emit(eventName, ...args);
+    override emit<T extends GameEvent>(eventName: T, payload?: GameEvents[T]): boolean {
+        return super.emit(eventName, payload);
     }
 }

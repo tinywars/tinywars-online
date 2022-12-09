@@ -46,11 +46,11 @@ export const effectAnimationMock = {
 
 export function effectTypeToAnimationNameMock(type: EffectType): string {
     switch (type) {
-        case EffectType.PlayerExplosion:
-            return "playerBoom";
-        case EffectType.ProjectileExplosion:
-            return "projectileBoom";
-        case EffectType.PowerupPickup:
-            return "powerupPickup";
+    case EffectType.PlayerExplosion:
+        return "playerBoom";
+    case EffectType.ProjectileExplosion:
+        return "projectileBoom";
+    case EffectType.PowerupPickup:
+        return "powerupPickup";
     }
 }

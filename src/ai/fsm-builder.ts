@@ -4,7 +4,7 @@ import {
     FsmState,
     FsmStateLogic,
     FsmTransition,
-    FsmTransitionCondition,
+    FsmTransitionCondition
 } from "./fsm";
 
 export function DoNothing(): FsmState {

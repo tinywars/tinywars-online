@@ -1,0 +1,7 @@
+#ConnectionStatus {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 5px;
+    border: 3px solid var(--bgr-accent-color);
+}

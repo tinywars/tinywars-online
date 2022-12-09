@@ -70,4 +70,8 @@ export class NetGameStateManager {
     allClientsHaveDisconnected(): boolean {
         return this.nofPlayersDisconnected === this.state.clients.length;
     }
+
+    hasGameStarted(): boolean {
+        return this.gameStarted;
+    }
 }

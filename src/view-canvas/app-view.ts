@@ -85,7 +85,10 @@ export class AppViewCanvas {
     }
 
     scale() {
-        let width = window.innerWidth;
+        // NOTE: 0.7 should come from CSS, but this.canvas2d.parentElement!.style.width returns empty string
+        // I also cannot use parentElement.width because it is affected by the size of the canvas
+        const parentElemWidth = window.innerWidth * 0.7;
+        let width = parentElemWidth;
         let height = window.innerHeight;
 
         // We want to compute maximum possible 4:3 canvas
@@ -236,8 +239,10 @@ export class AppViewCanvas {
 
     private drawHudForPlayer(player: Player) {
         const coords = player.getCoords();
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const healthBarFrame = this.hudFrames["healthbar"]!;
         const energyBarFrame = this.hudFrames["energybar"]!;
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
         const energyFrameWidthBackup = energyBarFrame.w;
 
         for (let i = 0; i < player.getHealth(); i++) {

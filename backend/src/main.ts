@@ -5,6 +5,7 @@ import { ClientEvents } from "./events/client-events";
 import { ServerEvents } from "./events/server-events";
 import { BACKEND_PORT, HOST_IP } from "./settings";
 import { ClientState } from "./types/client-state";
+import { NetGameInfo } from "./types/game-info";
 import { NetGameStateManager } from "./types/game-state";
 
 const games: Map<string, NetGameStateManager> = new Map();
@@ -32,21 +33,25 @@ function getGameByClient(id: string): NetGameStateManager {
     return game;
 }
 
+function handleClientLeavingGame(clientId: string) {
+    const game = getGameByClient(clientId);
+    game.markClientAsDisconnected(clientId);
+    // If everybody dropped the game
+    if (game.allClientsHaveDisconnected()) {
+        console.log(
+            `Deleting game with id ${game.state.id} (Reason: Everybody disconnected)`,
+        );
+        games.delete(game.state.id);
+    }
+}
+
 io.on("connection", (socket) => {
     console.log(`User (id: ${socket.id}) connected`);
 
     socket.on("disconnect", () => {
         console.log(`User (id: ${socket.id}) disconnected`);
         try {
-            const game = getGameByClient(socket.id);
-            game.markClientAsDisconnected(socket.id);
-            // If everybody dropped the game
-            if (game.allClientsHaveDisconnected()) {
-                console.log(
-                    `Deleting game with id ${game.state.id} (Reason: Everybody disconnected)`,
-                );
-                games.delete(game.state.id);
-            }
+            handleClientLeavingGame(socket.id);
         } catch (e) {
             console.log(`\tError: ${(e as Error).message}`);
         }
@@ -119,6 +124,15 @@ io.on("connection", (socket) => {
         io.to(game.state.id).emit("gameStarted", game.state, seed);
     });
 
+    socket.on("lobbyLeft", () => {
+        console.log(`User (id: ${socket.id}) left the game`);
+        try {
+            handleClientLeavingGame(socket.id);
+        } catch (e) {
+            console.log(`\tError: ${(e as Error).message}`);
+        }
+    });
+
     socket.on("gameInputGathered", (inputs: boolean[]) => {
         try {
             const game = getGameByClient(socket.id);
@@ -137,6 +151,51 @@ io.on("connection", (socket) => {
             );
             socket.emit("gameError", msg);
         }
+    });
+
+    socket.on("gameListRequested", () => {
+        console.log(
+            `Game list requested. There are ${games.size} games in total.`,
+        );
+
+        const infos: NetGameInfo[] = [];
+        games.forEach((netStateMgr) => {
+            if (netStateMgr.hasGameStarted()) return;
+
+            infos.push({
+                id: netStateMgr.state.id,
+                numConnected: netStateMgr.state.clients.length,
+            });
+        });
+
+        infos.push({ id: "dummy1", numConnected: 4 });
+        infos.push({ id: "dummy2", numConnected: 3 });
+        infos.push({ id: "dummy3", numConnected: 2 });
+        infos.push({ id: "dummy4", numConnected: 2 });
+        infos.push({ id: "dummy5", numConnected: 2 });
+        infos.push({ id: "dummy6", numConnected: 1 });
+        infos.push({ id: "dummy7", numConnected: 1 });
+        infos.push({ id: "dummy8", numConnected: 1 });
+        infos.push({ id: "dummy9", numConnected: 1 });
+        infos.push({ id: "dummy10", numConnected: 1 });
+        infos.push({ id: "dummy11", numConnected: 1 });
+        infos.push({ id: "dummy12", numConnected: 1 });
+        infos.push({ id: "dummy13", numConnected: 1 });
+        infos.push({ id: "dummy14", numConnected: 1 });
+        infos.push({ id: "dummy15", numConnected: 1 });
+        infos.push({ id: "dummy16", numConnected: 1 });
+        infos.push({ id: "dummy17", numConnected: 1 });
+        infos.push({ id: "dummy18", numConnected: 1 });
+        infos.push({ id: "dummy19", numConnected: 1 });
+        infos.push({ id: "dummy20", numConnected: 1 });
+        infos.push({ id: "dummy21", numConnected: 1 });
+        infos.push({ id: "dummy22", numConnected: 1 });
+        infos.push({ id: "dummy23", numConnected: 1 });
+        infos.push({ id: "dummy24", numConnected: 1 });
+        infos.push({ id: "dummy25", numConnected: 1 });
+        infos.push({ id: "dummy26", numConnected: 1 });
+
+        socket.emit("gameListCollected", infos);
     });
 });
 

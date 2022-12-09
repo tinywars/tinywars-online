@@ -12,14 +12,20 @@ export enum PowerupType {
     // others
 }
 
+export type PowerupAnimationKey =
+    | "idle0"
+    | "idle1"
+    | "idle2"
+    | "idle3"
+    | "idle4"
+    | "idle5"
+    | "idle6";
+
 export class Powerup extends GameObject {
     protected static RADIUS = 12;
     private type: PowerupType;
 
-    constructor(
-        readonly id: number,
-        private animationEngine: AnimationEngine<any>,
-    ) {
+    constructor(readonly id: number, private animationEngine: AnimationEngine<PowerupAnimationKey>) {
         super();
         this.collider = new CircleCollider(Vector.outOfView(), Powerup.RADIUS);
         this.type = PowerupType.Heal;
@@ -33,7 +39,7 @@ export class Powerup extends GameObject {
     spawn(options: { position: Vector; type: PowerupType }) {
         this.collider.setPosition(options.position);
         this.type = options.type;
-        this.animationEngine.setState("idle" + this.type, true);
+        this.animationEngine.setState("idle" + this.type as PowerupAnimationKey, true);
     }
 
     despawn() {

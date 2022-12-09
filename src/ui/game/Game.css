@@ -1,0 +1,23 @@
+#GameView {
+    width: 100%;
+}
+
+#GameView, #GameView tr, #GameView tr>td {
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    vertical-align: top;
+}
+
+#RenderCanvasParent {
+    width: 70%;
+}
+
+#RenderCanvas {
+    border: 1px solid white;
+}
+
+#GameSidebar {
+    width: 30%;
+    border: 3px solid var(--bgr-lighter-color);
+}

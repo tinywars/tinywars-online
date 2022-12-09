@@ -16,7 +16,7 @@ describe("Animation", () => {
     };
 
     beforeEach(() => {
-        animationEngine = new AnimationEngine(animationDb, 2);
+        animationEngine = AnimationEngine.fromStates(animationDb, 2);
     });
 
     describe("#update", () => {

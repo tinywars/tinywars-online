@@ -1,3 +1,4 @@
+import { NetGameInfo } from "../types/game-info";
 import { NetGameState } from "../types/game-state";
 
 export interface ServerEvents {
@@ -9,4 +10,5 @@ export interface ServerEvents {
     gameStarted: (gameState: NetGameState, seed: number) => void;
     gameInputsCollected: (inputs: boolean[][]) => void;
     gameError: (errorMessage: string) => void;
+    gameListCollected: (games: NetGameInfo[]) => void;
 }

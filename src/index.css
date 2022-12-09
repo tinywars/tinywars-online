@@ -1,0 +1,153 @@
+:root {
+  /* https://coolors.co/ffff00-ff312e-000000-386c0b-212121-000021 */
+  --bgr-color: #090909;
+  --bgr-lighter-color: #212121;
+  --bgr-accent-color: #000042;
+  --primary-color: #FFFF00;
+  --secondary-color: #386C0B;
+  --tertiary-color: #FF312E;
+  --text-color: white;
+  --font-size: min(1.5vw, 2.5vh);
+  --input-font-size: min(1vw, 2vh);
+}
+
+div {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0px;
+  padding: 0px;
+  background-color: var(--bgr-color);
+  color: var(--text-color);
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+html, button, input, select, option {
+  font-family: 'Pixel-Art';
+  font-size: var(--font-size);
+}
+
+input, select, option {
+  font-size: var(--input-font-size);
+}
+
+button, button:visited {
+  background-color: transparent;
+  border: 0px;
+  border-left: 3px solid;
+  border-right: 3px solid;
+  background-color: var(--bgr-accent-color);
+  padding: 5px;
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  color: var(--text-color);
+}
+
+button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+canvas {
+  display: block;
+}
+
+.text_success {
+  color: var(--secondary-color);
+}
+
+.text_warning {
+  color: var(--primary-color);
+}
+
+.text_error {
+  color: var(--tertiary-color);
+}
+
+/* Box model */
+.title {
+  /*text-decoration: underline;*/
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.container-100 {
+  width: 100%;
+  margin: auto;
+}
+
+.container-80 {
+  width: 80%;
+  margin: auto;
+}
+
+.container-60 {
+  width: 60%;
+  margin: auto;
+}
+
+.container-40 {
+  width: 40%;
+  margin: auto;
+}
+
+.container-20 {
+  width: 20%;
+  margin: auto;
+}
+
+.vertical_button_group>button {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.horizontal_button_group>button {
+  display: inline;
+  width: 20%;
+  margin-left: 5px;
+}
+
+.disabled_button {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.8;
+  background-color: var(--bgr-lighter-color) !important;
+  border-color: var(--bgr-lighter-color) !important;
+}
+
+.hbox {
+  display: flex;
+  flex-direction: row;
+}
+
+.vbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.space-evenly {
+  justify-content: space-evenly;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.gap-1 {
+  gap: 1rem;
+}
