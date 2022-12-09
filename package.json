@@ -17,9 +17,9 @@
     "coverage": "nyc npm run test:all",
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint ./src --fix --ext .ts",
-    "release:major": "npm version minor && git push && git push --tags",
+    "release:major": "npm version major && git push && git push --tags",
     "release:minor": "npm version minor && git push && git push --tags",
-    "release:patch": "npm version minor && git push && git push --tags"
+    "release:patch": "npm version patch && git push && git push --tags"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
