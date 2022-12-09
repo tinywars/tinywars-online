@@ -7,6 +7,7 @@ import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 
+export type ProjectileAnimationKey = "idle"
 export class Projectile extends GameObject {
     private damage = 0;
     private selfDestructTimeout = 0;
@@ -14,7 +15,7 @@ export class Projectile extends GameObject {
 
     constructor(
         readonly id: number,
-        private animationEngine: AnimationEngine<any>,
+        private animationEngine: AnimationEngine<ProjectileAnimationKey>,
     ) {
         super();
         // Collider is completely newly created in each spawn

@@ -12,9 +12,7 @@ import { Projectile } from "../game/projectile";
 import { AnimationEngine } from "../utility/animation";
 import { FastArray } from "../utility/fast-array";
 import {
-    effectAnimationMock,
-    effectTypeToAnimationNameMock,
-    obstacleAnimationMock,
+    effectAnimationMock, obstacleAnimationMock,
     playerAnimationMock,
     powerupAnimationMock,
     projectileAnimationMock
@@ -43,7 +41,7 @@ export function getMockGameContext(options: {
                 new Player(
                     index,
                     options.controllers[index],
-                    new AnimationEngine(playerAnimationMock, 2),
+                    AnimationEngine.fromStates(playerAnimationMock, 2),
                     options.eventQueue,
                 ),
         ),
@@ -52,7 +50,7 @@ export function getMockGameContext(options: {
             (index) =>
                 new Projectile(
                     index,
-                    new AnimationEngine(projectileAnimationMock, 2),
+                    AnimationEngine.fromStates(projectileAnimationMock, 2),
                 ),
         ),
         obstacles: new FastArray<Obstacle>(
@@ -60,7 +58,7 @@ export function getMockGameContext(options: {
             (index) =>
                 new Obstacle(
                     index,
-                    new AnimationEngine(obstacleAnimationMock, 2),
+                    AnimationEngine.fromStates(obstacleAnimationMock, 2),
                 ),
         ),
         powerups: new FastArray<Powerup>(
@@ -68,7 +66,7 @@ export function getMockGameContext(options: {
             (index) =>
                 new Powerup(
                     index,
-                    new AnimationEngine(powerupAnimationMock, 2),
+                    AnimationEngine.fromStates(powerupAnimationMock, 2),
                 ),
         ),
         effects: new FastArray<Effect>(
@@ -76,8 +74,7 @@ export function getMockGameContext(options: {
             (index) =>
                 new Effect(
                     index,
-                    new AnimationEngine(effectAnimationMock, 2),
-                    effectTypeToAnimationNameMock,
+                    AnimationEngine.fromStates(effectAnimationMock, 2),
                 ),
         ),
         duration: 0,

@@ -7,21 +7,27 @@ export class AnimationFrame {
     ) {}
 }
 
+export type AnimationStates<T extends string> = Record<T, AnimationFrame[]>;
+export type GetAnimationKey<T> = T extends AnimationStates<infer S> ? S : never;
+
 export class AnimationEngine<
-    // TODO: figure out how to couple concrete animation engine to concrete game objects
-    TStates extends Record<string, AnimationFrame[]> = Record<
-        string,
-        AnimationFrame[]
-    >,
+    TStateKey extends string = string,
 > {
     private loop = false;
     private frameIndex = 0;
     private frameTimer = 0;
     private frameTimeout = 0;
-    private currentState: keyof TStates = "";
+    private currentState: TStateKey = "" as TStateKey;
 
-    constructor(private states: TStates, fps: number) {
+    private constructor(private states: AnimationStates<string>, fps: number) {
         this.frameTimeout = 1 / fps;
+    }
+
+    static fromStates<
+        T extends Record<string, AnimationFrame[]>,
+        TStateName extends Extract<keyof T, string>
+    >(states: T, fps: number): AnimationEngine<TStateName> {
+        return new this(states, fps)
     }
 
     /**
@@ -44,7 +50,7 @@ export class AnimationEngine<
         return true;
     }
 
-    setState(name: keyof TStates, looping = false, reset = false) {
+    setState(name: TStateKey, looping = false, reset = false) {
         if (this.states[name] === undefined)
             throw new Error(
                 `Programatic error: Trying to use non-existent animation state ${
@@ -67,3 +73,4 @@ export class AnimationEngine<
         return state[this.frameIndex];
     }
 }
+

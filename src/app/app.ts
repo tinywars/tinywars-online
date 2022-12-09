@@ -5,20 +5,35 @@ import { GameEventEmitter } from "../events/event-emitter";
 import { EventQueue } from "../events/event-queue";
 import { eventSpawnPowerup } from "../events/game-event";
 import { CollisionMediator } from "../game/collision-mediator";
-import { Effect, EffectType } from "../game/effect";
+import { Effect, EffectAnimationKey } from "../game/effect";
 import { GameContext } from "../game/game-context";
 import { GameSettings } from "../game/game-settings";
-import { Obstacle } from "../game/obstacle";
-import { Player } from "../game/player";
-import { Powerup } from "../game/powerup";
-import { Projectile } from "../game/projectile";
-import { AnimationEngine, AnimationFrame } from "../utility/animation";
+import { Obstacle, ObstacleAnimationKey } from "../game/obstacle";
+import { Player, PlayerAnimationKey } from "../game/player";
+import { Powerup, PowerupAnimationKey } from "../game/powerup";
+import { Projectile, ProjectileAnimationKey } from "../game/projectile";
+import {
+    AnimationEngine,
+    AnimationFrame,
+    AnimationStates,
+    GetAnimationKey
+} from "../utility/animation";
 import { FastArray } from "../utility/fast-array";
 import { PRNG } from "../utility/prng";
 import { Timer } from "../utility/timer";
 import { Vector } from "../utility/vector";
 import { Releasable } from "./releasable";
 
+export type AnimationDB = {
+    player0: AnimationStates<PlayerAnimationKey>;
+    player1: AnimationStates<PlayerAnimationKey>;
+    player2: AnimationStates<PlayerAnimationKey>;
+    player3: AnimationStates<PlayerAnimationKey>;
+    projectile: AnimationStates<ProjectileAnimationKey>;
+    rock: AnimationStates<ObstacleAnimationKey>;
+    powerup: AnimationStates<PowerupAnimationKey>;
+    effects: AnimationStates<EffectAnimationKey>;
+};
 export class App extends Releasable {
     private gameContext: GameContext;
     private uniqueId = 10; /// offseting this number so values below are reserved for players
@@ -33,16 +48,15 @@ export class App extends Releasable {
         private animationDB: Record<string, Record<string, AnimationFrame[]>>,
         private settings: GameSettings,
         private controllers: Controller[],
-        effectTypeToAnimationName: (t: EffectType) => string,
     ) {
         super();
         this.aiBrains = [];
 
-        const createAnimationEngine = (
-            animationSetName: string,
+        const createAnimationEngine = <T extends keyof AnimationDB>(
+            animationSetName: T,
             speed = this.settings.COMMON_ANIMATION_FPS,
-        ) => {
-            return new AnimationEngine(
+        ): AnimationEngine<GetAnimationKey<keyof AnimationDB[T]>> => {
+            return AnimationEngine.fromStates(
                 this.animationDB[animationSetName],
                 speed,
             );
@@ -58,7 +72,9 @@ export class App extends Releasable {
                     new Player(
                         i,
                         this.controllers[i],
-                        createAnimationEngine("player" + i),
+                        createAnimationEngine(
+                            ("player" + i) as keyof AnimationDB,
+                        ),
                         eventQueue,
                     ),
             ),
@@ -73,10 +89,7 @@ export class App extends Releasable {
             obstacles: new FastArray<Obstacle>(
                 this.settings.ROCK_COUNT + this.settings.PLAYER_COUNT,
                 () =>
-                    new Obstacle(
-                        this.uniqueId++,
-                        createAnimationEngine("rock"),
-                    ),
+                    new Obstacle(this.uniqueId++, createAnimationEngine("rock")),
             ),
             powerups: new FastArray<Powerup>(
                 4,
@@ -95,7 +108,6 @@ export class App extends Releasable {
                             "effects",
                             this.settings.EFFECT_ANIMATION_FPS,
                         ),
-                        effectTypeToAnimationName,
                     ),
             ),
             duration: 0,
@@ -141,8 +153,8 @@ export class App extends Releasable {
             this.winnerName =
                 this.gameContext.players.getSize() === 1
                     ? this.settings.PLAYER_SETTINGS[
-                          this.gameContext.players.getItem(0).id
-                      ].name
+                        this.gameContext.players.getItem(0).id
+                    ].name
                     : "nobody";
             if (this.gameContext.players.getSize() === 1) {
                 this.gameContext.wins[this.gameContext.players.getItem(0).id]++;
@@ -193,7 +205,7 @@ export class App extends Releasable {
         endgameTriggered: boolean;
         timeTillRestart: number;
         winnerName: string;
-    } {
+        } {
         return {
             endgameTriggered: this.endgame,
             timeTillRestart: this.timeTillRestart,

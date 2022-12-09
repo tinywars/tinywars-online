@@ -6,26 +6,36 @@ import { Vector } from "../utility/vector";
 import { GameContext } from "./game-context";
 import { GameObject } from "./game-object";
 
+export type ObstacleAnimationKey =
+    | "idle0"
+    | "idle1"
+    | "wreck0"
+    | "wreck1"
+    | "wreck2"
+    | "wreck3";
+    
 export class Obstacle extends GameObject {
     protected static RADIUS = 20;
     private wreck = false;
 
     constructor(
         readonly id: number,
-        private animationEngine: AnimationEngine<any>,
+        private animationEngine: AnimationEngine<ObstacleAnimationKey>,
     ) {
         super();
         this.collider = new CircleCollider(Vector.outOfView(), Obstacle.RADIUS);
         this.forward = Vector.zero();
-        this.animationEngine.setState("idle" + (id % 2), true);
+        this.animationEngine.setState(
+            ("idle" + (id % 2)) as ObstacleAnimationKey,
+            true,
+        );
     }
 
     update(dt: number, context: GameContext) {
         this.forward.limit(context.settings.OBSTACLE_MAX_SPEED);
         this.collider.move(this.forward.getScaled(dt));
         this.rotation = sanitizeAngle(
-            this.rotation +
-                this.forward.getSize() * dt * (this.id % 2 ? -1 : 1),
+            this.rotation + this.forward.getSize() * dt * (this.id % 2 ? -1 : 1),
         );
 
         this.handleLeavingScreenByWrappingAround(context);
@@ -37,7 +47,9 @@ export class Obstacle extends GameObject {
 
         this.wreck = options.playerIndex > -1;
         if (this.isWreck()) {
-            this.animationEngine.setState("wreck" + options.playerIndex);
+            this.animationEngine.setState(
+                ("wreck" + options.playerIndex) as ObstacleAnimationKey,
+            );
         }
     }
 

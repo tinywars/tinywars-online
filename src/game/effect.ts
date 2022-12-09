@@ -11,13 +11,18 @@ export enum EffectType {
     PowerupPickup,
 }
 
+export type EffectAnimationKey =
+    | "playerBoom"
+    | "powerupPickup"
+    | "projectileBoom";
+
+
 export class Effect extends GameObject {
     private colliderScale = 1;
 
     constructor(
         readonly id: number,
-        private animationEngine: AnimationEngine<any>,
-        private effectTypeToAnimationName: (t: EffectType) => string,
+        private animationEngine: AnimationEngine<EffectAnimationKey>,
     ) {
         super();
     }
@@ -32,7 +37,7 @@ export class Effect extends GameObject {
         this.collider.setPosition(options.position);
         this.rotation = options.rotation;
         this.animationEngine.setState(
-            this.effectTypeToAnimationName(options.type),
+            effectTypeToAnimationName(options.type),
             false,
             true,
         );
@@ -58,5 +63,17 @@ export class Effect extends GameObject {
             angle: this.rotation,
             frame: this.animationEngine.getCurrentFrame(),
         };
+    }
+}
+
+
+function effectTypeToAnimationName(name: EffectType): EffectAnimationKey {
+    switch (name) {
+    case EffectType.PlayerExplosion:
+        return "playerBoom";
+    case EffectType.ProjectileExplosion:
+        return "projectileBoom";
+    case EffectType.PowerupPickup:
+        return "powerupPickup";
     }
 }

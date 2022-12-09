@@ -239,8 +239,10 @@ export class AppViewCanvas {
 
     private drawHudForPlayer(player: Player) {
         const coords = player.getCoords();
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const healthBarFrame = this.hudFrames["healthbar"]!;
         const energyBarFrame = this.hudFrames["energybar"]!;
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
         const energyFrameWidthBackup = energyBarFrame.w;
 
         for (let i = 0; i < player.getHealth(); i++) {

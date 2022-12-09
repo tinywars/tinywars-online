@@ -14,7 +14,7 @@ import soundRockHitUrl from "../assets/sounds/rockhit.wav";
 import soundRockHit2Url from "../assets/sounds/rockhit2.wav";
 import soundShipHitUrl from "../assets/sounds/shiphit.wav";
 import soundWreckHitUrl from "../assets/sounds/shiphit2.wav";
-import { App } from "./app/app";
+import { AnimationDB, App } from "./app/app";
 import { AppRunner } from "./app/app-runner";
 import { LocalAppRunner } from "./app/local-app-runner";
 import { NetAppRunner } from "./app/net-app-runner";
@@ -22,7 +22,6 @@ import { Controller } from "./controllers/controller";
 import { ControllerFactory } from "./controllers/controller-factory";
 import { SimpleController } from "./controllers/simple-controller";
 import { GameEventEmitter } from "./events/event-emitter";
-import { EffectType } from "./game/effect";
 import { GameSettings } from "./game/game-settings";
 import { PlayerSettings } from "./game/player-settings";
 import { TinywarsSocket } from "./networking/types";
@@ -48,7 +47,6 @@ export function CreateJukebox(): Jukebox {
     return jukebox;
 }
 
-export type AnimationDB = Record<string, Record<string, AnimationFrame[]>>;
 export function CreateAnimationDb(): AnimationDB {
     const ComputeAnimationFrames = (
         startX: number,
@@ -118,17 +116,6 @@ export function CreateHudFrameDB(): Record<string, AnimationFrame> {
         healthbar: new AnimationFrame(247, 165, 12, 4),
         energybar: new AnimationFrame(247, 206, 7, 4),
     };
-}
-
-function effectTypeToAnimationName(name: EffectType): string {
-    switch (name) {
-        case EffectType.PlayerExplosion:
-            return "playerBoom";
-        case EffectType.ProjectileExplosion:
-            return "projectileBoom";
-        case EffectType.PowerupPickup:
-            return "powerupPickup";
-    }
 }
 
 export enum Sounds {
@@ -299,7 +286,6 @@ export const init = (
         CreateAnimationDb(),
         gameSettings,
         controllers,
-        effectTypeToAnimationName,
     );
 
     const appView = new AppViewCanvas(

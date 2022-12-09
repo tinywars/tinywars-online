@@ -19,6 +19,7 @@ import { GameObject } from "./game-object";
 import { PowerupType } from "./powerup";
 import { Projectile } from "./projectile";
 
+export type PlayerAnimationKey = "idle" | "hit"
 export class Player extends GameObject {
     protected static RADIUS = 12;
     protected direction: Vector = Vector.zero();
@@ -29,8 +30,7 @@ export class Player extends GameObject {
     constructor(
         readonly id: number,
         private controller: Controller,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        private animationEngine: AnimationEngine<any>,
+        private animationEngine: AnimationEngine<PlayerAnimationKey>,
         private eventQueue: EventQueue,
     ) {
         super();
@@ -103,17 +103,17 @@ export class Player extends GameObject {
 
     give(powerup: PowerupType) {
         switch (powerup) {
-            case PowerupType.Heal:
-                this.health++;
-                break;
-            case PowerupType.Energy:
-                this.energy = Math.floor(this.energy + 2);
-                break;
-            case PowerupType.DoubleEnergy:
-                this.energy = Math.floor(this.energy + 4);
-                break;
-            default:
-                break;
+        case PowerupType.Heal:
+            this.health++;
+            break;
+        case PowerupType.Energy:
+            this.energy = Math.floor(this.energy + 2);
+            break;
+        case PowerupType.DoubleEnergy:
+            this.energy = Math.floor(this.energy + 4);
+            break;
+        default:
+            break;
         }
     }
 
