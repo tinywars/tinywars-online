@@ -1,3 +1,5 @@
+import "./Checkbox.css";
+
 interface CheckboxProps {
     id: string;
     checked: boolean;
@@ -9,6 +11,7 @@ interface CheckboxProps {
 export function Checkbox(props: CheckboxProps) {
     return (
         <input
+            class="checkbox"
             id={props.id}
             type="checkbox"
             name={props.name}
