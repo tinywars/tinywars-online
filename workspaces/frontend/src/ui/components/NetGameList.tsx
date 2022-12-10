@@ -1,5 +1,5 @@
 import { Accessor, For, onMount } from "solid-js";
-import { NetGameInfo } from "../../../backend/src/types/game-info";
+import type { NetGameInfo } from "../../../../backend/src/types/game-info";
 import "./NetGameList.css";
 
 export interface NetGameListProps {

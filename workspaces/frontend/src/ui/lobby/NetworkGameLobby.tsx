@@ -1,6 +1,6 @@
 import { Accessor, createSignal, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { NetGameState } from "../../../backend/src/types/game-state";
+import type { NetGameState } from "../../../../backend/src/types/game-state";
 import {
     PLAYER1_DEFAULT_CONTROLS,
     PlayerSettings

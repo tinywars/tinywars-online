@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { createSignal, onMount } from "solid-js";
-import { BACKEND_PORT } from "../../backend/src/settings";
+import { BACKEND_PORT } from "../../../backend/src/settings";
 import { TinywarsSocket } from "../networking/types";
 import "./App.css";
 import { AppController } from "./appstate/AppController";
@@ -21,11 +21,11 @@ export function AppTopLevel() {
     /* socket */
     const socket: TinywarsSocket = io(
         `http://${window.location.hostname}:${BACKEND_PORT}`,
-        { transports: ["websocket"] }
+        { transports: ["websocket"] },
     );
 
     const [connectStatus, setConnectStatus] = createSignal(
-        ConnectionStatus.Waiting
+        ConnectionStatus.Waiting,
     );
 
     const isConnected = () => connectStatus() === ConnectionStatus.Connected;
@@ -40,7 +40,7 @@ export function AppTopLevel() {
 
     onMount(() => {
         controller.pushState(
-            new MainMenuState(controller, socket, isConnected)
+            new MainMenuState(controller, socket, isConnected),
         );
     });
 
@@ -55,7 +55,7 @@ export function AppTopLevel() {
                             connectStatus() === ConnectionStatus.Connected,
                         text_warning:
                             connectStatus() === ConnectionStatus.Waiting,
-                        text_error: connectStatus() === ConnectionStatus.Error
+                        text_error: connectStatus() === ConnectionStatus.Error,
                     }}
                 >
                     {connectStatus()}
