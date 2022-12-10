@@ -29,7 +29,8 @@ jobs:
       - run: npm run lint
       - run: npm run test:all
 
-      - run: npm run build
+      - run: npm run build -w frontend
+      - run: npm run build -w backend
 
       - name: Create changelog
         run: |
@@ -39,7 +40,15 @@ jobs:
           echo "New version is $currentTag"
           git log $previousTag..$currentTag --oneline --no-decorate --format="* %s" | tail -n+2 > CHANGELOG.md
           cat CHANGELOG.md
-          zip -r release_$currentTag.zip dist/*
+
+      - name: Create release bundle
+        run: |
+          mkdir -p release/backend
+          mkdir -p release/frontend
+          cp -r workspaces/frontend/dist/* release/frontend/
+          cp -r workspaces/backend/dist/* release/backend/
+          cp RELEASE.md release/RELEASE.md
+          zip -r release_$currentTag.zip release/*
 
       - name: release
         uses: ncipollo/release-action@v1

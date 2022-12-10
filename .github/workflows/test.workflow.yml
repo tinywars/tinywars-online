@@ -1,4 +1,4 @@
-name: Typecheck & Lint
+name: Typecheck & Lint & Test
 
 on:
   workflow_dispatch:
@@ -19,6 +19,6 @@ jobs:
           node-version: 16.x
           cache: npm
       - run: npm ci --audit=false
-      - run: npm run typecheck
       - run: npm run lint
+      - run: npm run typecheck:all
       - run: npm run test:all

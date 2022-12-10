@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp ./RELEASE.md ./dist/README.md",
+    "build": "vite build",
     "serve": "npx -y serve dist -s",
     "preview": "vite preview",
     "typecheck": "tsc",
