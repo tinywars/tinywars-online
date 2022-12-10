@@ -1,56 +1,24 @@
 {
-  "name": "tinywars-online",
-  "private": true,
-  "version": "0.7.0",
-  "engines": {
-    "node": ">=16 <18"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build && cp ./RELEASE.md ./dist/README.md",
-    "serve": "npx -y serve dist -s",
-    "preview": "vite preview",
-    "typecheck": "tsc",
-    "test:all": "ts-mocha **/*.spec.ts",
-    "test": "ts-mocha",
-    "test:watch": "ts-mocha --watch",
-    "coverage": "nyc npm run test:all",
-    "lint": "eslint ./src --ext .ts",
-    "lint:fix": "eslint ./src --fix --ext .ts",
-    "release:major": "npm version major && git push && git push --tags",
-    "release:minor": "npm version minor && git push && git push --tags",
-    "release:patch": "npm version patch && git push && git push --tags"
-  },
-  "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/howler": "^2.2.7",
-    "@types/lodash": "^4.14.182",
-    "@types/mocha": "^9.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
-    "chai": "^4.3.6",
-    "eslint": "^8.13.0",
-    "eventemitter3": "^3.1.2",
-    "howler": "^2.2.3",
-    "lodash": "^4.17.21",
-    "nyc": "^15.1.0",
-    "socket.io-client": "^4.5.1",
-    "ts-mocha": "^10.0.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.5.4",
-    "vite": "^3.0.0"
-  },
-  "dependencies": {
-    "solid-js": "^1.6.0",
-    "vite-plugin-solid": "^2.2.6"
-  },
-  "mocha": {
-    "watch-files": [
-      "**/*.ts"
-    ]
-  },
-  "nyc": {
-    "exclude": "**/*.spec.ts",
-    "reporter": "text"
-  }
+    "name": "tinywars-online",
+    "private": true,
+    "version": "0.7.0",
+    "engines": {
+        "node": ">=16 <18"
+    },
+    "workspaces": [
+        "./workspaces/frontend",
+        "./workspaces/backend"
+    ],
+    "scripts": {
+      "lint": "eslint ./workspaces --ext .ts",
+      "lint:fix": "eslint ./workspaces --fix --ext .ts",
+      "typecheck": "tsc",
+      "release:major": "npm version major && git push && git push --tags",
+      "release:minor": "npm version minor && git push && git push --tags",
+      "release:patch": "npm version patch && git push && git push --tags"
+    },
+    "devDependencies": {
+      "eslint": "^8.13.0",
+      "typescript": "^4.5.4"
+    }
 }
