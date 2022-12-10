@@ -4,12 +4,22 @@
 
 * node v16.x.x (LTS)
 
-## How to deploy
+## How to run
+### Frontend
 
-Run following command in the folder with `index.html`:
-
+The built static files (SPA) are located in the `frontend` folder, you can serve it using your favorite server. For example:
 ```sh
-npx serve .
+npx serve frontend -s
+```
+(note the -s flag for SPA, that means all requests will return index.html)
+
+### Backend
+The backend is only necessary for network play, `cd` to the `backend` folder and run:
+```sh
+# install dependencies using npm
+npm install
+# start the server
+node main
 ```
 
 ## How to play

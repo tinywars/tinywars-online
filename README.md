@@ -9,20 +9,30 @@
 -   Install dependencies
 
 ```sh
-npm install
+npm ci
 ```
 
--   Start dev server (runs on [http://localhost:3000](http://localhost:3000) by default)
+The project uses [NPM Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces). There are 2 workspaces:
+* `frontend`
+* `backend`
+
+The following command are available for both (substitute `<workspace>` with either)
+
+-   Start dev server with live reload on source change
 
 ```sh
-npm run dev
+npm -w <workspace> run dev 
 ```
 
--   Build production artifacts into the `/dist` folder
+-   Build production artifacts into the `workspaces/<workspace>/dist` folder
 
 ```sh
-npm run build
+npm -w <workspace> run build 
+# or to build everything at once:
+npm run build:all
 ```
+
+The following commands act on the whole repository:
 
 -   Lint
 
@@ -33,40 +43,33 @@ npm run lint
 npm run lint:fix
 ```
 
+The following commands currently work only for the `frontend` workspace:
+
 -   Test
 
 ```sh
 # To run all test suites, use
-npm run test:all
+npm -w <workspace> run test:all
 
 # to run only files mathing a certain pattern use
 # note that we need to include ".spec.ts" so it doesn't try to run actual source files
-npm run test **/*pattern*.spec.ts
+npm -w <workspace> run test **/*pattern*.spec.ts
 
 # to watch for changes on the test file and re-run it on save, use
-npm run test **/*pattern*.spec.ts -- --watch
+npm -w <workspace> run test **/*pattern*.spec.ts -- --watch
 # or the convenience npm script
-npm run test:watch **/*pattern*.spec.ts
+npm -w <workspace> run test:watch **/*pattern*.spec.ts
 ```
 
 - Test coverage
 
 ```sh
-npm run coverage
+npm -w <workspace> run coverage
 ```
 
 ## Networking
 
- 1) Run `npm install` in root folder, followed by `npm run dev -- --host`
- 2) Run `npm install` in `backend` folder, followed by `npm run dev`
- 3) On the PC that should host the game, go to `http://<public ip>:3000/net/host`
-	a) Open up a dev console
-	b) Find a message that says "Lobby created". It contains URL that can be used by other peers to connect
- 4) Host machine will see each new client pop up in the console. When you are ready, type in `startNetGame()`
-
-> NOTE: Each player in each of their browsers will have the controls of player 1 (WASD, R, T).
-
-> NOTE: https://webwormhole.io/ is great for sending out game codes.
+When the backend is running, you the frontend should show "Connection Status: Connected" in the lower right corner and you should be able to host a network game.
 
 ## Known issues
 
