@@ -62,5 +62,5 @@ jobs:
 
       - name: Trigger deploy on render.com
         run: |
-          echo $(curl -X GET {{ secrets.RENDER_COM_DEPLOY_HOOK }})
+          echo $(curl -X GET ${{ secrets.RENDER_COM_DEPLOY_HOOK }})
 
