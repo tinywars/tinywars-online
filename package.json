@@ -1,7 +1,7 @@
 {
     "name": "tinywars-online",
     "private": true,
-    "version": "0.7.0",
+    "version": "0.8.0",
     "engines": {
         "node": ">=16 <18"
     },
@@ -10,18 +10,18 @@
         "./workspaces/backend"
     ],
     "scripts": {
-      "prod": "npm -w backend run prod",
-      "lint": "eslint ./workspaces --ext .ts",
-      "lint:fix": "eslint ./workspaces --fix --ext .ts",
-      "build:all": "npm run build --workspaces --if-present",
-      "typecheck:all": "npm run typecheck --workspaces --if-present",
-      "test:all": "npm run test:all --workspaces --if-present",
-      "release:major": "npm version major && git push && git push --tags",
-      "release:minor": "npm version minor && git push && git push --tags",
-      "release:patch": "npm version patch && git push && git push --tags"
+        "prod": "npm -w backend run prod",
+        "lint": "eslint ./workspaces --ext .ts",
+        "lint:fix": "eslint ./workspaces --fix --ext .ts",
+        "build:all": "npm run build --workspaces --if-present",
+        "typecheck:all": "npm run typecheck --workspaces --if-present",
+        "test:all": "npm run test:all --workspaces --if-present",
+        "release:major": "npm version major && git push && git push --tags",
+        "release:minor": "npm version minor && git push && git push --tags",
+        "release:patch": "npm version patch && git push && git push --tags"
     },
     "devDependencies": {
-      "eslint": "^8.13.0",
-      "typescript": "^4.5.4"
+        "eslint": "^8.13.0",
+        "typescript": "^4.5.4"
     }
 }
