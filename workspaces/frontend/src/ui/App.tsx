@@ -6,9 +6,6 @@ import { AppController } from "./appstate/AppController";
 import { EmptyComponent } from "./appstate/EmptyComponent";
 import { MainMenuState } from "./MainMenu";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const BACKEND_PORT = +((window as any).BACKEND_PORT);
-
 enum ConnectionStatus {
     Waiting = "Waiting",
     Connected = "Connected",
@@ -22,7 +19,8 @@ export function AppTopLevel() {
 
     /* socket */
     const socket: TinywarsSocket = io(
-        `http://${window.location.hostname}:${BACKEND_PORT}`,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).BACKEND_URL as string,
         { transports: ["websocket"] },
     );
 
