@@ -185,7 +185,7 @@ export function CreateGameEventEmitter(
     return gameEventEmitter;
 }
 
-const FPS = 60;
+const FPS = 30;
 
 export const init = (
     gameEventEmitter: GameEventEmitter,
