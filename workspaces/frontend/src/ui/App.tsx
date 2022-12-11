@@ -1,11 +1,13 @@
 import { io } from "socket.io-client";
 import { createSignal, onMount } from "solid-js";
-import { BACKEND_PORT } from "../../../backend/src/settings";
 import { TinywarsSocket } from "../networking/types";
 import "./App.css";
 import { AppController } from "./appstate/AppController";
 import { EmptyComponent } from "./appstate/EmptyComponent";
 import { MainMenuState } from "./MainMenu";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const BACKEND_PORT = +((window as any).BACKEND_PORT);
 
 enum ConnectionStatus {
     Waiting = "Waiting",
