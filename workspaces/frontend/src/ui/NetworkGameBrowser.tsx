@@ -1,6 +1,6 @@
 import { Accessor, createSignal, onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { NetGameInfo } from "../../backend/src/types/game-info";
+import type { NetGameInfo } from "../../../backend/src/types/game-info";
 import { TinywarsSocket } from "../networking/types";
 import { AppController } from "./appstate/AppController";
 import { AppState } from "./appstate/AppState";

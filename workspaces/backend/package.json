@@ -1,11 +1,11 @@
 {
-  "name": "socket-chat-example",
-  "version": "0.0.1",
-  "description": "my first socket.io app",
-  "main": "dist/src/index.js",
+  "name": "backend",
+  "version": "0.0.0",
   "scripts": {
-    "typecheck": "tsc",
-    "dev": "nodemon src/main.ts"
+    "typecheck": "tsc --noEmit",
+    "dev": "nodemon src/main.ts",
+    "build": "tsc && cp package.json dist/package.json",
+    "prod": "node dist/main"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

@@ -15,6 +15,9 @@ concurrency:
 
 jobs:
   make_release:
+    environment:
+      name: production
+      url: https://tinywars.onrender.com
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -25,11 +28,12 @@ jobs:
           node-version: 16.x
           cache: npm
       - run: npm ci --audit=false
-      - run: npm run typecheck
       - run: npm run lint
+      - run: npm run typecheck:all
       - run: npm run test:all
 
-      - run: npm run build
+      - run: npm run build -w frontend
+      - run: npm run build -w backend
 
       - name: Create changelog
         run: |
@@ -39,12 +43,24 @@ jobs:
           echo "New version is $currentTag"
           git log $previousTag..$currentTag --oneline --no-decorate --format="* %s" | tail -n+2 > CHANGELOG.md
           cat CHANGELOG.md
-          zip -r release_$currentTag.zip dist/*
 
-      - name: release
+      - name: Create release bundle
+        run: |
+          mkdir -p release/backend
+          mkdir -p release/frontend
+          cp -r workspaces/frontend/dist/* release/frontend/
+          cp -r workspaces/backend/dist/* release/backend/
+          cp RELEASE.md release/RELEASE.md
+          zip -r release_$currentTag.zip release/*
+
+      - name: Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "*.zip"
           bodyFile: "CHANGELOG.md"
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger deploy on render.com
+        run: |
+          echo $(curl -X GET {{ secrets.RENDER_COM_DEPLOY_HOOK }})
 
