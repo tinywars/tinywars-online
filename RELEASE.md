@@ -17,7 +17,7 @@ npx serve frontend -s
 The backend is only necessary for network play, `cd` to the `backend` folder and run:
 ```sh
 # install dependencies using npm
-npm install
+npm install --omit=dev
 # start the server
 node main
 ```
