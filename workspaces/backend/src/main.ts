@@ -34,7 +34,7 @@ const httpServer: HttpServer = getServer();
 
 const serverOptions: Partial<ServerOptions> = {
     cors: {
-        origin: true, // allow all origins for now
+        origin: IS_PRODUCTION ? false : true,
     },
 };
 const io = new Server<ClientEvents, ServerEvents>(httpServer, serverOptions);
