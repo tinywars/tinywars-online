@@ -10,6 +10,7 @@
         "./workspaces/backend"
     ],
     "scripts": {
+      "prod": "npm -w backend prod",
       "lint": "eslint ./workspaces --ext .ts",
       "lint:fix": "eslint ./workspaces --fix --ext .ts",
       "build:all": "npm run build --workspaces --if-present",

@@ -1,9 +1,15 @@
-import { assert } from "chai";
+import assert from "assert";
 import { createServer, Server as HttpServer } from "http";
+import serveHandler from "serve-handler";
 import { Server, ServerOptions } from "socket.io";
 import { ClientEvents } from "./events/client-events";
 import { ServerEvents } from "./events/server-events";
-import { BACKEND_PORT, HOST_IP } from "./settings";
+import {
+    BACKEND_PORT,
+    HOST_IP,
+    IS_PRODUCTION,
+    STATIC_FILES_PATH
+} from "./settings";
 import { ClientState } from "./types/client-state";
 import { NetGameInfo } from "./types/game-info";
 import { NetGameStateManager } from "./types/game-state";
@@ -11,7 +17,21 @@ import { NetGameStateManager } from "./types/game-state";
 const games: Map<string, NetGameStateManager> = new Map();
 const clientsToGames: Map<string, string> = new Map(); // maps clientIds to games they're in
 
-const httpServer: HttpServer = createServer();
+// serve static frontend files via the server only in production mode
+function getServer() {
+    return IS_PRODUCTION
+        ? createServer((req, res) =>
+            serveHandler(req, res, {
+                public: STATIC_FILES_PATH,
+                directoryListing: false,
+                renderSingle: true,
+            }),
+        )
+        : createServer();
+}
+
+const httpServer: HttpServer = getServer();
+
 const serverOptions: Partial<ServerOptions> = {
     cors: {
         origin: true, // allow all origins for now
@@ -53,17 +73,17 @@ io.on("connection", (socket) => {
         try {
             handleClientLeavingGame(socket.id);
         } catch (e) {
-            console.log(`\tError: ${(e as Error).message}`);
+            console.error(`\tError: ${(e as Error).message}`);
         }
     });
 
     socket.on("error", (e) => {
-        console.log(`Error occured: ${e.name}: ${e.message}`);
+        console.error(`Error occured: ${e.name}: ${e.message}`);
     });
 
     socket.on("lobbyRequested", (gameId: string) => {
         if (games.has(gameId)) {
-            console.log(
+            console.error(
                 `Game with id ${gameId} was requested, but it already exists`,
             );
             socket.emit("gameError", "Game with such code already exists.");
@@ -97,7 +117,7 @@ io.on("connection", (socket) => {
             socket.join(game.state.id); // join socket 'room' -> we can emit messages to whole room by io.to().emit();
             io.to(game.state.id).emit("lobbyUpdated", game.state); // emit message to whole room
         } catch (e) {
-            console.log(
+            console.error(
                 `User (id: ${
                     clientState.id
                 }) attempted to enter lobby, but failed (Reason: ${
@@ -129,7 +149,7 @@ io.on("connection", (socket) => {
         try {
             handleClientLeavingGame(socket.id);
         } catch (e) {
-            console.log(`\tError: ${(e as Error).message}`);
+            console.error(`\tError: ${(e as Error).message}`);
         }
     });
 
@@ -146,7 +166,7 @@ io.on("connection", (socket) => {
             }
         } catch (e) {
             const msg = (e as Error).message;
-            console.log(
+            console.error(
                 `Inputs gathering failed for user with id ${socket.id} (Reason: ${msg})`,
             );
             socket.emit("gameError", msg);
@@ -199,5 +219,7 @@ io.on("connection", (socket) => {
     });
 });
 
-httpServer.listen(BACKEND_PORT);
-console.log(`Server listening on ${HOST_IP}:${BACKEND_PORT}`);
+httpServer.listen(BACKEND_PORT, () => {
+    console.log(`Server listening on http://${HOST_IP}:${BACKEND_PORT}`);
+    IS_PRODUCTION && console.log(`Serving static frontend from ${STATIC_FILES_PATH}`);
+});
