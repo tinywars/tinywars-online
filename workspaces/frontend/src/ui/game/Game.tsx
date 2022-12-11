@@ -19,7 +19,7 @@ export class GameState extends AppState {
     private init: () => AppRunner;
     private soundPlayer = CreateSoundPlayer();
     private jukebox = CreateJukebox();
-    FPS = 30;
+    FPS = 60;
 
     constructor(
         app: AppController,
