@@ -19,8 +19,7 @@ export function AppTopLevel() {
 
     /* socket */
     const socket: TinywarsSocket = io(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).BACKEND_URL as string,
+        env.BACKEND_URL,
         { transports: ["websocket"] },
     );
 
