@@ -14,6 +14,7 @@ export class NetAppRunner extends AppRunner {
     private inputsReceived = false;
     private nextUpdateAvailable = false;
     private intervalHandle = 0;
+    private latency = 0;
 
     constructor(
         private app: App,
@@ -32,7 +33,7 @@ export class NetAppRunner extends AppRunner {
         this.socket.on("gameInputsCollected", (inputs: boolean[][]) => {
             this.registerAllFrameInputs(inputs);
         });
-        this.socket.emit("gameInputGathered", this.myController.getSnapshot());
+        this.socket.emit("gameInputGathered", this.myController.getSnapshot(), () => { /* initial latency not measured */});
     }
 
     private registerAllFrameInputs(inputs: boolean[][]) {
@@ -56,8 +57,16 @@ export class NetAppRunner extends AppRunner {
         this.inputsReceived = false;
         this.nextUpdateAvailable = false;
 
-        this.socket.emit("gameInputGathered", this.myController.getSnapshot());
+        const start = Date.now();
+        this.socket.emit("gameInputGathered", this.myController.getSnapshot(), () => {
+            this.latency = Date.now() - start;
+        });
         this.app.updateLogic(this.frameTimeSec);
+
+        this.reportStats({
+            simulationTime:  Date.now() - start,
+            latency: this.latency,
+        })
     }
 
     override release(): void {

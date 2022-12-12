@@ -9,6 +9,6 @@ export interface ClientEvents {
     // This is automatic for the player who created the lobby
     lobbyEntered: (gameCode: string, clientState: ClientState) => void;
     lobbyLeft: () => void;
-    gameInputGathered: (inputs: boolean[]) => void;
+    gameInputGathered: (inputs: boolean[], callback: () => void) => void;
     gameListRequested: () => void;
 }
