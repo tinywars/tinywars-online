@@ -66,7 +66,6 @@ export class AiBrain {
     private fsm: Fsm;
     private targetPlayer: Player;
     private targetPowerup: Powerup;
-    private ANGLE_DIFF_THRESHOLD = 2;
     // fuzziness
     private collisionPanicRadius: number;
     private aimError = 0;
@@ -351,7 +350,7 @@ export class AiBrain {
             GameMath.radialDifference(
                 this.targetAngle,
                 this.myPlayer.getCoords().angle,
-            ) < this.ANGLE_DIFF_THRESHOLD
+            ) < this.context.settings.AI_ANGLE_DIFF_THRESHOLD
         );
     };
 
@@ -363,8 +362,8 @@ export class AiBrain {
             this.targetAngle,
         );
         return (
-            diff < this.ANGLE_DIFF_THRESHOLD ||
-            inverseDiff < this.ANGLE_DIFF_THRESHOLD
+            diff < this.context.settings.AI_ANGLE_DIFF_THRESHOLD ||
+            inverseDiff < this.context.settings.AI_ANGLE_DIFF_THRESHOLD
         );
     };
 
@@ -433,7 +432,7 @@ export class AiBrain {
                 dirVec.toAngle(),
                 this.myPlayer.getCoords().angle,
             );
-            if (radialDiff < this.ANGLE_DIFF_THRESHOLD) return true;
+            if (radialDiff < this.context.settings.AI_ANGLE_DIFF_THRESHOLD) return true;
         }
         return false;
     };
@@ -451,7 +450,7 @@ export class AiBrain {
 
     private performEvasion = () => {
         const diff = this.getDiffFromTargetAngle();
-        if (diff < this.ANGLE_DIFF_THRESHOLD)
+        if (diff < this.context.settings.AI_ANGLE_DIFF_THRESHOLD)
             this.controller.pressKey(KeyCode.Up);
         else this.controller.pressKey(KeyCode.Up);
 
