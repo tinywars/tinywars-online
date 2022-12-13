@@ -30,6 +30,7 @@ export function getMockSettings(): GameSettings {
         AI_MAX_COLLISION_DODGE_ERROR: 0.75,
         AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
         AI_MAX_COLLISION_PANIC_RADIUS: 20,
+        AI_ANGLE_DIFF_THRESHOLD: 2,
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 250,
