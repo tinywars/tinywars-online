@@ -116,7 +116,8 @@ export class NetworkGameLobbyState extends AppState {
     private updateAllPlayers(gameState: NetGameState) {
         const playerData: PlayerSettings[] = [];
         gameState.clients.forEach((c, i) => {
-            if (c.id === this.socket.id) {
+            const isMyState = c.id === this.socket.id;
+            if (isMyState) {
                 this.setMyIndex(i);
 
                 if (c.disconnected) {
@@ -124,10 +125,14 @@ export class NetworkGameLobbyState extends AppState {
                 }
             }
 
+            const mySettingsAreInitialized = this.playerSettings().length > this.myIndex();
+            const invertSteeringOnReverse = isMyState && mySettingsAreInitialized
+                ? this.playerSettings()[this.myIndex()].invertSteeringOnReverse
+                : false;
+
             playerData.push({
                 name: c.name,
-                // not implemented in netgame
-                invertSteeringOnReverse: false,
+                invertSteeringOnReverse: invertSteeringOnReverse,
                 // following two are completely ignored in netgame for anybody else than me
                 isComputerControlled: false,
                 controls: PLAYER1_DEFAULT_CONTROLS,

@@ -38,26 +38,30 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                 />
             </div>
 
-            <div>
-                <label for={`InvertSteer_${props.index}`}>
+            <Switch>
+                <Match when={props.enabled}>
+                    <div>
+                        <label for={`InvertSteer_${props.index}`}>
                     Invert reverse steering:
-                </label>
-                <Checkbox
-                    id={`InvertSteer_${props.index}`}
-                    name="InvertSteer"
-                    checked={props.settings.invertSteeringOnReverse}
-                    onToggle={() => {
-                        props.settings.invertSteeringOnReverse =
+                        </label>
+                        <Checkbox
+                            id={`InvertSteer_${props.index}`}
+                            name="InvertSteer"
+                            checked={props.settings.invertSteeringOnReverse}
+                            onToggle={() => {
+                                props.settings.invertSteeringOnReverse =
                             !props.settings.invertSteeringOnReverse;
-                        props.setSettings(props.settings);
-                    }}
-                    disabled={!props.enabled}
-                />
-            </div>
-
-            <div>
-                <Switch>
-                    <Match when={!props.netgame}>
+                                props.setSettings(props.settings);
+                            }}
+                            disabled={!props.enabled}
+                        />
+                    </div>
+                </Match>
+            </Switch>
+            
+            <Switch>
+                <Match when={!props.netgame}>
+                    <div>
                         <label for={`ComputerControl_${props.index}`}>
                             AI controlled:
                         </label>
@@ -72,9 +76,9 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                             }}
                             disabled={!props.enabled}
                         />
-                    </Match>
-                </Switch>
-            </div>
+                    </div>
+                </Match>
+            </Switch>
         </div>
     );
 }
