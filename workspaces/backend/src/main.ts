@@ -128,6 +128,38 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("lobbyPlayerUpdated", (gameId: string, clientState: ClientState) => {
+        try {
+            const game = games.get(gameId);
+            if (game === undefined)
+                throw Error(`Game (id: ${gameId}) does not exist`);
+            assert(game.state.id === gameId);
+
+            if (!game.isClientConnected(socket.id))
+                throw Error(
+                    `Client (id: ${socket.id}) not connected to this game (id: ${gameId})`,
+                );
+            
+            game.state.clients.forEach((client) => {
+                if (client.id !== clientState.id) return;
+                client.name = clientState.name;
+            });
+
+            console.log(
+                `User (id: ${socket.id}, changed their name to: ${clientState.name})`,
+            );
+
+            io.to(game.state.id).emit("lobbyUpdated", game.state);
+        } catch (e) {
+            console.error(
+                `User (id: ${
+                    clientState.id
+                }) attempted to update their info, but failed (Reason: ${
+                    (e as Error).message
+                })`);
+        }
+    });
+
     socket.on("lobbyCommited", (gameId: string) => {
         const game = games.get(gameId);
         if (game === undefined) {

@@ -1,5 +1,6 @@
 import { Accessor, createSignal, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
+import type { ClientState } from "../../../../backend/src/types/client-state";
 import type { NetGameState } from "../../../../backend/src/types/game-state";
 import {
     PLAYER1_DEFAULT_CONTROLS,
@@ -140,7 +141,13 @@ export class NetworkGameLobbyState extends AppState {
         const copy = this.playerSettings();
         copy[this.myIndex()] = settings;
         this.setPlayerSettings(copy);
-        // TODO: emit change to socket this.socket.emit("")
+
+        const clientState: ClientState = {
+            id: this.socket.id,
+            name: settings.name,
+            disconnected: false,
+        };
+        this.socket.emit("lobbyPlayerUpdated", this.gameId, clientState);
     }
 
     private startGame(gameState: NetGameState, seed: number) {
