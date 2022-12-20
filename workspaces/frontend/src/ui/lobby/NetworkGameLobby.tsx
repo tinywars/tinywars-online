@@ -153,7 +153,7 @@ export class NetworkGameLobbyState extends AppState {
             name: settings.name,
             disconnected: false,
         };
-        this.socket.emit("lobbyPlayerUpdated", this.gameId, clientState);
+        this.socket.emit("lobbyPlayerUpdated", clientState);
     }
 
     private startGame(gameState: NetGameState, seed: number) {

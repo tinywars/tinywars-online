@@ -128,22 +128,25 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("lobbyPlayerUpdated", (gameId: string, clientState: ClientState) => {
+    socket.on("lobbyPlayerUpdated", (clientState: ClientState) => {
         try {
-            const game = games.get(gameId);
+            const game = getGameByClient(clientState.id);
             if (game === undefined)
-                throw Error(`Game (id: ${gameId}) does not exist`);
-            assert(game.state.id === gameId);
+                throw Error(
+                    `Client (id: ${clientState.id}) is not connected to any game`,
+                );
+            const gameId = game.state.id;
 
             if (!game.isClientConnected(socket.id))
                 throw Error(
                     `Client (id: ${socket.id}) not connected to this game (id: ${gameId})`,
                 );
-            
-            game.state.clients.forEach((client) => {
-                if (client.id !== clientState.id) return;
-                client.name = clientState.name;
-            });
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const clientToUpdate = game.state.clients.find(
+                (client) => client.id === clientState.id,
+            )!;
+            clientToUpdate.name = clientState.name;
 
             console.log(
                 `User (id: ${socket.id}, changed their name to: ${clientState.name})`,
@@ -156,7 +159,8 @@ io.on("connection", (socket) => {
                     clientState.id
                 }) attempted to update their info, but failed (Reason: ${
                     (e as Error).message
-                })`);
+                })`,
+            );
         }
     });
 
@@ -228,5 +232,6 @@ io.on("connection", (socket) => {
 
 httpServer.listen(BACKEND_PORT, () => {
     console.log(`Server listening on http://${HOST_IP}:${BACKEND_PORT}`);
-    IS_PRODUCTION && console.log(`Serving static frontend from ${STATIC_FILES_PATH}`);
+    IS_PRODUCTION &&
+        console.log(`Serving static frontend from ${STATIC_FILES_PATH}`);
 });
