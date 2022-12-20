@@ -164,7 +164,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("lobbyCommited", (gameId: string) => {
+    socket.on("lobbyCommitted", (gameId: string) => {
         const game = games.get(gameId);
         if (game === undefined) {
             console.log(`Tried to start non-existent game with id ${gameId}`);

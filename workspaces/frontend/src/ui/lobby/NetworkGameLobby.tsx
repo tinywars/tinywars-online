@@ -68,7 +68,7 @@ export class NetworkGameLobbyState extends AppState {
 
     override navigateTo(path: string): void {
         if (path === "game") {
-            this.socket.emit("lobbyCommited", this.socket.id);
+            this.socket.emit("lobbyCommitted", this.socket.id);
         } else if (path === "back") {
             this.socket.emit("lobbyLeft");
             this.quitGame();
