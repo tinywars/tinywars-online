@@ -11,15 +11,12 @@ import { AppState } from "../appstate/AppState";
 import { GameState } from "../game/Game";
 import { GameLobbyView } from "./GameLobbyView";
 
-// FIXME: this.myIndex should be accessor, because it is set late
-// and then network settings are broken
-
 export class NetworkGameLobbyState extends AppState {
-    //private myIndex = -1;
     private playerSettings: Accessor<PlayerSettings[]>;
     private setPlayerSettings: Setter<PlayerSettings[]>;
     private myIndex: Accessor<number>;
     private setMyIndex: Setter<number>;
+    private mySettings: Accessor<PlayerSettings>;
 
     constructor(
         app: AppController,
@@ -34,6 +31,8 @@ export class NetworkGameLobbyState extends AppState {
         >([]);
 
         [this.myIndex, this.setMyIndex] = createSignal(-1);
+
+        this.mySettings = () => this.playerSettings()[this.myIndex()];
 
         this.setSocketListeners();
 
@@ -115,19 +114,26 @@ export class NetworkGameLobbyState extends AppState {
 
     private updateAllPlayers(gameState: NetGameState) {
         const playerData: PlayerSettings[] = [];
-        gameState.clients.forEach((c, i) => {
-            if (c.id === this.socket.id) {
+        gameState.clients.forEach((clientState, i) => {
+            const isMyState = clientState.id === this.socket.id;
+            if (isMyState) {
                 this.setMyIndex(i);
 
-                if (c.disconnected) {
+                if (clientState.disconnected) {
                     this.quitGame();
                 }
             }
 
+            const mySettingsAreInitialized =
+                this.playerSettings().length > this.myIndex();
+            const invertSteeringOnReverse =
+                isMyState && mySettingsAreInitialized
+                    ? this.mySettings().invertSteeringOnReverse
+                    : false;
+
             playerData.push({
-                name: c.name,
-                // not implemented in netgame
-                invertSteeringOnReverse: false,
+                name: clientState.name,
+                invertSteeringOnReverse,
                 // following two are completely ignored in netgame for anybody else than me
                 isComputerControlled: false,
                 controls: PLAYER1_DEFAULT_CONTROLS,
