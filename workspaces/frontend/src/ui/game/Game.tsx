@@ -1,6 +1,6 @@
-import { Accessor, onCleanup, onMount, Setter } from "solid-js";
+import { Accessor, createSignal, onCleanup, onMount, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { AppRunner } from "../../app/app-runner";
+import { AppRunner, AppStats } from "../../app/app-runner";
 import { PlayerSettings } from "../../game/player-settings";
 import {
     CreateGameEventEmitter,
@@ -11,8 +11,14 @@ import {
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
+import { Checkbox } from "../components/Checkbox";
+import { GameStatsDisplay } from "../components/GameStatsDisplay";
 import { logMount, logUnmount } from "../UiLogger";
 import "./Game.css";
+
+const [ profilerHidden, setProfilerHidden ] = createSignal(true);
+const [ simulationTime, setSimulationTime ] = createSignal(0);
+const [ latency, setLatency ] = createSignal(0);
 
 export class GameState extends AppState {
     private appRunner: AppRunner | undefined;
@@ -75,6 +81,10 @@ export class GameState extends AppState {
         // Must initialize apprunner after component is rendered
         // because it fetches reference to canvas element
         this.appRunner = this.init();
+        this.appRunner.installStatsReporter((stats: AppStats) => {
+            setSimulationTime(stats.simulationTime);
+            setLatency(stats.latency)
+        });
         this.appRunner?.run(this.FPS);
     }
 
@@ -108,7 +118,7 @@ function GameStateView(props: {
     });
 
     return (
-        <table id="GameView">
+        <><table id="GameView">
             <tbody>
                 <tr>
                     <td id="RenderCanvasParent">
@@ -131,8 +141,7 @@ function GameStateView(props: {
                                                     event.currentTarget.value,
                                                 ),
                                             );
-                                        }}
-                                    />
+                                        } } />
                                 </div>
                                 <br />
                                 <div class="hbox space-between">
@@ -148,8 +157,18 @@ function GameStateView(props: {
                                                     event.currentTarget.value,
                                                 ),
                                             );
-                                        }}
-                                    />
+                                        } } />
+                                </div>
+                                <br />
+                                <div class="hbox space-between">
+                                    <label for="ProfilerToggleInput">Display profiler</label>
+                                    <Checkbox
+                                        id="ProfilerToggleInput"
+                                        name="ProfilerToggleInput"
+                                        checked={!profilerHidden()}
+                                        onToggle={() => {
+                                            setProfilerHidden(!profilerHidden());
+                                        }} />
                                 </div>
                                 <br />
                                 <button
@@ -162,6 +181,9 @@ function GameStateView(props: {
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table><GameStatsDisplay
+            hidden={profilerHidden}
+            simulationTime={simulationTime}
+            latency={latency} /></>
     );
 }

@@ -1,0 +1,12 @@
+#GameStatsDisplay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 200px;
+    height: 100px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.hidden_elem {
+    display: none;
+}
