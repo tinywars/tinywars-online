@@ -196,7 +196,7 @@ export const init = (
     myIndex?: number, // only used in netgame to locate proper settings
 ): AppRunner => {
     const gameSettings: GameSettings = {
-        SCREEN_WIDTH: 1280,
+        SCREEN_WIDTH: 640 + (playerCount - 2) * 160,
         SCREEN_HEIGHT: (1280 / 4) * 3,
         COMMON_ANIMATION_FPS: 2,
         EFFECT_ANIMATION_FPS: 16,
@@ -208,7 +208,7 @@ export const init = (
         // Spawn settings
         PLAYER_COUNT: playerCount,
         NPC_COUNT: 0, // TODO: remove this
-        ROCK_COUNT: 4,
+        ROCK_COUNT: playerCount,
         PLAYER_INITIAL_HEALTH: 3,
         PLAYER_INITIAL_ENERGY: 2,
         PLAYER_MAX_ENERGY: 4,
