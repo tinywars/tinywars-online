@@ -10,7 +10,13 @@ export class LocalAppRunner extends AppRunner {
 
     protected override runInternal(): void {
         this.intervalHandle = setInterval(() => {
+            const start = Date.now();
             this.app.updateLogic(this.frameTimeSec);
+
+            this.reportStats({
+                simulationTime: Date.now() - start,
+                latency: 0,
+            })
         }, this.frameTimeMsec);
     }
 

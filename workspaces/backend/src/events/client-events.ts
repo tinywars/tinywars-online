@@ -10,6 +10,6 @@ export interface ClientEvents {
     lobbyEntered: (gameCode: string, clientState: ClientState) => void;
     lobbyPlayerUpdated: (gameCode: string, clientState: ClientState) => void;
     lobbyLeft: () => void;
-    gameInputGathered: (inputs: boolean[]) => void;
+    gameInputGathered: (inputs: boolean[], callback: () => void) => void;
     gameListRequested: () => void;
 }

@@ -69,6 +69,22 @@ npm -w <workspace> run coverage
 
 ## Networking
 
+To test networking in a local network (on different machines),
+
+You must set the environmental variable `BACKEND_URL` to your machine's external IP address and the backend server's port (default `10555`).
+
+Then run the frontend dev server with
+
+```sh
+npm -w frontend run dev -- --host
+```
+
+And run the backend server with:
+
+```sh
+npm -w backend run dev 
+```
+
 When the backend is running, you the frontend should show "Connection Status: Connected" in the lower right corner and you should be able to host a network game.
 
 ## Known issues

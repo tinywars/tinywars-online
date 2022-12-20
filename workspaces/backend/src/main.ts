@@ -185,7 +185,9 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("gameInputGathered", (inputs: boolean[]) => {
+    socket.on("gameInputGathered", (inputs: boolean[], ack: () => void) => {
+        ack(); // Socket.io acknowledgement
+
         try {
             const game = getGameByClient(socket.id);
             game.receiveClientInput(socket.id, inputs);
@@ -219,33 +221,6 @@ io.on("connection", (socket) => {
                 numConnected: netStateMgr.state.clients.length,
             });
         });
-
-        infos.push({ id: "dummy1", numConnected: 4 });
-        infos.push({ id: "dummy2", numConnected: 3 });
-        infos.push({ id: "dummy3", numConnected: 2 });
-        infos.push({ id: "dummy4", numConnected: 2 });
-        infos.push({ id: "dummy5", numConnected: 2 });
-        infos.push({ id: "dummy6", numConnected: 1 });
-        infos.push({ id: "dummy7", numConnected: 1 });
-        infos.push({ id: "dummy8", numConnected: 1 });
-        infos.push({ id: "dummy9", numConnected: 1 });
-        infos.push({ id: "dummy10", numConnected: 1 });
-        infos.push({ id: "dummy11", numConnected: 1 });
-        infos.push({ id: "dummy12", numConnected: 1 });
-        infos.push({ id: "dummy13", numConnected: 1 });
-        infos.push({ id: "dummy14", numConnected: 1 });
-        infos.push({ id: "dummy15", numConnected: 1 });
-        infos.push({ id: "dummy16", numConnected: 1 });
-        infos.push({ id: "dummy17", numConnected: 1 });
-        infos.push({ id: "dummy18", numConnected: 1 });
-        infos.push({ id: "dummy19", numConnected: 1 });
-        infos.push({ id: "dummy20", numConnected: 1 });
-        infos.push({ id: "dummy21", numConnected: 1 });
-        infos.push({ id: "dummy22", numConnected: 1 });
-        infos.push({ id: "dummy23", numConnected: 1 });
-        infos.push({ id: "dummy24", numConnected: 1 });
-        infos.push({ id: "dummy25", numConnected: 1 });
-        infos.push({ id: "dummy26", numConnected: 1 });
 
         socket.emit("gameListCollected", infos);
     });
