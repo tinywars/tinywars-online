@@ -88,6 +88,10 @@ export function GameLobbyView(props: {
                 <br></br>
 
                 <div class="hbox space-between">
+                    <button onclick={() => props.navigateTo("back")}>
+                        Back to menu
+                    </button>
+
                     <Switch>
                         <Match when={!props.isNetgame || props.isSelfHosted}>
                             <button
@@ -100,10 +104,6 @@ export function GameLobbyView(props: {
                             </button>
                         </Match>
                     </Switch>
-
-                    <button onclick={() => props.navigateTo("back")}>
-                        Back to menu
-                    </button>
                 </div>
             </div>
         </div>

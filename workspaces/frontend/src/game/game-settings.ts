@@ -30,6 +30,7 @@ export interface GameSettings {
     AI_MAX_COLLISION_DODGE_ERROR: number; // How long AI can wait (before it "notices the collison") before it starts evading
     AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: number;
     AI_MAX_COLLISION_PANIC_RADIUS: number; // AI can "panic" when computing incoming collisions, by enlarging myPlayer radius by maximally this amount
+    AI_ANGLE_DIFF_THRESHOLD: number; // when AI thinks it reached target angle
     // Simulation settings
     //   Player
     PLAYER_FORWARD_SPEED: number;

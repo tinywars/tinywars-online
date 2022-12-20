@@ -25,7 +25,7 @@ export class GameState extends AppState {
     private init: () => AppRunner;
     private soundPlayer = CreateSoundPlayer();
     private jukebox = CreateJukebox();
-    FPS = 60;
+    FPS = 30;
 
     constructor(
         app: AppController,
@@ -57,6 +57,7 @@ export class GameState extends AppState {
                 playerCount,
                 settings(),
                 gameSeed,
+                this.FPS,
                 socket,
                 myIndex,
             );

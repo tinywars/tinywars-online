@@ -185,14 +185,13 @@ export function CreateGameEventEmitter(
     return gameEventEmitter;
 }
 
-const FPS = 60;
-
 export const init = (
     gameEventEmitter: GameEventEmitter,
     keyboardState: Record<string, boolean>,
     playerCount: number,
     playerSettings: PlayerSettings[],
     seed: number,
+    fps: number,
     socket?: TinywarsSocket,
     myIndex?: number, // only used in netgame to locate proper settings
 ): AppRunner => {
@@ -205,7 +204,7 @@ export const init = (
         PLAYER_SETTINGS: playerSettings,
         DISPLAY_PLAYER_NAMES: true,
         PRNG_SEED: seed,
-        FIXED_FRAME_TIME: 1 / FPS,
+        FIXED_FRAME_TIME: 1 / fps,
         // Spawn settings
         PLAYER_COUNT: playerCount,
         NPC_COUNT: 0, // TODO: remove this
@@ -225,6 +224,7 @@ export const init = (
         AI_MAX_COLLISION_DODGE_ERROR: 0.75, // seconds
         AI_COLLISION_DODGE_ERROR_DECREASE_SPEED: 0.33,
         AI_MAX_COLLISION_PANIC_RADIUS: 20, // px
+        AI_ANGLE_DIFF_THRESHOLD: (fps / -30 + 4), // returns 3 for 30FPS and 2 for 60FPS
         // Simulation settings
         //   Player
         PLAYER_FORWARD_SPEED: 250,
@@ -312,12 +312,10 @@ export const init = (
             controllers as SimpleController[],
             myController,
         );
-        //runner.run(FPS);
         return runner;
     }
 
     // Local game
     const runner = new LocalAppRunner(app);
-    //runner.run(FPS);
     return runner;
 };
