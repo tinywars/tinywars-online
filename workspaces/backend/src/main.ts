@@ -128,7 +128,43 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("lobbyCommited", (gameId: string) => {
+    socket.on("lobbyPlayerUpdated", (clientState: ClientState) => {
+        try {
+            const game = getGameByClient(clientState.id);
+            if (game === undefined)
+                throw Error(
+                    `Client (id: ${clientState.id}) is not connected to any game`,
+                );
+            const gameId = game.state.id;
+
+            if (!game.isClientConnected(socket.id))
+                throw Error(
+                    `Client (id: ${socket.id}) not connected to this game (id: ${gameId})`,
+                );
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const clientToUpdate = game.state.clients.find(
+                (client) => client.id === clientState.id,
+            )!;
+            clientToUpdate.name = clientState.name;
+
+            console.log(
+                `User (id: ${socket.id}, changed their name to: ${clientState.name})`,
+            );
+
+            io.to(game.state.id).emit("lobbyUpdated", game.state);
+        } catch (e) {
+            console.error(
+                `User (id: ${
+                    clientState.id
+                }) attempted to update their info, but failed (Reason: ${
+                    (e as Error).message
+                })`,
+            );
+        }
+    });
+
+    socket.on("lobbyCommitted", (gameId: string) => {
         const game = games.get(gameId);
         if (game === undefined) {
             console.log(`Tried to start non-existent game with id ${gameId}`);
@@ -196,5 +232,6 @@ io.on("connection", (socket) => {
 
 httpServer.listen(BACKEND_PORT, () => {
     console.log(`Server listening on http://${HOST_IP}:${BACKEND_PORT}`);
-    IS_PRODUCTION && console.log(`Serving static frontend from ${STATIC_FILES_PATH}`);
+    IS_PRODUCTION &&
+        console.log(`Serving static frontend from ${STATIC_FILES_PATH}`);
 });
