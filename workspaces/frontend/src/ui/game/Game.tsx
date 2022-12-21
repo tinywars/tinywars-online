@@ -32,6 +32,7 @@ export class GameState extends AppState {
         playerCount: number,
         settings: Accessor<PlayerSettings[]>,
         gameSeed: number,
+        private pointLimit: number,
         socket?: TinywarsSocket,
         myIndex?: number,
     ) {
@@ -85,6 +86,7 @@ export class GameState extends AppState {
             setSimulationTime(stats.simulationTime);
             setLatency(stats.latency)
         });
+        this.appRunner.setPointLimit(this.pointLimit, () => { alert("point limit reached!"); });
         this.appRunner?.run(this.FPS);
     }
 

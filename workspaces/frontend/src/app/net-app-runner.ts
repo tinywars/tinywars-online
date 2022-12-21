@@ -67,6 +67,8 @@ export class NetAppRunner extends AppRunner {
             simulationTime:  Date.now() - start,
             latency: this.latency,
         })
+
+        this.evaluteScores(this.app);
     }
 
     override release(): void {

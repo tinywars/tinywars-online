@@ -16,7 +16,9 @@ export class LocalAppRunner extends AppRunner {
             this.reportStats({
                 simulationTime: Date.now() - start,
                 latency: 0,
-            })
+            });
+
+            this.evaluteScores(this.app);
         }, this.frameTimeMsec);
     }
 

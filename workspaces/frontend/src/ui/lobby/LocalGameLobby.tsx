@@ -43,12 +43,15 @@ export class LocalGameLobbyState extends AppState {
     private setPlayerCount: Setter<number>;
     private playerSettings: Accessor<PlayerSettings[]>;
     private setPlayerSettings: Setter<PlayerSettings[]>;
+    private pointLimit: Accessor<number>;
+    private setPointLimit: Setter<number>;
 
     constructor(app: AppController) {
         super(app);
         [this.playerCount, this.setPlayerCount] = createSignal(4);
         [this.playerSettings, this.setPlayerSettings] =
             createSignal(DEFAULT_SETTINGS);
+        [this.pointLimit, this.setPointLimit] = createSignal(5);
     }
 
     override renderTo(setComponent: Setter<JSX.Element>): void {
@@ -74,6 +77,8 @@ export class LocalGameLobbyState extends AppState {
                 isNetgame: false,
                 isSelfHosted: false,
                 myIndex: () => -1,
+                pointLimit: this.pointLimit,
+                setPointLimit: this.setPointLimit,
             }),
         );
     }
@@ -88,6 +93,7 @@ export class LocalGameLobbyState extends AppState {
                     this.playerCount(),
                     this.playerSettings,
                     Date.now(),
+                    this.pointLimit(),
                 ),
             );
         } else if (path === "back") this.app.popState();

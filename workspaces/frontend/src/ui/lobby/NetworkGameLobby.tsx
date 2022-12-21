@@ -18,6 +18,8 @@ export class NetworkGameLobbyState extends AppState {
     private myIndex: Accessor<number>;
     private setMyIndex: Setter<number>;
     private mySettings: Accessor<PlayerSettings>;
+    private pointLimit: Accessor<number>;
+    private setPointLimit: Setter<number>;
 
     constructor(
         app: AppController,
@@ -32,6 +34,7 @@ export class NetworkGameLobbyState extends AppState {
         >([]);
 
         [this.myIndex, this.setMyIndex] = createSignal(-1);
+        [this.pointLimit, this.setPointLimit] = createSignal(5);
 
         this.mySettings = () => this.playerSettings()[this.myIndex()];
 
@@ -62,6 +65,8 @@ export class NetworkGameLobbyState extends AppState {
                 isNetgame: true,
                 isSelfHosted: this.isSelfHosting,
                 myIndex: () => this.myIndex(),
+                pointLimit: this.pointLimit,
+                setPointLimit: this.setPointLimit,
             }),
         );
     }
@@ -164,6 +169,7 @@ export class NetworkGameLobbyState extends AppState {
                 this.playerSettings().length,
                 this.playerSettings,
                 seed,
+                this.pointLimit(),
                 this.socket,
                 this.myIndex(),
             ),
