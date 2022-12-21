@@ -140,6 +140,10 @@ export class App extends Releasable {
             );
         });
 
+        const seed =
+            this.settings.PRNG_SEED == 0 ? Date.now() : this.settings.PRNG_SEED;
+        PRNG.setSeed(seed);
+
         this.reset();
         this.eventEmitter.emit("GameStarted");
     }
@@ -214,11 +218,6 @@ export class App extends Releasable {
     }
 
     private reset() {
-        const seed =
-            this.settings.PRNG_SEED == 0 ? Date.now() : this.settings.PRNG_SEED;
-        PRNG.setSeed(seed);
-        console.log(`SEED: ${seed}`);
-
         this.endgame = false;
         this.timeTillRestart = 0;
 
