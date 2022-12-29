@@ -8,18 +8,16 @@ import {
 } from "../../game/player-settings";
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
-import { AppState } from "../appstate/AppState";
 import { GameState } from "../game/Game";
+import { GameLobbyCommon } from "./GameLobbyCommon";
 import { GameLobbyView } from "./GameLobbyView";
 
-export class NetworkGameLobbyState extends AppState {
+export class NetworkGameLobbyState extends GameLobbyCommon {
     private playerSettings: Accessor<PlayerSettings[]>;
     private setPlayerSettings: Setter<PlayerSettings[]>;
     private myIndex: Accessor<number>;
     private setMyIndex: Setter<number>;
     private mySettings: Accessor<PlayerSettings>;
-    private pointLimit: Accessor<number>;
-    private setPointLimit: Setter<number>;
 
     constructor(
         app: AppController,
@@ -170,6 +168,7 @@ export class NetworkGameLobbyState extends AppState {
                 this.playerSettings,
                 seed,
                 this.pointLimit(),
+                this.setFinalScores,
                 this.socket,
                 this.myIndex(),
             ),
@@ -181,7 +180,6 @@ export class NetworkGameLobbyState extends AppState {
             id: this.socket.id,
             name: "default",
             disconnected: false,
-            // TODO: steerOnReverse
         };
         this.socket.emit("lobbyEntered", gameId, clientState);
     }

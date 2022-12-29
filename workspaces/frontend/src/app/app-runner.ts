@@ -49,8 +49,7 @@ export abstract class AppRunner extends Releasable {
 
     protected evaluteScores(app: App) {
         const endgameStatus = app.getEndgameStatus();
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const maxScore = endgameStatus.scores.sort().reverse().at(0)!;
+        const maxScore = Math.max(...endgameStatus.scores);
 
         if (this.pointLimit <= maxScore)
         {

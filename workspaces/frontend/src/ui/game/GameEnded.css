@@ -1,0 +1,10 @@
+#ScoreListTbody {
+    width: 100%;
+    text-align: center;
+    border: 3px solid var(--bgr-lighter-color);
+    padding: 0.5rem;
+}
+
+#ScoreListTbody>div:nth-child(even) {
+    background: var(--bgr-lighter-color);
+}

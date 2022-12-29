@@ -3,6 +3,7 @@ import { App } from "../app/app";
 import { Player } from "../game/player";
 import { AnimationFrame } from "../utility/animation";
 import { Coords } from "../utility/coords";
+import { greaterIntegerCompare } from "../utility/math";
 import { Vector } from "../utility/vector";
 
 export class Sprite {
@@ -165,12 +166,6 @@ export class AppViewCanvas {
                 BASE_VERTICAL_POS + 80,
                 72,
             );
-
-            // Print score of each player, sorted from best score to worst
-            const greaterIntegerCompare = (a: number, b: number): number => {
-                if (a === b) return 0;
-                return a > b ? -1 : 1;
-            };
 
             const sortedIndicesToScores = Array.from(Array(endgameStatus.scores.length).keys())
                 .sort((a, b) => greaterIntegerCompare(endgameStatus.scores[a], endgameStatus.scores[b]))

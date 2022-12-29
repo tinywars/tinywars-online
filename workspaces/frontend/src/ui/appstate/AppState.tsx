@@ -8,6 +8,11 @@ export abstract class AppState {
 
     abstract navigateTo(path: string): void;
 
+    // Called when stack is popped and app state is restored
+    refocus(message?: string): void {
+        /* default impl */
+    }
+
     cleanup(): void {
         /* default impl */
     }

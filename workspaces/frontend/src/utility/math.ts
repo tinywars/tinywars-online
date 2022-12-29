@@ -149,3 +149,9 @@ export function getDifficultyFactorFromElapsedTime(
         clamp(elapsed - startTime, 0, difficultyTimeDelta) / difficultyTimeDelta
     );
 }
+
+// Print score of each player, sorted from best score to worst
+export function greaterIntegerCompare(a: number, b: number): number {
+    if (a === b) return 0;
+    return a > b ? -1 : 1;
+}
