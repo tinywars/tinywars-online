@@ -13,7 +13,7 @@ export abstract class GameLobbyCommon extends AppState {
     constructor(app: AppController) {
         super(app);
         [this.finalScores, this.setFinalScores] = createSignal([]);
-        [this.pointLimit, this.setPointLimit] = createSignal(1); // TODO: set to 5
+        [this.pointLimit, this.setPointLimit] = createSignal(5);
     }
 
     override refocus(message?: string) {

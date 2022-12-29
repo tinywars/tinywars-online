@@ -32,7 +32,6 @@ export class NetworkGameLobbyState extends GameLobbyCommon {
         >([]);
 
         [this.myIndex, this.setMyIndex] = createSignal(-1);
-        [this.pointLimit, this.setPointLimit] = createSignal(5);
 
         this.mySettings = () => this.playerSettings()[this.myIndex()];
 
