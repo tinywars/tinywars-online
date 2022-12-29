@@ -247,12 +247,16 @@ export class App extends Releasable {
         const NO_SPAWN = 0;
         const PLAYER_SPAWN = 1;
         const ROCK_SPAWN = 2;
-        const NO_SPAWN_COUNT = SPAWN_GRID_WIDTH * SPAWN_GRID_HEIGHT - this.settings.PLAYER_COUNT - this.settings.ROCK_COUNT;
+        const NO_SPAWN_COUNT =
+            SPAWN_GRID_WIDTH * SPAWN_GRID_HEIGHT -
+            this.settings.PLAYER_COUNT -
+            this.settings.ROCK_COUNT;
 
-        const distribution = []
-            .concat(... new Array(this.settings.PLAYER_COUNT).fill(PLAYER_SPAWN))
-            .concat(... new Array(this.settings.ROCK_COUNT).fill(ROCK_SPAWN))
-            .concat(... new Array(NO_SPAWN_COUNT).fill(NO_SPAWN));
+        const distribution = [
+            ...new Array(this.settings.PLAYER_COUNT).fill(PLAYER_SPAWN),
+            ...new Array(this.settings.ROCK_COUNT).fill(ROCK_SPAWN),
+            ...new Array(NO_SPAWN_COUNT).fill(NO_SPAWN),
+        ];
 
         const randomShuffleArray = (arr: number[]) => {
             for (let i = arr.length - 1; i > 0; i--) {
@@ -264,8 +268,10 @@ export class App extends Releasable {
         };
 
         const getSpawnPosition = (xIndex: number, yIndex: number): Vector => {
-            const chunkW = this.gameContext.settings.SCREEN_WIDTH / SPAWN_GRID_WIDTH;
-            const chunkH = this.gameContext.settings.SCREEN_HEIGHT / SPAWN_GRID_HEIGHT;
+            const chunkW =
+                this.gameContext.settings.SCREEN_WIDTH / SPAWN_GRID_WIDTH;
+            const chunkH =
+                this.gameContext.settings.SCREEN_HEIGHT / SPAWN_GRID_HEIGHT;
             return new Vector(
                 chunkW / 2 + chunkW * xIndex,
                 chunkH / 2 + chunkH * yIndex,
@@ -277,8 +283,10 @@ export class App extends Releasable {
         let i = 0;
         for (let y = 0; y < SPAWN_GRID_HEIGHT; y++) {
             for (let x = 0; x < SPAWN_GRID_WIDTH; x++, i++) {
-                if (distribution[i] === NO_SPAWN) continue;
-                else if (distribution[i] === PLAYER_SPAWN) {
+                switch (distribution[i]) {
+                case NO_SPAWN:
+                    break;
+                case PLAYER_SPAWN:
                     this.gameContext.players.grow();
                     this.gameContext.players.getLastItem().spawn({
                         position: getSpawnPosition(x, y),
@@ -286,13 +294,15 @@ export class App extends Releasable {
                         initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
                         maxEnergy: this.settings.PLAYER_MAX_ENERGY,
                     });
-                } else if (distribution[i] === ROCK_SPAWN) {
+                    break;
+                case ROCK_SPAWN:
                     this.gameContext.obstacles.grow();
                     this.gameContext.obstacles.getLastItem().spawn({
                         position: getSpawnPosition(x, y),
                         forward: Vector.zero(),
                         playerIndex: -1,
                     });
+                    break;
                 }
             }
         }
