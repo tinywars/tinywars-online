@@ -24,7 +24,7 @@ export function GameLobbyView(props: {
 
     return (
         <div class="container-100">
-            <h2 class="title">Local game</h2>
+            <h2 class="title">{ props.isNetgame ? "Network game" : "Local game"}</h2>
             <div class="container-80">
                 <div class="hbox gap-1">
                     <div id="LobbyOptionBar" class="vbox">
