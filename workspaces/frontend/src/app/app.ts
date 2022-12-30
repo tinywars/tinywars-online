@@ -140,6 +140,10 @@ export class App extends Releasable {
             );
         });
 
+        const seed =
+            this.settings.PRNG_SEED == 0 ? Date.now() : this.settings.PRNG_SEED;
+        PRNG.setSeed(seed);
+
         this.reset();
         this.eventEmitter.emit("GameStarted");
     }
@@ -223,11 +227,6 @@ export class App extends Releasable {
     }
 
     private reset() {
-        const seed =
-            this.settings.PRNG_SEED == 0 ? Date.now() : this.settings.PRNG_SEED;
-        PRNG.setSeed(seed);
-        console.log(`SEED: ${seed}`);
-
         this.endgame = false;
         this.timeTillRestart = 0;
 
@@ -251,8 +250,20 @@ export class App extends Releasable {
     }
 
     private spawnPlayersAndRocks() {
+        const SPAWN_GRID_WIDTH = 5;
+        const SPAWN_GRID_HEIGHT = 4;
+        const NO_SPAWN = 0;
+        const PLAYER_SPAWN = 1;
+        const ROCK_SPAWN = 2;
+        const NO_SPAWN_COUNT =
+            SPAWN_GRID_WIDTH * SPAWN_GRID_HEIGHT -
+            this.settings.PLAYER_COUNT -
+            this.settings.ROCK_COUNT;
+
         const distribution = [
-            1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ...new Array(this.settings.PLAYER_COUNT).fill(PLAYER_SPAWN),
+            ...new Array(this.settings.ROCK_COUNT).fill(ROCK_SPAWN),
+            ...new Array(NO_SPAWN_COUNT).fill(NO_SPAWN),
         ];
 
         const randomShuffleArray = (arr: number[]) => {
@@ -265,8 +276,10 @@ export class App extends Releasable {
         };
 
         const getSpawnPosition = (xIndex: number, yIndex: number): Vector => {
-            const chunkW = this.gameContext.settings.SCREEN_WIDTH / 5;
-            const chunkH = this.gameContext.settings.SCREEN_HEIGHT / 4;
+            const chunkW =
+                this.gameContext.settings.SCREEN_WIDTH / SPAWN_GRID_WIDTH;
+            const chunkH =
+                this.gameContext.settings.SCREEN_HEIGHT / SPAWN_GRID_HEIGHT;
             return new Vector(
                 chunkW / 2 + chunkW * xIndex,
                 chunkH / 2 + chunkH * yIndex,
@@ -276,10 +289,12 @@ export class App extends Releasable {
         randomShuffleArray(distribution);
 
         let i = 0;
-        for (let y = 0; y < 4; y++) {
-            for (let x = 0; x < 5; x++, i++) {
-                if (distribution[i] === 0) continue;
-                else if (distribution[i] === 1) {
+        for (let y = 0; y < SPAWN_GRID_HEIGHT; y++) {
+            for (let x = 0; x < SPAWN_GRID_WIDTH; x++, i++) {
+                switch (distribution[i]) {
+                case NO_SPAWN:
+                    break;
+                case PLAYER_SPAWN:
                     this.gameContext.players.grow();
                     this.gameContext.players.getLastItem().spawn({
                         position: getSpawnPosition(x, y),
@@ -287,13 +302,15 @@ export class App extends Releasable {
                         initialEnergy: this.settings.PLAYER_INITIAL_ENERGY,
                         maxEnergy: this.settings.PLAYER_MAX_ENERGY,
                     });
-                } else if (distribution[i] === 2) {
+                    break;
+                case ROCK_SPAWN:
                     this.gameContext.obstacles.grow();
                     this.gameContext.obstacles.getLastItem().spawn({
                         position: getSpawnPosition(x, y),
                         forward: Vector.zero(),
                         playerIndex: -1,
                     });
+                    break;
                 }
             }
         }

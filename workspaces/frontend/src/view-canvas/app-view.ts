@@ -66,6 +66,7 @@ export class AppViewCanvas {
     private context2d: CanvasRenderingContext2D;
     private texture: CanvasImageSource;
     private sprite: Sprite;
+    private backgroundCanvas: HTMLCanvasElement;
 
     constructor(
         private app: App,
@@ -75,6 +76,13 @@ export class AppViewCanvas {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.context2d = this.canvas2d.getContext("2d")!;
 
+        // This is an offscreen canvas - I precompute the background image
+        // and subsequent renders are then much cheaper
+        this.backgroundCanvas = document.createElement("canvas");
+        this.backgroundCanvas.width = this.app.getContext().settings.SCREEN_WIDTH;
+        this.backgroundCanvas.height = this.app.getContext().settings.SCREEN_HEIGHT;
+        this.generateBackgroundImage();
+
         this.texture = new Image();
         this.texture.onload = () => {
             console.log("texture loaded!");
@@ -83,6 +91,40 @@ export class AppViewCanvas {
         this.texture.src = spriteheetUrl;
 
         this.sprite = new Sprite(this.texture);
+    }
+
+    generateBackgroundImage() {
+        // This is purely a decoration, synchronized PRNG not needed
+        const rand = (max: number) => {
+            // eslint-disable-next-line no-restricted-syntax
+            return Math.floor(Math.random() * max);
+        };
+        
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const ctx = this.backgroundCanvas.getContext("2d")!;
+        const width = this.backgroundCanvas.width;
+        const height = this.backgroundCanvas.height;
+
+        // Fill with black
+        ctx.fillRect(
+            0,
+            0,
+            width,
+            height,
+        );
+
+        // Fill with 1000 stars
+        for (let i = 0; i < 1000; i++) {
+            const x = rand(width);
+            const y = rand(height);
+            const size = rand(3);
+            const shade = (size + 1) * 80 + ""; // 80, 160, 240
+
+            ctx.beginPath();
+            ctx.fillStyle = "#" + shade.repeat(3); // Hexadecimal color code
+            ctx.rect(x, y, size, size);
+            ctx.fill();
+        }
     }
 
     scale() {
@@ -111,12 +153,8 @@ export class AppViewCanvas {
     draw() {
         const context = this.app.getContext();
 
-        this.context2d.fillRect(
-            0,
-            0,
-            context.settings.SCREEN_WIDTH,
-            context.settings.SCREEN_HEIGHT,
-        );
+        
+        this.context2d.drawImage(this.backgroundCanvas, 0, 0);
         context.players.forEach((p) => {
             this.drawEntity(
                 p.getCoords(),
