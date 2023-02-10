@@ -193,13 +193,13 @@ export class AppViewCanvas {
                 endgameStatus.winnerName + " won!",
                 context.settings.SCREEN_WIDTH / 2,
                 context.settings.SCREEN_HEIGHT / 2,
-                72,
+                36,
             );
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
                 context.settings.SCREEN_WIDTH / 2,
                 context.settings.SCREEN_HEIGHT / 2 + 80,
-                72,
+                36,
             );
         }
 
@@ -209,7 +209,7 @@ export class AppViewCanvas {
     }
 
     private writeText(text: string, x: number, y: number, fontSize: number) {
-        this.context2d.font = fontSize + "px arial";
+        this.context2d.font = fontSize + "px 'Pixel-Art'";
         this.context2d.textAlign = "center";
         this.context2d.textBaseline = "middle";
         this.context2d.fillStyle = "white";
