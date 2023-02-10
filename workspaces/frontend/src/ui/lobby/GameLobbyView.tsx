@@ -1,4 +1,4 @@
-import { Accessor, For, onCleanup, onMount, Setter, Show } from "solid-js";
+import { Accessor, For, onCleanup, onMount, Show } from "solid-js";
 import { PlayerSettings } from "../../game/player-settings";
 import { PlayerSettingsCard } from "../components/PlayerSettingsCard";
 import { logMount, logUnmount } from "../UiLogger";
@@ -14,7 +14,7 @@ export function GameLobbyView(props: {
     isSelfHosted: boolean;
     myIndex: () => number; // index of this player in netgame
     pointLimit: Accessor<number>;
-    setPointLimit: Setter<number>;
+    setPointLimit: (limit: number) => void;
 }) {
     onMount(() => {
         logMount("GameLobbyView");

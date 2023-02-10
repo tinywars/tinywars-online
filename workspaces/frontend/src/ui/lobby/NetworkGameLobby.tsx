@@ -63,7 +63,7 @@ export class NetworkGameLobbyState extends GameLobbyCommon {
                 isSelfHosted: this.isSelfHosting,
                 myIndex: () => this.myIndex(),
                 pointLimit: this.pointLimit,
-                setPointLimit: this.setPointLimit,
+                setPointLimit: (limit: number) => { this.setPointLimitToAll(limit); },
             }),
         );
     }
@@ -84,6 +84,7 @@ export class NetworkGameLobbyState extends GameLobbyCommon {
     private setSocketListeners() {
         this.socket.on("lobbyUpdated", (gameState: NetGameState) => {
             this.updateAllPlayers(gameState);
+            this.setPointLimit(gameState.pointLimit);
         });
 
         this.socket.on("gameError", (message: string) => {
@@ -181,6 +182,10 @@ export class NetworkGameLobbyState extends GameLobbyCommon {
             disconnected: false,
         };
         this.socket.emit("lobbyEntered", gameId, clientState);
+    }
+
+    private setPointLimitToAll(limit: number) {
+        this.socket.emit("lobbyPointLimitSet", limit);
     }
 
     private quitGame() {
