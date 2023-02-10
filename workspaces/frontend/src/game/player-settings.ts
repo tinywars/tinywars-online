@@ -62,12 +62,12 @@ export const PLAYER2_DEFAULT_CONTROLS: PlayerControls = {
     forward: {
         code: KeyCode.Up,
         key: "KeyI",
-        button: GamepadButton.A,
+        button: GamepadButton.RTrigger,
     },
     backward: {
         code: KeyCode.Down,
         key: "KeyK",
-        button: GamepadButton.B,
+        button: GamepadButton.LTrigger,
     },
     steerLeft: {
         code: KeyCode.Left,
@@ -82,12 +82,12 @@ export const PLAYER2_DEFAULT_CONTROLS: PlayerControls = {
     shoot: {
         code: KeyCode.Shoot,
         key: "KeyP",
-        button: GamepadButton.RTrigger,
+        button: GamepadButton.X,
     },
     action: {
         code: KeyCode.Action,
         key: "KeyO",
-        button: GamepadButton.LTrigger,
+        button: GamepadButton.A,
     },
     steerAxis: GamepadAxis.LHorizontal,
 };

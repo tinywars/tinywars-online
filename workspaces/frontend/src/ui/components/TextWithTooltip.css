@@ -1,0 +1,16 @@
+.tooltiptarget {
+    border: 3px solid white;
+    padding: 10px;
+    background-color: var(--bgr-lighter-color);
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: calc(var(--font-size) * 0.75);
+}
+
+.tooltipwrapper:hover .tooltiptarget {
+    visibility: visible;
+    opacity: 1;
+}
