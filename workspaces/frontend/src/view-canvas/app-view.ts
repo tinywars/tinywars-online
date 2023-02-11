@@ -200,7 +200,7 @@ export class AppViewCanvas {
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
                 context.settings.SCREEN_WIDTH / 2,
-                BASE_VERTICAL_POS + 80,
+                BASE_VERTICAL_POS + 40,
                 36,
             );
 
@@ -211,8 +211,8 @@ export class AppViewCanvas {
                 this.writeText(
                     context.settings.PLAYER_SETTINGS[playerIndex].name + ": " + endgameStatus.scores[playerIndex] + " points",
                     context.settings.SCREEN_WIDTH / 2,
-                    BASE_VERTICAL_POS + 160 + 50 * i,
-                    42,
+                    BASE_VERTICAL_POS + 100 + 30 * i,
+                    24,
                 );  
             });
         }
