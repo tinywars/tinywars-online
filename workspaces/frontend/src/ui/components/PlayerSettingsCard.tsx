@@ -5,7 +5,9 @@ import icon_red from "../../../assets/player-icons/red.png";
 import icon_yellow from "../../../assets/player-icons/yellow.png";
 import { PlayerSettings } from "../../game/player-settings";
 import { Checkbox } from "./Checkbox";
+import { ControlsPrinter } from "./ControlsPrinter";
 import "./PlayerSettingsCard.css";
+import { TextWithTooltip } from "./TextWithTooltip";
 
 const ICONS = [icon_red, icon_green, icon_blue, icon_yellow];
 
@@ -52,6 +54,16 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
                         }}
                         disabled={!props.enabled}
                     />
+                </div>
+
+                <div>
+                    <label>
+                        Controls:
+                    </label>
+
+                    <TextWithTooltip
+                        text="Hover"
+                        tooltip={<ControlsPrinter controls={props.settings.controls}/>} />
                 </div>
             </Show>
             <Show when={!props.netgame}>

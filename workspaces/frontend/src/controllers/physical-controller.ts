@@ -1,3 +1,4 @@
+import { getNthGamepad } from "../utility/gamepadAssertions";
 import { Controller } from "./controller";
 
 // Follows 'standard' mapping:
@@ -85,11 +86,11 @@ export class PhysicalController extends Controller {
     }
 
     protected getAxisValue(code: number) {
-        const gamepad = navigator.getGamepads()[this.gamepadIndex];
+        const gamepad = getNthGamepad(this.gamepadIndex);
         const axisCode = this.analogMapping[code];
+
         if (
             gamepad === null ||
-            !this.isGamepadUsable(gamepad) ||
             axisCode === GamepadAxis.None
         )
             return 0;
@@ -98,18 +99,14 @@ export class PhysicalController extends Controller {
         return gamepad.axes[axisCode];
     }
 
-    private isGamepadUsable(pad: Gamepad | null): boolean {
-        return pad?.mapping === "standard";
-    }
-
     private isKeyboardKeyPressed(mapping: InputMapping) {
         return this.kbState[mapping.keyboardKeyName];
     }
 
     private isButtonPressed(mapping: InputMapping) {
-        const gamepad = navigator.getGamepads()[this.gamepadIndex];
+        const gamepad = getNthGamepad(this.gamepadIndex);
         return (
-            (this.isGamepadUsable(gamepad) &&
+            (gamepad !== null &&
                 gamepad?.buttons[mapping.gamepadButtonCode].pressed) ??
             false
         );
