@@ -8,11 +8,11 @@ import {
 } from "../../game/player-settings";
 import { TinywarsSocket } from "../../networking/types";
 import { AppController } from "../appstate/AppController";
-import { AppState } from "../appstate/AppState";
 import { GameState } from "../game/Game";
+import { GameLobbyCommon } from "./GameLobbyCommon";
 import { GameLobbyView } from "./GameLobbyView";
 
-export class NetworkGameLobbyState extends AppState {
+export class NetworkGameLobbyState extends GameLobbyCommon {
     private playerSettings: Accessor<PlayerSettings[]>;
     private setPlayerSettings: Setter<PlayerSettings[]>;
     private myIndex: Accessor<number>;
@@ -62,6 +62,8 @@ export class NetworkGameLobbyState extends AppState {
                 isNetgame: true,
                 isSelfHosted: this.isSelfHosting,
                 myIndex: () => this.myIndex(),
+                pointLimit: this.pointLimit,
+                setPointLimit: (limit: number) => { this.setPointLimitToAll(limit); },
             }),
         );
     }
@@ -82,6 +84,7 @@ export class NetworkGameLobbyState extends AppState {
     private setSocketListeners() {
         this.socket.on("lobbyUpdated", (gameState: NetGameState) => {
             this.updateAllPlayers(gameState);
+            this.setPointLimit(gameState.pointLimit);
         });
 
         this.socket.on("gameError", (message: string) => {
@@ -164,6 +167,8 @@ export class NetworkGameLobbyState extends AppState {
                 this.playerSettings().length,
                 this.playerSettings,
                 seed,
+                this.pointLimit(),
+                this.setFinalScores,
                 this.socket,
                 this.myIndex(),
             ),
@@ -175,9 +180,12 @@ export class NetworkGameLobbyState extends AppState {
             id: this.socket.id,
             name: "default",
             disconnected: false,
-            // TODO: steerOnReverse
         };
         this.socket.emit("lobbyEntered", gameId, clientState);
+    }
+
+    private setPointLimitToAll(limit: number) {
+        this.socket.emit("lobbyPointLimitSet", limit);
     }
 
     private quitGame() {

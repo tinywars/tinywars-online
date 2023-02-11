@@ -164,6 +164,21 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("lobbyPointLimitSet", (limit: number) => {
+        try {
+            const game = getGameByClient(socket.id);
+            if (game === undefined)
+                throw Error(`Client (id: ${socket.id} is not connected to any game`);
+
+            game.setLimit(limit);
+
+            console.log(`Game (id: ${game.state.id}) limit changed to ${limit}`);
+            io.to(game.state.id).emit("lobbyUpdated", game.state);
+        } catch (e) {
+            console.error(`User (id ${socket.id}) attempted to set point limit, but failed (Reason: ${(e as Error).message})`);
+        }
+    });
+
     socket.on("lobbyCommitted", (gameId: string) => {
         const game = games.get(gameId);
         if (game === undefined) {

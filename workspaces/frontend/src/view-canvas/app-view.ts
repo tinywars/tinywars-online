@@ -189,18 +189,32 @@ export class AppViewCanvas {
 
         const endgameStatus = this.app.getEndgameStatus();
         if (endgameStatus.endgameTriggered) {
+            const BASE_VERTICAL_POS = context.settings.SCREEN_HEIGHT / 3;
+
             this.writeText(
                 endgameStatus.winnerName + " won!",
                 context.settings.SCREEN_WIDTH / 2,
-                context.settings.SCREEN_HEIGHT / 2,
+                BASE_VERTICAL_POS,
                 72,
             );
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
                 context.settings.SCREEN_WIDTH / 2,
-                context.settings.SCREEN_HEIGHT / 2 + 80,
+                BASE_VERTICAL_POS + 80,
                 72,
             );
+
+            const sortedIndicesToScores = Array.from(Array(endgameStatus.scores.length).keys())
+                .sort((a, b) => endgameStatus.scores[b] - endgameStatus.scores[a])
+
+            sortedIndicesToScores.forEach((playerIndex, i) => {
+                this.writeText(
+                    context.settings.PLAYER_SETTINGS[playerIndex].name + ": " + endgameStatus.scores[playerIndex] + " points",
+                    context.settings.SCREEN_WIDTH / 2,
+                    BASE_VERTICAL_POS + 160 + 50 * i,
+                    42,
+                );  
+            });
         }
 
         requestAnimationFrame(() => {
@@ -208,11 +222,11 @@ export class AppViewCanvas {
         });
     }
 
-    private writeText(text: string, x: number, y: number, fontSize: number) {
+    private writeText(text: string, x: number, y: number, fontSize: number, color?: string) {
         this.context2d.font = fontSize + "px arial";
         this.context2d.textAlign = "center";
         this.context2d.textBaseline = "middle";
-        this.context2d.fillStyle = "white";
+        this.context2d.fillStyle = color ?? "white";
         this.context2d.fillText(text, x, y);
         this.context2d.fillStyle = "black";
     }

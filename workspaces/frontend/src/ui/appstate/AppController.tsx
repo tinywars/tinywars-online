@@ -24,9 +24,10 @@ export class AppController {
     /**
      * Remove top level AppState from memory and trigger re-render of view
      */
-    popState() {
+    popState(message?: string) {
         this.topState().cleanup();
         this.stateStack.pop();
         this.topState().renderTo(this.setActiveComponent);
+        this.topState().refocus(message);
     }
 }
