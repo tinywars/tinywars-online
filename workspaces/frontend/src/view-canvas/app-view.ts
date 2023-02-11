@@ -195,13 +195,13 @@ export class AppViewCanvas {
                 endgameStatus.winnerName + " won!",
                 context.settings.SCREEN_WIDTH / 2,
                 BASE_VERTICAL_POS,
-                72,
+                36,
             );
             this.writeText(
                 "Restart in: " + Math.round(endgameStatus.timeTillRestart),
                 context.settings.SCREEN_WIDTH / 2,
-                BASE_VERTICAL_POS + 80,
-                72,
+                BASE_VERTICAL_POS + 40,
+                36,
             );
 
             const sortedIndicesToScores = Array.from(Array(endgameStatus.scores.length).keys())
@@ -211,8 +211,8 @@ export class AppViewCanvas {
                 this.writeText(
                     context.settings.PLAYER_SETTINGS[playerIndex].name + ": " + endgameStatus.scores[playerIndex] + " points",
                     context.settings.SCREEN_WIDTH / 2,
-                    BASE_VERTICAL_POS + 160 + 50 * i,
-                    42,
+                    BASE_VERTICAL_POS + 100 + 30 * i,
+                    24,
                 );  
             });
         }
@@ -223,7 +223,7 @@ export class AppViewCanvas {
     }
 
     private writeText(text: string, x: number, y: number, fontSize: number, color?: string) {
-        this.context2d.font = fontSize + "px arial";
+        this.context2d.font = fontSize + "px 'Pixel-Art'";
         this.context2d.textAlign = "center";
         this.context2d.textBaseline = "middle";
         this.context2d.fillStyle = color ?? "white";
