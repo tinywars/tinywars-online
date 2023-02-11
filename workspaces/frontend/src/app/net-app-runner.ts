@@ -68,7 +68,7 @@ export class NetAppRunner extends AppRunner {
             latency: this.latency,
         })
 
-        this.evaluteScores(this.app);
+        this.checkPointLimitReached(this.app);
     }
 
     override release(): void {

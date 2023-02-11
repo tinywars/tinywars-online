@@ -18,7 +18,7 @@ export class LocalAppRunner extends AppRunner {
                 latency: 0,
             });
 
-            this.evaluteScores(this.app);
+            this.checkPointLimitReached(this.app);
         }, this.frameTimeMsec);
     }
 

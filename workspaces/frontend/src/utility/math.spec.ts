@@ -284,14 +284,4 @@ describe("GameMath", () => {
             ).to.be.equal(0.75);
         });
     });
-
-    describe("greaterIntegerCompare", () => {
-        it ("returns -1 if first param is greater", () => {
-            expect(GameMath.greaterIntegerCompare(69, 42)).to.be.equal(-1);});
-        it ("returns 0 if both params are same", () => {
-            expect(GameMath.greaterIntegerCompare(42, 42)).to.be.equal(0);});
-        it ("returns 1 if first param is less", () => {
-            expect(GameMath.greaterIntegerCompare(42, 69)).to.be.equal(1);
-        });
-    });
 });

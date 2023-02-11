@@ -3,7 +3,6 @@ import { App } from "../app/app";
 import { Player } from "../game/player";
 import { AnimationFrame } from "../utility/animation";
 import { Coords } from "../utility/coords";
-import { greaterIntegerCompare } from "../utility/math";
 import { Vector } from "../utility/vector";
 
 export class Sprite {
@@ -206,7 +205,7 @@ export class AppViewCanvas {
             );
 
             const sortedIndicesToScores = Array.from(Array(endgameStatus.scores.length).keys())
-                .sort((a, b) => greaterIntegerCompare(endgameStatus.scores[a], endgameStatus.scores[b]))
+                .sort((a, b) => endgameStatus.scores[b] - endgameStatus.scores[a])
 
             sortedIndicesToScores.forEach((playerIndex, i) => {
                 this.writeText(

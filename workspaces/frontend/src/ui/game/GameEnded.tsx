@@ -1,6 +1,5 @@
 import { For, Setter } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
-import { greaterIntegerCompare } from "../../utility/math";
 import { AppController } from "../appstate/AppController";
 import { AppState } from "../appstate/AppState";
 import "./GameEnded.css";
@@ -16,9 +15,7 @@ export class GameEndedState extends AppState {
     constructor(app: AppController, private scores: FinalScore[]) {
         super(app);
         console.log(scores);
-        scores.sort((a: FinalScore, b: FinalScore) => {
-            return greaterIntegerCompare(a.score, b.score);
-        });
+        scores.sort((a: FinalScore, b: FinalScore) => b.score - a.score);
     }
 
     renderTo(setComponent: Setter<JSX.Element>): void {

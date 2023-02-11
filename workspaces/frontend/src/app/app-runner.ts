@@ -1,3 +1,4 @@
+import { noop } from "lodash";
 import { App } from "./app";
 import { Releasable } from "./releasable";
 
@@ -5,8 +6,6 @@ export interface AppStats {
     simulationTime: number;
     latency: number;
 }
-
-function NullCallback() { /* null */ }
 
 /**
  * Generic class that provides frame time contants
@@ -18,16 +17,14 @@ export abstract class AppRunner extends Releasable {
 
     protected frameTimeSec = 0;
     protected frameTimeMsec = 0;
-    protected reportStats: (stats: AppStats) => void;
+    protected reportStats: (stats: AppStats) => void = noop;
 
     protected pointLimitReachedButFinalCountdownNotElapsed = true;
     protected pointLimit = AppRunner.UNLIMITED;
-    protected limitReachedHandler: (scores: number[]) => void;
+    protected limitReachedHandler: (scores: number[]) => void = noop;
 
     constructor() {
         super();
-        this.reportStats = NullCallback;
-        this.limitReachedHandler = NullCallback;
     }
 
     run(fps: number) {
@@ -47,7 +44,7 @@ export abstract class AppRunner extends Releasable {
         this.limitReachedHandler = limitReachedHandler;
     }
 
-    protected evaluteScores(app: App) {
+    protected checkPointLimitReached(app: App) {
         const endgameStatus = app.getEndgameStatus();
         const maxScore = Math.max(...endgameStatus.scores);
 
