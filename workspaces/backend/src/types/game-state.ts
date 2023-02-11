@@ -6,6 +6,7 @@ export interface NetGameState {
     id: string;
     clients: ClientState[];
     playerInputs: PlayerInput[];
+    pointLimit: number;
 }
 
 export class NetGameStateManager {
@@ -19,6 +20,7 @@ export class NetGameStateManager {
             id: gameId,
             clients: [],
             playerInputs: [],
+            pointLimit: 5,
         };
     }
 
@@ -73,5 +75,9 @@ export class NetGameStateManager {
 
     hasGameStarted(): boolean {
         return this.gameStarted;
+    }
+
+    setLimit(limit: number) {
+        this.state.pointLimit = limit;
     }
 }

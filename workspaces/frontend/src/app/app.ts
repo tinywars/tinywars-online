@@ -152,19 +152,7 @@ export class App extends Releasable {
         this.gameContext.duration += dt;
 
         if (this.gameContext.players.getSize() <= 1 && !this.endgame) {
-            this.endgame = true;
-            this.timeTillRestart = this.settings.TIME_TILL_RESTART;
-            this.winnerName =
-                this.gameContext.players.getSize() === 1
-                    ? this.settings.PLAYER_SETTINGS[
-                        this.gameContext.players.getItem(0).id
-                    ].name
-                    : "nobody";
-            if (this.gameContext.players.getSize() === 1) {
-                this.gameContext.wins[this.gameContext.players.getItem(0).id]++;
-                console.log(`Wins: ${this.gameContext.wins}`);
-                console.log(`Points: ${this.gameContext.scores}`);
-            }
+            this.triggerEndgame();
         } else if (this.endgame) {
             this.timeTillRestart -= dt;
 
@@ -209,12 +197,33 @@ export class App extends Releasable {
         endgameTriggered: boolean;
         timeTillRestart: number;
         winnerName: string;
+        wins: number[];
+        scores: number[];
         } {
         return {
             endgameTriggered: this.endgame,
             timeTillRestart: this.timeTillRestart,
             winnerName: this.winnerName,
+            wins: this.gameContext.wins.slice(0, this.settings.PLAYER_COUNT),
+            scores: this.gameContext.scores.slice(0, this.settings.PLAYER_COUNT),
         };
+    }
+
+    private triggerEndgame() {
+        this.endgame = true;
+        this.timeTillRestart = this.settings.TIME_TILL_RESTART;
+        this.winnerName =
+            this.gameContext.players.getSize() === 1
+                ? this.settings.PLAYER_SETTINGS[
+                    this.gameContext.players.getItem(0).id
+                ].name
+                : "nobody";
+
+        if (this.gameContext.players.getSize() === 1) {
+            this.gameContext.wins[this.gameContext.players.getItem(0).id]++;
+            console.log(`Wins: ${this.gameContext.wins}`);
+            console.log(`Points: ${this.gameContext.scores}`);
+        }
     }
 
     private reset() {
