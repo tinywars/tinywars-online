@@ -87,6 +87,19 @@ npm -w backend run dev
 
 When the backend is running, you the frontend should show "Connection Status: Connected" in the lower right corner and you should be able to host a network game.
 
+## Release / Deployment
+
+To create a release, use the npm script 
+
+```sh
+npm run release:<version>
+```
+
+Where `<version>` is either `patch`, `minor` or `major`. This will create a new NPM version and publish a release on GitHub.
+
+This should also trigger a deploy on Render.com ([tinywars.onrender.com](tinywars.onrender.com)).
+
+
 ## Known issues
 
 Game runs very sluggish on Waterfox browser.

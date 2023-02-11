@@ -46,6 +46,7 @@ jobs:
 
       - name: Create release bundle
         run: |
+          currentTag=$(git tag | tail -n 1)
           mkdir -p release/backend
           mkdir -p release/frontend
           cp -r workspaces/frontend/dist/* release/frontend/
