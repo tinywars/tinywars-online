@@ -1,4 +1,4 @@
-import { GetNthGamepad } from "../utility/gamepadAssertions";
+import { getNthGamepad } from "../utility/gamepadAssertions";
 import { Controller } from "./controller";
 
 // Follows 'standard' mapping:
@@ -86,7 +86,7 @@ export class PhysicalController extends Controller {
     }
 
     protected getAxisValue(code: number) {
-        const gamepad = GetNthGamepad(this.gamepadIndex);
+        const gamepad = getNthGamepad(this.gamepadIndex);
         const axisCode = this.analogMapping[code];
 
         if (
@@ -104,7 +104,7 @@ export class PhysicalController extends Controller {
     }
 
     private isButtonPressed(mapping: InputMapping) {
-        const gamepad = GetNthGamepad(this.gamepadIndex);
+        const gamepad = getNthGamepad(this.gamepadIndex);
         return (
             (gamepad !== null &&
                 gamepad?.buttons[mapping.gamepadButtonCode].pressed) ??

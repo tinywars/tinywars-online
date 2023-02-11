@@ -129,32 +129,32 @@ export const PLAYER3_DEFAULT_CONTROLS: PlayerControls = {
 export const PLAYER4_DEFAULT_CONTROLS: PlayerControls = {
     forward: {
         code: KeyCode.Up,
-        key: "KeyG",
+        key: "ArrowUp",
         button: GamepadButton.RTrigger,
     },
     backward: {
         code: KeyCode.Down,
-        key: "KeyB",
+        key: "ArrowDown",
         button: GamepadButton.LTrigger,
     },
     steerLeft: {
         code: KeyCode.Left,
-        key: "KeyV",
+        key: "ArrowLeft",
         button: GamepadButton.DpadLeft,
     },
     steerRight: {
         code: KeyCode.Right,
-        key: "KeyN",
+        key: "ArrowRight",
         button: GamepadButton.DpadRight,
     },
     shoot: {
         code: KeyCode.Shoot,
-        key: "Space",
+        key: "Delete",
         button: GamepadButton.X,
     },
     action: {
         code: KeyCode.Action,
-        key: "KeyH",
+        key: "End",
         button: GamepadButton.A,
     },
     steerAxis: GamepadAxis.LHorizontal,

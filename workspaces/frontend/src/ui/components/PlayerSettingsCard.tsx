@@ -63,7 +63,7 @@ export function PlayerSettingsCard(props: PlayerSettingsCardProps) {
 
                     <TextWithTooltip
                         text="Hover"
-                        tooltip={<ControlsPrinter playerIndex={props.index} controls={props.settings.controls}/>} />
+                        tooltip={<ControlsPrinter controls={props.settings.controls}/>} />
                 </div>
             </Show>
             <Show when={!props.netgame}>

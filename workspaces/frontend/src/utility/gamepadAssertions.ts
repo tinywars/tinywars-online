@@ -1,21 +1,8 @@
-export function AreGamepadsSupported() : boolean {
-    // Firefox is a bitch
-    try {
-        navigator.getGamepads()
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-export function HasGamepadUsableMapping(pad: Gamepad | null): boolean {
+function hasGamepadUsableMapping(pad: Gamepad | null): boolean {
     return pad?.mapping === "standard";
 }
 
-export function GetNthGamepad(index: number) : (Gamepad | null) {
-    if (!AreGamepadsSupported())
-        return null;
-    
+export function getNthGamepad(index: number) : (Gamepad | null) {
     const gamepad = navigator.getGamepads()[index];
-    return HasGamepadUsableMapping(gamepad) ? gamepad : null;
+    return hasGamepadUsableMapping(gamepad) ? gamepad : null;
 }
