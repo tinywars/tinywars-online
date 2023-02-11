@@ -7,8 +7,8 @@ import {
     PlayerSettings
 } from "../../game/player-settings";
 import { AppController } from "../appstate/AppController";
-import { AppState } from "../appstate/AppState";
 import { GameState } from "../game/Game";
+import { GameLobbyCommon } from "./GameLobbyCommon";
 import { GameLobbyView } from "./GameLobbyView";
 
 const DEFAULT_SETTINGS: PlayerSettings[] = [
@@ -38,7 +38,7 @@ const DEFAULT_SETTINGS: PlayerSettings[] = [
     },
 ];
 
-export class LocalGameLobbyState extends AppState {
+export class LocalGameLobbyState extends GameLobbyCommon {
     private playerCount: Accessor<number>;
     private setPlayerCount: Setter<number>;
     private playerSettings: Accessor<PlayerSettings[]>;
@@ -49,6 +49,7 @@ export class LocalGameLobbyState extends AppState {
         [this.playerCount, this.setPlayerCount] = createSignal(4);
         [this.playerSettings, this.setPlayerSettings] =
             createSignal(DEFAULT_SETTINGS);
+        
     }
 
     override renderTo(setComponent: Setter<JSX.Element>): void {
@@ -74,6 +75,8 @@ export class LocalGameLobbyState extends AppState {
                 isNetgame: false,
                 isSelfHosted: false,
                 myIndex: () => -1,
+                pointLimit: this.pointLimit,
+                setPointLimit: this.setPointLimit,
             }),
         );
     }
@@ -88,6 +91,8 @@ export class LocalGameLobbyState extends AppState {
                     this.playerCount(),
                     this.playerSettings,
                     Date.now(),
+                    this.pointLimit(),
+                    this.setFinalScores,
                 ),
             );
         } else if (path === "back") this.app.popState();

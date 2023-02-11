@@ -15,23 +15,28 @@ import { Checkbox } from "../components/Checkbox";
 import { GameStatsDisplay } from "../components/GameStatsDisplay";
 import { logMount, logUnmount } from "../UiLogger";
 import "./Game.css";
+import { FinalScore } from "./GameEnded";
 
 const [ profilerHidden, setProfilerHidden ] = createSignal(true);
 const [ simulationTime, setSimulationTime ] = createSignal(0);
 const [ latency, setLatency ] = createSignal(0);
+
+export const REFOCUS_MESSAGE_GAME_SCORES_SET = "Game:ScoresSet";
 
 export class GameState extends AppState {
     private appRunner: AppRunner | undefined;
     private init: () => AppRunner;
     private soundPlayer = CreateSoundPlayer();
     private jukebox = CreateJukebox();
-    FPS = 30;
+    FPS = 60;
 
     constructor(
         app: AppController,
         playerCount: number,
-        settings: Accessor<PlayerSettings[]>,
+        private settings: Accessor<PlayerSettings[]>,
         gameSeed: number,
+        private pointLimit: number,
+        private setFinalScore: Setter<FinalScore[]>,
         socket?: TinywarsSocket,
         myIndex?: number,
     ) {
@@ -55,7 +60,7 @@ export class GameState extends AppState {
                 gameEventEmitter,
                 keyboardState,
                 playerCount,
-                settings(),
+                this.settings(),
                 gameSeed,
                 this.FPS,
                 socket,
@@ -85,7 +90,19 @@ export class GameState extends AppState {
             setSimulationTime(stats.simulationTime);
             setLatency(stats.latency)
         });
-        this.appRunner?.run(this.FPS);
+        this.appRunner.setPointLimit(this.pointLimit, (scores: number[]) => {
+            const finalScores: FinalScore[] = [];
+            scores.forEach((score, i) => {
+                finalScores.push({
+                    playerName: this.settings()[i].name,
+                    score: score,
+                });
+            });
+
+            this.setFinalScore(finalScores);
+            this.app.popState(REFOCUS_MESSAGE_GAME_SCORES_SET);
+        });
+        this.appRunner.run(this.FPS);
     }
 
     navigateTo(path: string): void {
